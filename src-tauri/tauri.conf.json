@@ -1,0 +1,49 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicedayzhu/mcp-switch/refs/heads/main/src-tauri/schema.json",
+  "productName": "MCP Switch",
+  "version": "0.1.0",
+  "identifier": "com.yourname.mcpswitch",
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:3000",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "MCP Switch",
+        "width": 720,
+        "height": 560,
+        "minWidth": 480,
+        "minHeight": 400,
+        "resizable": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "plugins": {
+    "dialog": {},
+    "opener": {},
+    "updater": {
+      "endpoints": [
+        "https://github.com/StormShynn/mcp-switch/releases/latest/download/update.json"
+      ],
+      "pubkey": ""
+    }
+  }
+}
