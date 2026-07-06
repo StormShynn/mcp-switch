@@ -7,5 +7,5 @@
 - Adapters for Claude Code, Codex, Gemini CLI, Hermes, OpenCode.
 - Atomic file writes (tmp + rename + fsync) to avoid corrupting native configs.
 - `tauri-plugin-updater` wired to GitHub Releases (tag-driven workflow).
-- UI: per-server row with 5 toggle switches, search, app filter, sync-all.
-  "Import from ..." buttons discover servers from installed tools.
+- UI: per-server row with 5 toggle switches, app filter chips, name/status sorting, Import button.
+- CI: multi-platform release workflow (macOS, Linux, Windows) with auto-generated update.json.

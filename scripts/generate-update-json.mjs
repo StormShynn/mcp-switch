@@ -14,8 +14,8 @@
  * Outputs update.json to stdout.
  */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 const version = process.argv[2];
 const artifactsDir = process.argv[3] || "artifacts";
