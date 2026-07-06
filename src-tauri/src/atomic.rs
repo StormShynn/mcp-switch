@@ -18,6 +18,8 @@ pub fn atomic_write(path: &Path, content: &str) -> Result<(), McpError> {
     drop(tmp);
 
     // Atomically rename temp -> target
+    // On Windows, rename doesn't overwrite an existing file, so remove it first.
+    let _ = std::fs::remove_file(path);
     std::fs::rename(&tmp_path, path)?;
 
     Ok(())

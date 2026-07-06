@@ -42,13 +42,14 @@ pub fn import_servers() -> Result<usize, String> {
     for adapter in all_adapters() {
         match adapter.read_servers() {
             Ok(servers) => {
-                for mut server in servers {
-                    // Mark the server as enabled for this app
-                    server
-                        .enabled
-                        .insert(adapter.id().to_string(), true);
-                    imported.push(server);
+                let app_id = adapter.id();
+            for mut server in servers {
+                // Mark enabled for the app it was imported from, disabled for others
+                for other in crate::types::APPS {
+                    server.enabled.insert((*other).to_string(), other == app_id);
                 }
+                imported.push(server);
+            }
             }
             Err(e) => {
                 eprintln!("Error reading {} config: {e}", adapter.id());

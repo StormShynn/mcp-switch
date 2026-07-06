@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/nicedayzhu/mcp-switch/refs/heads/main/src-tauri/schema.json",
+  "$schema": "https://v2.tauri.app/schema",
   "productName": "MCP Switch",
   "version": "0.1.0",
   "identifier": "com.yourname.mcpswitch",
