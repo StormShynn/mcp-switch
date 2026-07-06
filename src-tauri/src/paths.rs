@@ -42,8 +42,3 @@ pub fn opencode_config() -> PathBuf {
     home.join(".config").join("opencode").join("config.json")
 }
 
-/// Returns the store directory to ensure it exists.
-pub fn store_dir() -> PathBuf {
-    let home = dirs::home_dir().expect("could not find home directory");
-    home.join(".mcp-switch")
-}

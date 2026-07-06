@@ -20,8 +20,8 @@ impl Adapter for CodexAdapter {
 
         #[derive(serde::Deserialize)]
         struct CodexConfig {
-            #[serde(default)]
-            mcpServers: Option<Vec<CodexMcpServer>>,
+            #[serde(default, rename = "mcpServers")]
+            mcp_servers: Option<Vec<CodexMcpServer>>,
         }
 
         #[derive(serde::Deserialize)]
@@ -34,7 +34,7 @@ impl Adapter for CodexAdapter {
 
         let config: CodexConfig = toml::from_str(&content)?;
         let servers = config
-            .mcpServers
+            .mcp_servers
             .unwrap_or_default()
             .into_iter()
             .map(|s| McpServerEntry {
@@ -56,8 +56,8 @@ impl Adapter for CodexAdapter {
 
         #[derive(serde::Deserialize, serde::Serialize)]
         struct CodexConfig {
-            #[serde(default)]
-            mcpServers: Option<Vec<CodexMcpServer>>,
+            #[serde(default, rename = "mcpServers")]
+            mcp_servers: Option<Vec<CodexMcpServer>>,
         }
 
         #[derive(serde::Serialize, serde::Deserialize)]
@@ -71,7 +71,7 @@ impl Adapter for CodexAdapter {
         // Parse existing to preserve other fields
         let mut config: CodexConfig = match toml::from_str(&content) {
             Ok(c) => c,
-            Err(_) => CodexConfig { mcpServers: None },
+            Err(_) => CodexConfig { mcp_servers: None },
         };
 
         let servers: Vec<CodexMcpServer> = enabled
@@ -83,7 +83,7 @@ impl Adapter for CodexAdapter {
             })
             .collect();
 
-        config.mcpServers = if servers.is_empty() {
+        config.mcp_servers = if servers.is_empty() {
             None
         } else {
             Some(servers)

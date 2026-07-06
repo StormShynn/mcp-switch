@@ -20,8 +20,8 @@ impl Adapter for OpenCodeAdapter {
 
         #[derive(serde::Deserialize)]
         struct OpenCodeConfig {
-            #[serde(default)]
-            mcpServers: Option<HashMap<String, OpenCodeMcpServer>>,
+            #[serde(default, rename = "mcpServers")]
+            mcp_servers: Option<HashMap<String, OpenCodeMcpServer>>,
         }
 
         #[derive(serde::Deserialize)]
@@ -35,7 +35,7 @@ impl Adapter for OpenCodeAdapter {
 
         let config: OpenCodeConfig = serde_json::from_str(&content)?;
         let servers = config
-            .mcpServers
+            .mcp_servers
             .unwrap_or_default()
             .into_iter()
             .map(|(name, s)| McpServerEntry {
@@ -56,8 +56,8 @@ impl Adapter for OpenCodeAdapter {
 
         #[derive(serde::Deserialize, serde::Serialize)]
         struct OpenCodeConfig {
-            #[serde(default, skip_serializing_if = "Option::is_none")]
-            mcpServers: Option<HashMap<String, OpenCodeMcpServer>>,
+            #[serde(default, skip_serializing_if = "Option::is_none", rename = "mcpServers")]
+            mcp_servers: Option<HashMap<String, OpenCodeMcpServer>>,
         }
 
         #[derive(serde::Deserialize, serde::Serialize)]
@@ -81,7 +81,7 @@ impl Adapter for OpenCodeAdapter {
                 },
             );
         }
-        config.mcpServers = if servers.is_empty() {
+        config.mcp_servers = if servers.is_empty() {
             None
         } else {
             Some(servers)

@@ -43,9 +43,6 @@ impl Store {
         }
     }
 
-    pub fn remove_server(&mut self, name: &str) {
-        self.servers.retain(|s| s.name != name);
-    }
 }
 
 /// Identifiers for supported coding tools.
