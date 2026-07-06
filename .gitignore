@@ -2,13 +2,33 @@ node_modules/
 dist/
 src-tauri/target/
 src-tauri/Cargo.lock
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-*.swp
-*.log
-.env
-.env.local
+
+# Build artifacts
+*.tsbuildinfo
+*.tmp
+rustup-init.exe
+
+# Generated files
+vite.config.d.ts
+vite.config.js
+src-tauri/gen/
+
+# Scaffold / placeholder
 __scaffold.*
 src-tauri/icons/*.png.placeholder
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temp files
+*.swp
+*.log
+
+# Environment
+.env
+.env.local

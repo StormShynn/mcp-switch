@@ -162,7 +162,7 @@ impl HermesAdapter {
             mcp_servers: Option<Vec<HermesMcpServer>>,
         }
 
-        #[derive(serde::Serialize)]
+        #[derive(serde::Deserialize, serde::Serialize)]
         struct HermesMcpServer {
             name: String,
             command: String,

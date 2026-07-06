@@ -60,7 +60,7 @@ impl Adapter for OpenCodeAdapter {
             mcpServers: Option<HashMap<String, OpenCodeMcpServer>>,
         }
 
-        #[derive(serde::Serialize)]
+        #[derive(serde::Deserialize, serde::Serialize)]
         struct OpenCodeMcpServer {
             command: String,
             #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -46,7 +46,7 @@ pub fn import_servers() -> Result<usize, String> {
             for mut server in servers {
                 // Mark enabled for the app it was imported from, disabled for others
                 for other in crate::types::APPS {
-                    server.enabled.insert((*other).to_string(), other == app_id);
+                    server.enabled.insert((*other).to_string(), *other == app_id);
                 }
                 imported.push(server);
             }

@@ -58,7 +58,7 @@ impl Adapter for GeminiAdapter {
             mcpServers: Option<HashMap<String, GeminiMcpServer>>,
         }
 
-        #[derive(serde::Serialize)]
+        #[derive(serde::Deserialize, serde::Serialize)]
         struct GeminiMcpServer {
             command: String,
             #[serde(default, skip_serializing_if = "Option::is_none")]

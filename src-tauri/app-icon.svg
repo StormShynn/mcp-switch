@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#58a6ff"/>
+      <stop offset="100%" stop-color="#c977b3"/>
+    </linearGradient>
+    <linearGradient id="bg-hi" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+    <linearGradient id="symbol" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.85)"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="rgba(0,0,0,0.3)"/>
+    </filter>
+    <clipPath id="rounded">
+      <rect x="0" y="0" width="1024" height="1024" rx="192" ry="192"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background rounded rect with gradient -->
+  <rect x="0" y="0" width="1024" height="1024" rx="192" ry="192" fill="url(#bg)"/>
+
+  <!-- Subtle highlight overlay -->
+  <rect x="0" y="0" width="1024" height="512" rx="192" ry="192" fill="url(#bg-hi)" clip-path="url(#rounded)"/>
+
+  <!-- Infinity / switch symbol using two overlapping rings -->
+  <g filter="url(#shadow)">
+    <!-- Left ring -->
+    <ellipse cx="420" cy="512" rx="240" ry="240" fill="none" stroke="url(#symbol)" stroke-width="48" stroke-linecap="round"/>
+    <!-- Right ring -->
+    <ellipse cx="604" cy="512" rx="240" ry="240" fill="none" stroke="url(#symbol)" stroke-width="48" stroke-linecap="round"/>
+
+    <!-- Switch arrow indicator -->
+    <path d="M 512 320 L 512 704" fill="none" stroke="url(#symbol)" stroke-width="36" stroke-linecap="round"/>
+    <path d="M 448 384 L 512 320 L 576 384" fill="none" stroke="url(#symbol)" stroke-width="36" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M 448 640 L 512 704 L 576 640" fill="none" stroke="url(#symbol)" stroke-width="36" stroke-linejoin="round" stroke-linecap="round"/>
+  </g>
+</svg>

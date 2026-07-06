@@ -60,7 +60,7 @@ impl Adapter for ClaudeAdapter {
             mcpServers: Option<HashMap<String, ClaudeMcpServer>>,
         }
 
-        #[derive(serde::Serialize)]
+        #[derive(serde::Deserialize, serde::Serialize)]
         struct ClaudeMcpServer {
             command: String,
             #[serde(default, skip_serializing_if = "Option::is_none")]
