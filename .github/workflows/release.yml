@@ -29,7 +29,7 @@ jobs:
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
             args: ''
-            bundles: 'nsis,msi'
+            bundles: 'nsis'
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -55,15 +55,18 @@ jobs:
         run: npm run build
 
       - name: Build Tauri bundle
-        env:
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_PRIVATE_KEY_PASSWORD }}
         run: npx tauri build --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
 
       - name: List bundle output
         if: always()
         shell: bash
-        run: ls -la "src-tauri/target/${{ matrix.target }}/release/bundle" 2>/dev/null || echo "no bundle dir"
+        run: |
+          echo "=== release dir ==="
+          ls -la "src-tauri/target/${{ matrix.target }}/release/" 2>/dev/null || echo "no release dir"
+          echo "=== bundle dir ==="
+          ls -la "src-tauri/target/${{ matrix.target }}/release/bundle/" 2>/dev/null || echo "no bundle dir"
+          echo "=== artifacts ==="
+          find "src-tauri/target/${{ matrix.target }}/release/bundle" -type f 2>/dev/null || echo "no bundle files"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -74,7 +77,7 @@ jobs:
           if-no-files-found: warn
 
   publish:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: release
     runs-on: ubuntu-22.04
     steps:
@@ -84,19 +87,33 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Generate version
+        id: version
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.1.0-ci-$(date +%s)" >> "$GITHUB_OUTPUT"
+            echo "tag=ci-$(date +%s)" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
           merge-multiple: false
 
+      - name: List downloaded artifacts
+        run: find artifacts -type f 2>/dev/null || echo "no artifacts downloaded"
+
       - name: Generate update.json
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          node scripts/generate-update-json.mjs "$VERSION" artifacts > update.json
+          node scripts/generate-update-json.mjs "${{ steps.version.outputs.version }}" artifacts > update.json
           cat update.json
 
-      - name: Create Release
+      - name: Upload artifacts as release
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
@@ -107,3 +124,10 @@ jobs:
           files: |
             update.json
             artifacts/**/*
+
+      - name: Upload artifacts as workflow artifact (no tag)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: artifacts/

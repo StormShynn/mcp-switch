@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Cross-platform desktop switcher for MCP servers"
 authors = ["you"]
 edition = "2021"
-repository = ""
+repository = "https://github.com/StormShynn/mcp-switch"
 
 [lib]
 name = "mcp_switch_lib"
