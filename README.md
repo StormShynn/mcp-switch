@@ -9,9 +9,7 @@ the major coding agents:
 - **Hermes** (`~/.hermes/config.{toml,json}`)
 - **OpenCode** (`~/.config/opencode/config.json`)
 
-Built with **Tauri 2 + Rust + React + TypeScript**. Inspired by
-[farion1231/cc-switch](https://github.com/farion1231/cc-switch), but with a
-single-file SSOT and minimal scope.
+Built with **Tauri 2 + Rust + React + TypeScript**.
 
 ## What it does
 
