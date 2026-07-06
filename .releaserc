@@ -1,0 +1,21 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    ["@semantic-release/exec", {
+      "prepareCmd": "node scripts/sync-version.mjs ${nextRelease.version}"
+    }],
+    ["@semantic-release/git", {
+      "assets": [
+        "package.json",
+        "package-lock.json",
+        "CHANGELOG.md",
+        "src-tauri/Cargo.toml",
+        "src-tauri/tauri.conf.json"
+      ],
+      "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+    }]
+  ]
+}
