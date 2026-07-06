@@ -2,7 +2,12 @@
  * Generates update.json for Tauri 2 updater.
  *
  * Usage:
- *   node scripts/generate-update-json.mjs <version> [artifacts-dir]
+ *   node scripts/generate-update-json.mjs <version> [artifacts-dir] [release-tag]
+ *
+ * - <version>: the version string (e.g. "0.1.0" or "0.1.0-nightly-123")
+ * - [artifacts-dir]: directory with platform subfolders (default: "artifacts")
+ * - [release-tag]: custom tag for download URL (default: "v<version>")
+ *   e.g. "nightly" → downloads from .../releases/download/nightly/<file>
  *
  * The artifacts directory structure from actions/download-artifact@v4:
  *   artifacts/
@@ -19,14 +24,15 @@ import path from "path";
 
 const version = process.argv[2];
 const artifactsDir = process.argv[3] || "artifacts";
+const releaseTag = process.argv[4] || `v${version}`;
 
 if (!version) {
-  console.error("Usage: node generate-update-json.mjs <version> [artifacts-dir]");
+  console.error("Usage: node generate-update-json.mjs <version> [artifacts-dir] [release-tag]");
   process.exit(1);
 }
 
 const REPO = "StormShynn/mcp-switch";
-const BASE_URL = `https://github.com/${REPO}/releases/download/v${version}`;
+const BASE_URL = `https://github.com/${REPO}/releases/download/${releaseTag}`;
 
 // Target triple -> Tauri 2 platform key
 const PLATFORM_MAP = {

@@ -1,9 +1,15 @@
 name: release
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
   workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -77,7 +83,6 @@ jobs:
           if-no-files-found: warn
 
   publish:
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: release
     runs-on: ubuntu-22.04
     steps:
@@ -87,15 +92,24 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Generate version
+      - name: Generate version info
         id: version
         run: |
           if [[ "${{ github.ref_type }}" == "tag" ]]; then
             echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "release_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "release_name=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "version=0.1.0-nightly-$(date +%s)" >> "$GITHUB_OUTPUT"
+            echo "release_tag=nightly" >> "$GITHUB_OUTPUT"
+            echo "release_name=Nightly Build ($(date +%Y-%m-%d))" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
           else
             echo "version=0.1.0-ci-$(date +%s)" >> "$GITHUB_OUTPUT"
-            echo "tag=ci-$(date +%s)" >> "$GITHUB_OUTPUT"
+            echo "release_tag=ci-$(date +%s)" >> "$GITHUB_OUTPUT"
+            echo "release_name=CI Build ($(date +%Y-%m-%d))" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Download all artifacts
@@ -109,25 +123,40 @@ jobs:
 
       - name: Generate update.json
         run: |
-          node scripts/generate-update-json.mjs "${{ steps.version.outputs.version }}" artifacts > update.json
+          node scripts/generate-update-json.mjs \
+            "${{ steps.version.outputs.version }}" \
+            artifacts \
+            "${{ steps.version.outputs.release_tag }}" \
+            > update.json
           cat update.json
 
+      - name: Generate release body
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            cp CHANGELOG.md release-body.md
+          else
+            echo "Auto-built from latest commit on main branch." > release-body.md
+          fi
+
+      - name: Delete old nightly release (if any)
+        if: github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+        run: |
+          gh release delete nightly --yes 2>/dev/null || true
+          git push --delete origin nightly 2>/dev/null || true
+
       - name: Upload artifacts as release
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          body_path: CHANGELOG.md
+          tag_name: ${{ steps.version.outputs.release_tag }}
+          name: ${{ steps.version.outputs.release_name }}
+          body_path: release-body.md
           draft: false
-          prerelease: false
+          prerelease: ${{ steps.version.outputs.prerelease }}
           files: |
             update.json
             artifacts/**/*
-
-      - name: Upload artifacts as workflow artifact (no tag)
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-artifacts
-          path: artifacts/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
