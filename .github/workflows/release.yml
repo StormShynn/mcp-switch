@@ -51,7 +51,7 @@ jobs:
         run: npm run build
 
       - name: Build Tauri bundle
-        run: npx tauri build ${{ matrix.args }} --bundles app,dmg,msi,deb,appimage,nsis
+        run: npx tauri build --target ${{ matrix.target }} --bundles nsis app,dmg,msi,deb,appimage,nsis
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
