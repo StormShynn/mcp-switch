@@ -1,0 +1,14 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/Cargo.lock
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.log
+.env
+.env.local
+__scaffold.*
+src-tauri/icons/*.png.placeholder
