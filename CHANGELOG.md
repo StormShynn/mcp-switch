@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/StormShynn/mcp-switch/compare/v0.2.0...v0.3.0) (2026-07-07)
+
+
+### Features
+
+* surgical per-server config writes, live-config sync with soft-trash, and manual add/edit ([f8ecae1](https://github.com/StormShynn/mcp-switch/commit/f8ecae159bde4f06dbcd6bc96a877186e26c2c26))
+
 # [0.2.0](https://github.com/StormShynn/mcp-switch/compare/v0.1.0...v0.2.0) (2026-07-07)
 
 
