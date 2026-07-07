@@ -37,8 +37,6 @@
     ]
   },
   "plugins": {
-    "dialog": {},
-    "opener": {},
     "updater": {
       "endpoints": [
         "https://github.com/StormShynn/mcp-switch/releases/latest/download/update.json"

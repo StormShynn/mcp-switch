@@ -1,0 +1,5 @@
+﻿chore(deps): bump frontend and tauri dependencies
+
+- update package.json: react 18 -> 19, vite 5 -> 6, typescript 5.4 -> 5.6
+- refresh package-lock.json with transitive upgrades
+- bump src-tauri/Cargo.toml dependencies

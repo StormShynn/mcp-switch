@@ -4,6 +4,7 @@ Cross-platform desktop switcher for **MCP (Model Context Protocol) servers** acr
 the major coding agents:
 
 - **Claude Code** (`~/.claude.json`)
+- **Claude Desktop** (`claude_desktop_config.json`)
 - **Codex CLI** (`~/.codex/config.toml`)
 - **Gemini CLI** (`~/.gemini/settings.json`)
 - **Hermes** (`~/.hermes/config.{toml,json}`)
@@ -62,6 +63,7 @@ mcp-switch/
 │   │   ├── adapter/
 │   │   │   ├── mod.rs    Adapter trait + registry
 │   │   │   ├── claude.rs
+│   │   │   ├── claude_desktop.rs
 │   │   │   ├── codex.rs
 │   │   │   ├── gemini.rs
 │   │   │   ├── hermes.rs

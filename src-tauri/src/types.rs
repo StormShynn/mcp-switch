@@ -1,17 +1,36 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+fn default_transport() -> String {
+    "stdio".to_string()
+}
+
 /// A single MCP server entry in the store.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct McpServerEntry {
     pub name: String,
-    pub command: String,
+    /// Transport kind: "stdio" (default, launches `command`), "http", or
+    /// "sse" (both connect to `url`). Absent in older store files, which
+    /// predate remote MCP servers and are always stdio.
+    #[serde(default = "default_transport")]
+    pub transport: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub command: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub env: Option<HashMap<String, String>>,
+    /// Remote endpoint, set when `transport` is "http" or "sse".
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub headers: Option<HashMap<String, String>>,
     /// Map of app_id -> enabled state
     pub enabled: HashMap<String, bool>,
+    /// App ids whose real config actually defines this server (as of the last
+    /// import). Drives which per-app toggle(s) the UI shows for this entry.
+    #[serde(default)]
+    pub sources: Vec<String>,
 }
 
 /// The single source of truth store.
@@ -25,10 +44,6 @@ impl Store {
         Store {
             servers: Vec::new(),
         }
-    }
-
-    pub fn find_server(&self, name: &str) -> Option<&McpServerEntry> {
-        self.servers.iter().find(|s| s.name == name)
     }
 
     pub fn find_server_mut(&mut self, name: &str) -> Option<&mut McpServerEntry> {
@@ -46,7 +61,15 @@ impl Store {
 }
 
 /// Identifiers for supported coding tools.
-pub const APPS: &[&str] = &["claude", "codex", "gemini", "hermes", "opencode"];
+pub const APPS: &[&str] = &[
+    "claude",
+    "claude-desktop",
+    "codex",
+    "gemini",
+    "hermes",
+    "opencode",
+    "antigravity",
+];
 
 /// Error type for MCP Switch operations.
 #[derive(Debug, thiserror::Error)]

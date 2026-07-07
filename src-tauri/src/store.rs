@@ -41,21 +41,36 @@ pub fn list_servers() -> Result<Store, McpError> {
 }
 
 /// Import servers from an external source and merge into the store.
-/// Returns the number of new servers added.
+/// New names are added outright; names that already exist only get their
+/// `sources` merged in (command/args/env/enabled are left as the user has
+/// them, so a re-import never clobbers manual edits or toggle choices).
+/// Returns the number of brand-new servers added.
 pub fn import_servers(servers: Vec<McpServerEntry>) -> Result<usize, McpError> {
     let mut store = load_store()?;
-    let mut count = 0;
+    let mut new_count = 0;
+    let mut changed = false;
 
     for server in servers {
-        if store.find_server(&server.name).is_none() {
-            store.upsert_server(server);
-            count += 1;
+        match store.find_server_mut(&server.name) {
+            Some(existing) => {
+                for src in &server.sources {
+                    if !existing.sources.contains(src) {
+                        existing.sources.push(src.clone());
+                        changed = true;
+                    }
+                }
+            }
+            None => {
+                store.upsert_server(server);
+                new_count += 1;
+                changed = true;
+            }
         }
     }
 
-    if count > 0 {
+    if changed {
         save_store(&store)?;
     }
 
-    Ok(count)
+    Ok(new_count)
 }

@@ -13,7 +13,9 @@ pub trait Adapter: Send + Sync {
     fn write_enabled(&self, enabled: &[McpServerEntry]) -> Result<(), McpError>;
 }
 
+mod antigravity;
 mod claude;
+mod claude_desktop;
 mod codex;
 mod gemini;
 mod hermes;
@@ -23,10 +25,12 @@ mod opencode;
 pub fn all_adapters() -> Vec<Box<dyn Adapter>> {
     vec![
         Box::new(claude::ClaudeAdapter),
+        Box::new(claude_desktop::ClaudeDesktopAdapter),
         Box::new(codex::CodexAdapter),
         Box::new(gemini::GeminiAdapter),
         Box::new(hermes::HermesAdapter),
         Box::new(opencode::OpenCodeAdapter),
+        Box::new(antigravity::AntigravityAdapter),
     ]
 }
 

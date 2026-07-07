@@ -7,12 +7,40 @@ function isBackendError(err: Error): boolean {
   return msg.includes("Invoke not available") || msg.includes("backend is not running");
 }
 import { invoke } from "@tauri-apps/api/core";
+import { getVersion } from "@tauri-apps/api/app";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { check, type Update } from "@tauri-apps/plugin-updater";
+import { relaunch } from "@tauri-apps/plugin-process";
 import type { McpServerEntry, AppId } from "./lib/types";
 import { APPS, APP_COLORS, defaultEnabled } from "./lib/types";
 
+type UpdateStatus =
+  | "idle"
+  | "checking"
+  | "up-to-date"
+  | "available"
+  | "downloading"
+  | "installing"
+  | "error";
+
+const REPO_URL = "https://github.com/StormShynn/mcp-switch";
+
 type SortKey = "name" | "status";
 type SortDir = "asc" | "desc";
-type FilterKey = "all" | AppId | "disabled";
+type FilterKey = "all" | AppId;
+
+/** Whether `appId` is a relevant scope for this server: it's one of the
+ * apps whose real config defines it (or, for legacy entries imported
+ * before `sources` existed, until they're re-imported), or it's already
+ * enabled there. This is independent of on/off state on purpose — toggling
+ * a server must never make it appear/disappear from its own app's tab. */
+function isRelevantApp(server: McpServerEntry, appId: AppId): boolean {
+  return (
+    server.sources.length === 0 ||
+    server.sources.includes(appId) ||
+    server.enabled[appId]
+  );
+}
 
 function sortServers(
   servers: McpServerEntry[],
@@ -22,12 +50,8 @@ function sortServers(
 ): McpServerEntry[] {
   let filtered = servers;
 
-  if (filter === "disabled") {
-    filtered = servers.filter(
-      (s) => !APPS.some((a) => s.enabled[a.id])
-    );
-  } else if (filter !== "all") {
-    filtered = servers.filter((s) => s.enabled[filter]);
+  if (filter !== "all") {
+    filtered = servers.filter((s) => isRelevantApp(s, filter));
   }
 
   return [...filtered].sort((a, b) => {
@@ -53,7 +77,10 @@ function ServerRow({
   index: number;
   onToggle: (serverName: string, appId: AppId, enabled: boolean) => void;
 }) {
-  const enabledCount = APPS.filter((a) => server.enabled[a.id]).length;
+  // Same app-relevance rule the filter tabs use, so a server never appears
+  // or disappears anywhere just because it was toggled on/off.
+  const visibleApps = APPS.filter((a) => isRelevantApp(server, a.id));
+  const enabledCount = visibleApps.filter((a) => server.enabled[a.id]).length;
 
   return (
     <div
@@ -62,16 +89,18 @@ function ServerRow({
     >
       <div className="server-info">
         <div className="server-name">{server.name}</div>
-        <div className="server-command">{server.command}</div>
+        <div className="server-command">
+          {server.transport === "stdio" ? server.command : server.url}
+        </div>
         <div className="server-meta">
           <span className="badge">
-            {enabledCount}/{APPS.length} apps
+            {enabledCount}/{visibleApps.length} apps
           </span>
         </div>
       </div>
 
       <div className="server-toggles">
-        {APPS.map((app) => (
+        {visibleApps.map((app) => (
           <label
             key={app.id}
             className="toggle app-toggle"
@@ -128,6 +157,85 @@ function EmptyState({ onImport }: { onImport: () => void }) {
   );
 }
 
+/* ── About modal ─────────────────────────────────── */
+function AboutModal({
+  version,
+  storePath,
+  onClose,
+  updateStatus,
+  updateVersion,
+  updateProgress,
+  updateError,
+  onCheckForUpdates,
+  onInstallUpdate,
+}: {
+  version: string;
+  storePath: string;
+  onClose: () => void;
+  updateStatus: UpdateStatus;
+  updateVersion: string;
+  updateProgress: number;
+  updateError: string;
+  onCheckForUpdates: () => void;
+  onInstallUpdate: () => void;
+}) {
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal fade-in" onClick={(e) => e.stopPropagation()}>
+        <h2>MCP Switch</h2>
+        <div className="modal-row">
+          <span>Version</span>
+          <span>{version || "…"}</span>
+        </div>
+        <div className="modal-row">
+          <span>Repository</span>
+          <a
+            className="modal-link"
+            onClick={() => openUrl(REPO_URL)}
+          >
+            StormShynn/mcp-switch
+          </a>
+        </div>
+        <div className="modal-row">
+          <span>License</span>
+          <span>MIT</span>
+        </div>
+        <div className="modal-row modal-row-path">
+          <span>Store file</span>
+          <span className="modal-path">{storePath || "…"}</span>
+        </div>
+        <div className="modal-row">
+          <span>Updates</span>
+          {updateStatus === "idle" && (
+            <button className="btn modal-link-btn" onClick={onCheckForUpdates}>
+              Check for updates
+            </button>
+          )}
+          {updateStatus === "checking" && <span>Checking…</span>}
+          {updateStatus === "up-to-date" && <span>Up to date</span>}
+          {updateStatus === "available" && (
+            <button className="btn btn-primary" onClick={onInstallUpdate}>
+              Update to v{updateVersion}
+            </button>
+          )}
+          {updateStatus === "downloading" && (
+            <span>Downloading… {updateProgress}%</span>
+          )}
+          {updateStatus === "installing" && <span>Installing…</span>}
+          {updateStatus === "error" && (
+            <span className="modal-update-error" title={updateError}>
+              Check failed
+            </span>
+          )}
+        </div>
+        <button className="btn modal-close" onClick={onClose}>
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main App ────────────────────────────────────── */
 export default function App() {
   const [servers, setServers] = useState<McpServerEntry[]>([]);
@@ -141,6 +249,23 @@ export default function App() {
     message: string;
     type: "success" | "error";
   } | null>(null);
+  const [showAbout, setShowAbout] = useState(false);
+  const [version, setVersion] = useState("");
+  const [storePath, setStorePath] = useState("");
+  const [pendingRestarts, setPendingRestarts] = useState<Set<AppId>>(new Set());
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatus>("idle");
+  const [pendingUpdate, setPendingUpdate] = useState<Update | null>(null);
+  const [updateProgress, setUpdateProgress] = useState(0);
+  const [updateError, setUpdateError] = useState("");
+
+  const dismissPendingRestart = useCallback((appId: AppId) => {
+    setPendingRestarts((prev) => {
+      if (!prev.has(appId)) return prev;
+      const next = new Set(prev);
+      next.delete(appId);
+      return next;
+    });
+  }, []);
 
   const notify = useCallback((message: string, type: "success" | "error") => {
     setNotification({ message, type });
@@ -158,21 +283,27 @@ export default function App() {
       setServers([
         {
           name: "playwright",
+          transport: "stdio",
           command: "npx @anthropic-ai/claude-code-mcp",
           args: [],
           enabled: { ...defaultEnabled(), claude: true, codex: true },
+          sources: ["claude", "codex"],
         },
         {
           name: "filesystem",
+          transport: "stdio",
           command: "npx @modelcontextprotocol/server-filesystem",
           args: ["/workspace"],
           enabled: { ...defaultEnabled(), gemini: true, hermes: true },
+          sources: ["gemini", "hermes"],
         },
         {
           name: "github",
+          transport: "stdio",
           command: "npx @modelcontextprotocol/server-github",
           args: [],
           enabled: { ...defaultEnabled(), opencode: true },
+          sources: ["opencode"],
         },
       ]);
       // Only surface non-runtime errors (backend unavailable is expected)
@@ -201,6 +332,12 @@ export default function App() {
 
       try {
         await invoke("toggle_server", { serverName, appId, enabled });
+        const appLabel = APPS.find((a) => a.id === appId)?.label ?? appId;
+        notify(`${enabled ? "Enabled" : "Disabled"} for ${appLabel}`, "success");
+        setPendingRestarts((prev) => {
+          if (prev.has(appId)) return prev;
+          return new Set(prev).add(appId);
+        });
       } catch {
         // Revert on failure
         setServers((prev) =>
@@ -229,6 +366,57 @@ export default function App() {
     }
   }, [loadServers, notify]);
 
+  const handleShowAbout = useCallback(async () => {
+    setShowAbout(true);
+    if (!version) {
+      getVersion().then(setVersion).catch(() => setVersion("unknown"));
+    }
+    if (!storePath) {
+      invoke<string>("get_store_path").then(setStorePath).catch(() => {});
+    }
+  }, [version, storePath]);
+
+  const handleCheckForUpdates = useCallback(async () => {
+    setUpdateStatus("checking");
+    setUpdateError("");
+    try {
+      const update = await check();
+      if (update) {
+        setPendingUpdate(update);
+        setUpdateStatus("available");
+      } else {
+        setUpdateStatus("up-to-date");
+      }
+    } catch (err) {
+      setUpdateError(err instanceof Error ? err.message : String(err));
+      setUpdateStatus("error");
+    }
+  }, []);
+
+  const handleInstallUpdate = useCallback(async () => {
+    if (!pendingUpdate) return;
+    setUpdateStatus("downloading");
+    setUpdateProgress(0);
+    try {
+      let downloaded = 0;
+      let total = 0;
+      await pendingUpdate.downloadAndInstall((event) => {
+        if (event.event === "Started") {
+          total = event.data.contentLength ?? 0;
+        } else if (event.event === "Progress") {
+          downloaded += event.data.chunkLength;
+          setUpdateProgress(total > 0 ? Math.min(100, Math.round((downloaded / total) * 100)) : 0);
+        } else if (event.event === "Finished") {
+          setUpdateStatus("installing");
+        }
+      });
+      await relaunch();
+    } catch (err) {
+      setUpdateError(err instanceof Error ? err.message : String(err));
+      setUpdateStatus("error");
+    }
+  }, [pendingUpdate]);
+
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -253,6 +441,9 @@ export default function App() {
           </span>
         </div>
         <div className="header-actions">
+          <button className="btn" onClick={handleShowAbout} title="About MCP Switch">
+            About
+          </button>
           <button
             className="btn btn-primary"
             onClick={handleImport}
@@ -262,6 +453,40 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      {showAbout && (
+        <AboutModal
+          version={version}
+          storePath={storePath}
+          onClose={() => setShowAbout(false)}
+          updateStatus={updateStatus}
+          updateVersion={pendingUpdate?.version ?? ""}
+          updateProgress={updateProgress}
+          updateError={updateError}
+          onCheckForUpdates={handleCheckForUpdates}
+          onInstallUpdate={handleInstallUpdate}
+        />
+      )}
+
+      {/* Restart reminder */}
+      {pendingRestarts.size > 0 && (
+        <div className="restart-banner">
+          <span className="restart-banner-label">Restart to apply:</span>
+          <div className="restart-banner-chips">
+            {APPS.filter((a) => pendingRestarts.has(a.id)).map((a) => (
+              <button
+                key={a.id}
+                className="restart-chip"
+                onClick={() => dismissPendingRestart(a.id)}
+                title={`Dismiss — I already restarted ${a.label}`}
+              >
+                <span style={{ color: APP_COLORS[a.id] }}>{a.label}</span>
+                <span className="restart-chip-x">×</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Notification */}
       {notification && (
@@ -273,21 +498,17 @@ export default function App() {
       {/* Toolbar */}
       <div className="toolbar">
         <div className="filter-group">
-          {(["all", ...APPS.map((a) => a.id), "disabled"] as FilterKey[]).map(
-            (f) => (
-              <button
-                key={f}
-                className={`filter-chip ${filter === f ? "active" : ""}`}
-                onClick={() => setFilter(f)}
-              >
-                {f === "all"
-                  ? "All"
-                  : f === "disabled"
-                    ? "Disabled"
-                    : APPS.find((a) => a.id === f)?.label.split(" ")[0] ?? f}
-              </button>
-            )
-          )}
+          {(["all", ...APPS.map((a) => a.id)] as FilterKey[]).map((f) => (
+            <button
+              key={f}
+              className={`filter-chip ${filter === f ? "active" : ""}`}
+              onClick={() => setFilter(f)}
+            >
+              {f === "all"
+                ? "All"
+                : APPS.find((a) => a.id === f)?.label.split(" ")[0] ?? f}
+            </button>
+          ))}
         </div>
         <div className="sort-group">
           <button

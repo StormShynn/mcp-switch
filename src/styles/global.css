@@ -484,3 +484,135 @@ body {
 .slide-in {
   animation: slideIn 200ms ease-out;
 }
+
+/* Restart reminder banner */
+.restart-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 20px;
+  background: rgba(210, 153, 34, 0.12);
+  border-bottom: 1px solid rgba(210, 153, 34, 0.3);
+}
+
+.restart-banner-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--warning);
+  flex-shrink: 0;
+}
+
+.restart-banner-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.restart-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.restart-chip:hover {
+  border-color: var(--warning);
+  background: var(--bg-hover);
+}
+
+.restart-chip-x {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.restart-chip:hover .restart-chip-x {
+  color: var(--warning);
+}
+
+/* About modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal {
+  width: 320px;
+  max-width: calc(100vw - 40px);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 18px 20px;
+}
+
+.modal h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.modal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  font-size: 0.8125rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-row:last-of-type {
+  border-bottom: none;
+}
+
+.modal-row > span:first-child {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.modal-path {
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.modal-link {
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.modal-link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.modal-close {
+  width: 100%;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.modal-link-btn {
+  font-size: 0.8125rem;
+  padding: 4px 10px;
+}
+
+.modal-update-error {
+  color: var(--danger);
+  cursor: help;
+}
