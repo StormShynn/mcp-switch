@@ -102,6 +102,7 @@ fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry
                 headers: mcp_json::string_map(obj, "headers"),
                 enabled: true,
                 deleted: false,
+                extra: mcp_json::capture_extra(obj, &["type", "url", "headers"]),
             })
         }
         "stdio" => {
@@ -120,6 +121,7 @@ fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry
                 headers: None,
                 enabled: true,
                 deleted: false,
+                extra: mcp_json::capture_extra(obj, &["type", "command", "args", "env"]),
             })
         }
         other => Err(format!("unsupported type '{other}'")),
@@ -140,6 +142,7 @@ fn spec_from_entry(entry: &McpServerEntry) -> Value {
                 obj.insert("headers".into(), json!(headers));
             }
         }
+        mcp_json::apply_extra(&mut obj, &entry.extra);
         return Value::Object(obj);
     }
 
@@ -157,6 +160,7 @@ fn spec_from_entry(entry: &McpServerEntry) -> Value {
             obj.insert("env".into(), json!(env));
         }
     }
+    mcp_json::apply_extra(&mut obj, &entry.extra);
     Value::Object(obj)
 }
 
@@ -215,8 +219,19 @@ mod tests {
             headers: None,
             enabled: true,
             deleted: false,
+            extra: HashMap::new(),
         };
         let written = spec_from_entry(&entry);
         assert!(written.get("type").is_none());
+    }
+
+    #[test]
+    fn unknown_field_survives_a_read_then_write_round_trip() {
+        let spec = json!({"command": "node", "disabled": true});
+        let entry = entry_from_spec("fs", &spec, "claude").unwrap();
+        assert_eq!(entry.extra.get("disabled"), Some(&json!(true)));
+
+        let written = spec_from_entry(&entry);
+        assert_eq!(written["disabled"], true);
     }
 }

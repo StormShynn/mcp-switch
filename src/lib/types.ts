@@ -31,6 +31,9 @@ export interface McpServerEntry {
   enabled: boolean;
   /** Soft-trashed: vanished from its app's live config while enabled. */
   deleted: boolean;
+  /** Live-config fields outside the shape above (Codex's `cwd`, Gemini's
+   * `timeout`, ...) — round-tripped so editing a server never drops them. */
+  extra?: Record<string, unknown>;
 }
 
 export interface Store {

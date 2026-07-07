@@ -1,4 +1,5 @@
 use crate::atomic::read_file_optional;
+use crate::mcp_json;
 use crate::paths;
 use crate::types::{McpError, McpServerEntry};
 use crate::winshim;
@@ -108,6 +109,7 @@ fn entry_from_toml(name: &str, value: &toml::Value, app: &str) -> Result<McpServ
                 headers,
                 enabled: true,
                 deleted: false,
+                extra: mcp_json::capture_extra_toml(table, &["type", "url", "http_headers"]),
             })
         }
         "stdio" => {
@@ -135,6 +137,10 @@ fn entry_from_toml(name: &str, value: &toml::Value, app: &str) -> Result<McpServ
                 headers: None,
                 enabled: true,
                 deleted: false,
+                // Captures Codex's `cwd` (working directory) along with
+                // anything else this adapter doesn't model itself, so it
+                // survives a later toggle/edit through MCP Switch.
+                extra: mcp_json::capture_extra_toml(table, &["type", "command", "args", "env"]),
             })
         }
         other => Err(format!("unsupported type '{other}'")),
@@ -173,6 +179,7 @@ fn toml_from_entry(entry: &McpServerEntry) -> toml::Value {
                 );
             }
         }
+        mcp_json::apply_extra_toml(&mut table, &entry.extra);
         return toml::Value::Table(table);
     }
 
@@ -195,6 +202,7 @@ fn toml_from_entry(entry: &McpServerEntry) -> toml::Value {
             );
         }
     }
+    mcp_json::apply_extra_toml(&mut table, &entry.extra);
     toml::Value::Table(table)
 }
 
@@ -247,5 +255,30 @@ mod tests {
     fn sse_entry_without_url_is_rejected() {
         let value: toml::Value = toml::from_str(r#"type = "sse""#).unwrap();
         assert!(entry_from_toml("bad", &value, "codex").is_err());
+    }
+
+    #[test]
+    fn cwd_field_survives_a_read_then_write_round_trip() {
+        // `cwd` isn't part of McpServerEntry's own shape — this is the bug
+        // found comparing against cc-switch: without capturing it into
+        // `extra`, toggling this server off then on through MCP Switch
+        // would silently drop `cwd` and change which directory it runs in.
+        let value: toml::Value = toml::from_str(
+            r#"
+            command = "npx"
+            args = ["-y", "foo"]
+            cwd = "/home/user/project"
+            "#,
+        )
+        .unwrap();
+        let entry = entry_from_toml("foo", &value, "codex").unwrap();
+        assert_eq!(
+            entry.extra.get("cwd").and_then(|v| v.as_str()),
+            Some("/home/user/project")
+        );
+
+        let written = toml_from_entry(&entry);
+        let table = written.as_table().unwrap();
+        assert_eq!(table["cwd"].as_str(), Some("/home/user/project"));
     }
 }

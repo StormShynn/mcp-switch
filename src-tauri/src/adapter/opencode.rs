@@ -104,6 +104,7 @@ fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry
                 headers: mcp_json::string_map(obj, "headers"),
                 enabled: true,
                 deleted: false,
+                extra: mcp_json::capture_extra(obj, &["type", "url", "headers", "enabled"]),
             })
         }
         "local" => {
@@ -125,6 +126,7 @@ fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry
                 headers: None,
                 enabled: true,
                 deleted: false,
+                extra: mcp_json::capture_extra(obj, &["type", "command", "environment", "enabled"]),
             })
         }
         other => Err(format!("unsupported type '{other}'")),
@@ -146,6 +148,7 @@ fn spec_from_entry(entry: &McpServerEntry) -> Value {
             }
         }
         obj.insert("enabled".into(), json!(true));
+        mcp_json::apply_extra(&mut obj, &entry.extra);
         return Value::Object(obj);
     }
 
@@ -165,6 +168,7 @@ fn spec_from_entry(entry: &McpServerEntry) -> Value {
         }
     }
     obj.insert("enabled".into(), json!(true));
+    mcp_json::apply_extra(&mut obj, &entry.extra);
     Value::Object(obj)
 }
 
@@ -223,6 +227,7 @@ mod tests {
             headers: None,
             enabled: true,
             deleted: false,
+            extra: HashMap::new(),
         };
         let written = spec_from_entry(&entry);
         assert_eq!(written["type"], "local");
@@ -244,6 +249,7 @@ mod tests {
             headers: None,
             enabled: true,
             deleted: false,
+            extra: HashMap::new(),
         };
         let written = spec_from_entry(&entry);
         assert_eq!(written["command"], json!(["cmd", "/c", "npx", "-y", "foo"]));
@@ -262,10 +268,25 @@ mod tests {
             headers: None,
             enabled: true,
             deleted: false,
+            extra: HashMap::new(),
         };
         let written = spec_from_entry(&entry);
         assert_eq!(written["type"], "remote");
         assert_eq!(written["url"], "https://example.com/mcp");
         assert!(written.get("command").is_none());
+    }
+
+    #[test]
+    fn unknown_field_survives_a_read_then_write_round_trip() {
+        let spec = json!({
+            "type": "local",
+            "command": ["node", "server.js"],
+            "timeout": 5000
+        });
+        let entry = entry_from_spec("fs", &spec, "opencode").unwrap();
+        assert_eq!(entry.extra.get("timeout"), Some(&json!(5000)));
+
+        let written = spec_from_entry(&entry);
+        assert_eq!(written["timeout"], 5000);
     }
 }

@@ -102,6 +102,7 @@ fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry
                 headers: mcp_json::string_map(obj, "headers"),
                 enabled: true,
                 deleted: false,
+                extra: mcp_json::capture_extra(obj, &["type", "url", "headers"]),
             })
         }
         "stdio" => {
@@ -120,6 +121,7 @@ fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry
                 headers: None,
                 enabled: true,
                 deleted: false,
+                extra: mcp_json::capture_extra(obj, &["type", "command", "args", "env"]),
             })
         }
         other => Err(format!("unsupported type '{other}'")),
@@ -136,6 +138,7 @@ fn spec_from_entry(entry: &McpServerEntry) -> Value {
                 obj.insert("headers".into(), json!(headers));
             }
         }
+        mcp_json::apply_extra(&mut obj, &entry.extra);
         return Value::Object(obj);
     }
 
@@ -153,5 +156,6 @@ fn spec_from_entry(entry: &McpServerEntry) -> Value {
             obj.insert("env".into(), json!(env));
         }
     }
+    mcp_json::apply_extra(&mut obj, &entry.extra);
     Value::Object(obj)
 }

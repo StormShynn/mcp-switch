@@ -158,6 +158,17 @@ pub fn save_server(input: ServerInput) -> Result<Store, String> {
         return Err(McpError::UnknownApp(input.app.clone()).into());
     }
 
+    // Carry over any previously-captured extra fields (Codex's `cwd`,
+    // Gemini's `timeout`, ...) so editing a server through this form never
+    // drops a live-config field the form itself doesn't expose.
+    let extra = store::list_servers()
+        .map_err(|e| e.to_string())?
+        .servers
+        .into_iter()
+        .find(|s| s.name == name && s.app == input.app)
+        .map(|s| s.extra)
+        .unwrap_or_default();
+
     let entry = McpServerEntry {
         name: name.clone(),
         app: input.app.clone(),
@@ -169,6 +180,7 @@ pub fn save_server(input: ServerInput) -> Result<Store, String> {
         headers: input.headers,
         enabled: input.enabled,
         deleted: false,
+        extra,
     };
 
     let store = store::upsert_server(entry.clone()).map_err(|e| e.to_string())?;

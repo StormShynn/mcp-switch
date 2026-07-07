@@ -326,6 +326,7 @@ fn entry_from_yaml_spec(name: &str, spec: &serde_yaml::Value, app: &str) -> Resu
             headers: None,
             enabled: true,
             deleted: false,
+            extra: mcp_json::capture_extra_yaml(map, &["command", "args", "env"]),
         });
     }
 
@@ -345,6 +346,7 @@ fn entry_from_yaml_spec(name: &str, spec: &serde_yaml::Value, app: &str) -> Resu
             headers,
             enabled: true,
             deleted: false,
+            extra: mcp_json::capture_extra_yaml(map, &["url", "headers"]),
         });
     }
 
@@ -364,6 +366,7 @@ fn yaml_spec_from_entry(entry: &McpServerEntry) -> serde_yaml::Value {
                 map.insert("headers".into(), string_map_to_yaml_mapping(headers).into());
             }
         }
+        mcp_json::apply_extra_yaml(&mut map, &entry.extra);
         return serde_yaml::Value::Mapping(map);
     }
 
@@ -383,6 +386,7 @@ fn yaml_spec_from_entry(entry: &McpServerEntry) -> serde_yaml::Value {
             map.insert("env".into(), string_map_to_yaml_mapping(env).into());
         }
     }
+    mcp_json::apply_extra_yaml(&mut map, &entry.extra);
     serde_yaml::Value::Mapping(map)
 }
 
@@ -435,6 +439,7 @@ fn entry_from_toml(value: &toml::Value, app: &str) -> Result<McpServerEntry, Str
             headers: None,
             enabled: true,
             deleted: false,
+            extra: mcp_json::capture_extra_toml(table, &["name", "command", "args", "env"]),
         });
     }
 
@@ -454,6 +459,7 @@ fn entry_from_toml(value: &toml::Value, app: &str) -> Result<McpServerEntry, Str
             headers,
             enabled: true,
             deleted: false,
+            extra: mcp_json::capture_extra_toml(table, &["name", "url", "headers"]),
         });
     }
 
@@ -477,6 +483,7 @@ fn toml_from_entry(entry: &McpServerEntry) -> toml::Value {
                 );
             }
         }
+        mcp_json::apply_extra_toml(&mut table, &entry.extra);
         return toml::Value::Table(table);
     }
 
@@ -499,6 +506,7 @@ fn toml_from_entry(entry: &McpServerEntry) -> toml::Value {
             );
         }
     }
+    mcp_json::apply_extra_toml(&mut table, &entry.extra);
     toml::Value::Table(table)
 }
 
@@ -539,6 +547,7 @@ fn entry_from_json(spec: &Value, app: &str) -> Result<McpServerEntry, String> {
             headers: None,
             enabled: true,
             deleted: false,
+            extra: mcp_json::capture_extra(obj, &["name", "command", "args", "env"]),
         });
     }
 
@@ -554,6 +563,7 @@ fn entry_from_json(spec: &Value, app: &str) -> Result<McpServerEntry, String> {
             headers: mcp_json::string_map(obj, "headers"),
             enabled: true,
             deleted: false,
+            extra: mcp_json::capture_extra(obj, &["name", "url", "headers"]),
         });
     }
 
@@ -571,6 +581,7 @@ fn json_from_entry(entry: &McpServerEntry) -> Value {
                 obj.insert("headers".into(), json!(headers));
             }
         }
+        mcp_json::apply_extra(&mut obj, &entry.extra);
         return Value::Object(obj);
     }
 
@@ -587,6 +598,7 @@ fn json_from_entry(entry: &McpServerEntry) -> Value {
             obj.insert("env".into(), json!(env));
         }
     }
+    mcp_json::apply_extra(&mut obj, &entry.extra);
     Value::Object(obj)
 }
 
@@ -658,6 +670,33 @@ mod tests {
     }
 
     #[test]
+    fn yaml_prompts_and_tools_filter_survive_a_read_then_write_round_trip() {
+        // Hermes's `tools.include`/`prompts`/`resources` filtering isn't
+        // part of McpServerEntry's own shape — without capturing it into
+        // `extra`, toggling this server through MCP Switch would silently
+        // drop the tool allow-list, exposing every tool instead of just
+        // the ones the user filtered down to.
+        let doc: serde_yaml::Value = serde_yaml::from_str(
+            r#"
+            command: "npx"
+            args: ["-y", "@modelcontextprotocol/server-github"]
+            tools:
+              include: ["list_issues", "create_issue"]
+            prompts: false
+            "#,
+        )
+        .unwrap();
+        let entry = entry_from_yaml_spec("github", &doc, "hermes").unwrap();
+        assert_eq!(entry.extra.get("prompts"), Some(&serde_json::json!(false)));
+        assert!(entry.extra.contains_key("tools"));
+
+        let written = yaml_spec_from_entry(&entry);
+        let map = written.as_mapping().unwrap();
+        assert_eq!(map.get("prompts").and_then(|v| v.as_bool()), Some(false));
+        assert!(map.get("tools").is_some());
+    }
+
+    #[test]
     fn yaml_write_reads_full_config_map_keyed_by_name_not_a_list() {
         let dir = std::env::temp_dir();
         let path = dir.join("mcp_switch_test_hermes_config.yaml");
@@ -682,6 +721,7 @@ mod tests {
             headers: None,
             enabled: true,
             deleted: false,
+            extra: HashMap::new(),
         };
         adapter.write_yaml(&path, "fs", Some(&entry)).unwrap();
 
@@ -754,6 +794,7 @@ mod tests {
             headers: None,
             enabled: true,
             deleted: false,
+            extra: HashMap::new(),
         };
         let written = json_from_entry(&entry);
         assert_eq!(written["url"], "https://example.com/mcp");

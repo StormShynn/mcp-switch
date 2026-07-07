@@ -166,6 +166,7 @@ fn apply_fresh_fields(existing: &mut McpServerEntry, fresh: &McpServerEntry) {
     existing.env = fresh.env.clone();
     existing.url = fresh.url.clone();
     existing.headers = fresh.headers.clone();
+    existing.extra = fresh.extra.clone();
 }
 
 pub fn sync_servers(
@@ -388,6 +389,7 @@ mod tests {
             headers: None,
             enabled: true,
             deleted: false,
+            extra: HashMap::new(),
         }
     }
 

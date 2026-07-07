@@ -45,6 +45,13 @@ pub struct McpServerEntry {
     /// command/args/env the user might want back.
     #[serde(default)]
     pub deleted: bool,
+    /// Live-config fields outside the shape above (Codex's `cwd`, Gemini's
+    /// `timeout`, or anything else a real config carries that MCP Switch
+    /// doesn't model itself) — captured on read, re-applied on write, so
+    /// toggling or editing a server through MCP Switch never silently
+    /// drops a field it doesn't know about.
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub extra: HashMap<String, serde_json::Value>,
 }
 
 /// The single source of truth store.

@@ -95,6 +95,7 @@ fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry
             headers: mcp_json::string_map(obj, "headers"),
             enabled: true,
             deleted: false,
+            extra: mcp_json::capture_extra(obj, &["httpUrl", "headers"]),
         });
     }
     if let Some(url) = obj.get("url").and_then(|v| v.as_str()) {
@@ -109,6 +110,7 @@ fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry
             headers: mcp_json::string_map(obj, "headers"),
             enabled: true,
             deleted: false,
+            extra: mcp_json::capture_extra(obj, &["url", "headers"]),
         });
     }
 
@@ -127,6 +129,9 @@ fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry
         headers: None,
         enabled: true,
         deleted: false,
+        // Captures Gemini's `timeout` (ms) along with anything else this
+        // adapter doesn't model itself, so it survives a later toggle/edit.
+        extra: mcp_json::capture_extra(obj, &["command", "args", "env"]),
     })
 }
 
@@ -172,6 +177,7 @@ fn spec_from_entry(entry: &McpServerEntry) -> Value {
         }
     }
 
+    mcp_json::apply_extra(&mut obj, &entry.extra);
     Value::Object(obj)
 }
 
@@ -215,5 +221,19 @@ mod tests {
     fn entry_without_command_or_url_is_rejected() {
         let spec = json!({"foo": "bar"});
         assert!(entry_from_spec("bad", &spec, "gemini").is_err());
+    }
+
+    #[test]
+    fn timeout_field_survives_a_read_then_write_round_trip() {
+        // Gemini CLI's `timeout` (ms) isn't part of McpServerEntry's own
+        // shape — found comparing against cc-switch, which explicitly
+        // computes/writes this field. Without capturing it into `extra`,
+        // toggling this server through MCP Switch would silently drop it.
+        let spec = json!({"command": "npx", "timeout": 60000});
+        let entry = entry_from_spec("foo", &spec, "gemini").unwrap();
+        assert_eq!(entry.extra.get("timeout"), Some(&json!(60000)));
+
+        let written = spec_from_entry(&entry);
+        assert_eq!(written["timeout"], 60000);
     }
 }
