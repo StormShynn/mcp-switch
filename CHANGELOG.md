@@ -1,3 +1,10 @@
+# [0.4.0](https://github.com/StormShynn/mcp-switch/compare/v0.3.0...v0.4.0) (2026-07-07)
+
+
+### Features
+
+* per-(name,app) server model, Trash/Restart actions, and Hermes YAML fix ([017f9fc](https://github.com/StormShynn/mcp-switch/commit/017f9fc68f3fa6c488c8e70707823ad5f2c59c58))
+
 # [0.3.0](https://github.com/StormShynn/mcp-switch/compare/v0.2.0...v0.3.0) (2026-07-07)
 
 
