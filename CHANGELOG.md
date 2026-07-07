@@ -1,3 +1,10 @@
+## [0.4.1](https://github.com/StormShynn/mcp-switch/compare/v0.4.0...v0.4.1) (2026-07-07)
+
+
+### Bug Fixes
+
+* preserve unknown live-config fields across every adapter ([855725d](https://github.com/StormShynn/mcp-switch/commit/855725d10acdbf277ac799fee71f52d39f052eed))
+
 # [0.4.0](https://github.com/StormShynn/mcp-switch/compare/v0.3.0...v0.4.0) (2026-07-07)
 
 
