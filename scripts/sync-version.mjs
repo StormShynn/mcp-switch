@@ -6,8 +6,8 @@
  *
  * Updates:
  *   - package.json          → "version"
- *   - package-lock.json     → "version"
  *   - src-tauri/Cargo.toml  → [package].version
+ *   - package-lock.json     → "version"
  *   - src-tauri/tauri.conf.json → "version"
  */
 
