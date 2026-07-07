@@ -94,6 +94,7 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
             headers: mcp_json::string_map(obj, "headers"),
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         });
     }
     if let Some(url) = obj.get("url").and_then(|v| v.as_str()) {
@@ -107,6 +108,7 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
             headers: mcp_json::string_map(obj, "headers"),
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         });
     }
 
@@ -124,6 +126,7 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
         headers: None,
         enabled: HashMap::new(),
         sources: Vec::new(),
+        deleted: false,
     })
 }
 

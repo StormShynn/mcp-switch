@@ -107,6 +107,7 @@ fn entry_from_toml(name: &str, value: &toml::Value) -> Result<McpServerEntry, St
                 headers,
                 enabled: HashMap::new(),
                 sources: Vec::new(),
+                deleted: false,
             })
         }
         "stdio" => {
@@ -133,6 +134,7 @@ fn entry_from_toml(name: &str, value: &toml::Value) -> Result<McpServerEntry, St
                 headers: None,
                 enabled: HashMap::new(),
                 sources: Vec::new(),
+                deleted: false,
             })
         }
         other => Err(format!("unsupported type '{other}'")),

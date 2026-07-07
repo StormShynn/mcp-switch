@@ -11,7 +11,8 @@ import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
-import type { McpServerEntry, AppId } from "./lib/types";
+import { confirm } from "@tauri-apps/plugin-dialog";
+import type { McpServerEntry, AppId, ServerInput, SyncSummary, Transport } from "./lib/types";
 import { APPS, APP_COLORS, defaultEnabled } from "./lib/types";
 
 type UpdateStatus =
@@ -27,7 +28,7 @@ const REPO_URL = "https://github.com/StormShynn/mcp-switch";
 
 type SortKey = "name" | "status";
 type SortDir = "asc" | "desc";
-type FilterKey = "all" | AppId;
+type FilterKey = "all" | AppId | "trash";
 
 /** Whether `appId` is a relevant scope for this server: it's one of the
  * apps whose real config defines it (or, for legacy entries imported
@@ -48,10 +49,13 @@ function sortServers(
   dir: SortDir,
   filter: FilterKey
 ): McpServerEntry[] {
-  let filtered = servers;
-
-  if (filter !== "all") {
-    filtered = servers.filter((s) => isRelevantApp(s, filter));
+  let filtered: McpServerEntry[];
+  if (filter === "trash") {
+    filtered = servers.filter((s) => s.deleted);
+  } else if (filter === "all") {
+    filtered = servers.filter((s) => !s.deleted);
+  } else {
+    filtered = servers.filter((s) => !s.deleted && isRelevantApp(s, filter));
   }
 
   return [...filtered].sort((a, b) => {
@@ -72,10 +76,12 @@ function ServerRow({
   server,
   index,
   onToggle,
+  onEdit,
 }: {
   server: McpServerEntry;
   index: number;
   onToggle: (serverName: string, appId: AppId, enabled: boolean) => void;
+  onEdit: (server: McpServerEntry) => void;
 }) {
   // Same app-relevance rule the filter tabs use, so a server never appears
   // or disappears anywhere just because it was toggled on/off.
@@ -84,8 +90,10 @@ function ServerRow({
 
   return (
     <div
-      className="server-row fade-in"
+      className="server-row fade-in server-row-clickable"
       style={{ animationDelay: `${index * 30}ms` }}
+      onClick={() => onEdit(server)}
+      title="Click to edit"
     >
       <div className="server-info">
         <div className="server-name">{server.name}</div>
@@ -128,6 +136,45 @@ function ServerRow({
   );
 }
 
+/* ── Trash row component ─────────────────────────── */
+function TrashRow({
+  server,
+  index,
+  onRestore,
+  onDeleteForever,
+}: {
+  server: McpServerEntry;
+  index: number;
+  onRestore: (serverName: string) => void;
+  onDeleteForever: (serverName: string) => void;
+}) {
+  return (
+    <div className="server-row fade-in" style={{ animationDelay: `${index * 30}ms` }}>
+      <div className="server-info">
+        <div className="server-name">{server.name}</div>
+        <div className="server-command">
+          {server.transport === "stdio" ? server.command : server.url}
+        </div>
+        <div className="server-meta">
+          <span className="badge badge-trash">No longer found in any tool</span>
+        </div>
+      </div>
+
+      <div className="server-toggles">
+        <button className="btn btn-sm" onClick={() => onRestore(server.name)}>
+          Restore
+        </button>
+        <button
+          className="btn btn-sm btn-danger"
+          onClick={() => onDeleteForever(server.name)}
+        >
+          Delete forever
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ── Empty state ─────────────────────────────────── */
 function EmptyState({ onImport }: { onImport: () => void }) {
   return (
@@ -153,6 +200,266 @@ function EmptyState({ onImport }: { onImport: () => void }) {
         </svg>
         Import from tools
       </button>
+    </div>
+  );
+}
+
+/* ── Add/Edit server form ────────────────────────── */
+interface ServerFormState {
+  originalName: string | null;
+  name: string;
+  transport: Transport;
+  command: string;
+  argsText: string;
+  envText: string;
+  url: string;
+  headersText: string;
+  enabledApps: Set<AppId>;
+}
+
+function emptyServerForm(): ServerFormState {
+  return {
+    originalName: null,
+    name: "",
+    transport: "stdio",
+    command: "",
+    argsText: "",
+    envText: "",
+    url: "",
+    headersText: "",
+    enabledApps: new Set(),
+  };
+}
+
+function keyValueMapToLines(map: Record<string, string> | undefined): string {
+  return Object.entries(map ?? {})
+    .map(([k, v]) => `${k}=${v}`)
+    .join("\n");
+}
+
+function formFromServer(server: McpServerEntry): ServerFormState {
+  return {
+    originalName: server.name,
+    name: server.name,
+    transport: server.transport,
+    command: server.command ?? "",
+    argsText: (server.args ?? []).join("\n"),
+    envText: keyValueMapToLines(server.env),
+    url: server.url ?? "",
+    headersText: keyValueMapToLines(server.headers),
+    enabledApps: new Set(APPS.filter((a) => server.enabled[a.id]).map((a) => a.id)),
+  };
+}
+
+function parseLines(text: string): string[] | undefined {
+  const lines = text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  return lines.length > 0 ? lines : undefined;
+}
+
+function parseKeyValueLines(text: string): Record<string, string> | undefined {
+  const out: Record<string, string> = {};
+  for (const line of text.split("\n").map((l) => l.trim()).filter(Boolean)) {
+    const idx = line.indexOf("=");
+    if (idx <= 0) continue;
+    out[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
+function ServerFormModal({
+  initial,
+  onClose,
+  onSave,
+}: {
+  initial: ServerFormState;
+  onClose: () => void;
+  onSave: (input: ServerInput) => Promise<void>;
+}) {
+  const [form, setForm] = useState<ServerFormState>(initial);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const isEditing = initial.originalName !== null;
+
+  const toggleApp = (id: AppId) => {
+    setForm((f) => {
+      const next = new Set(f.enabledApps);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return { ...f, enabledApps: next };
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = form.name.trim();
+    if (!name) {
+      setFormError("Name is required");
+      return;
+    }
+    if (form.transport === "stdio" && !form.command.trim()) {
+      setFormError("Command is required for a stdio server");
+      return;
+    }
+    if (form.transport !== "stdio" && !form.url.trim()) {
+      setFormError("URL is required for a remote server");
+      return;
+    }
+
+    const input: ServerInput =
+      form.transport === "stdio"
+        ? {
+            name,
+            transport: "stdio",
+            command: form.command.trim(),
+            args: parseLines(form.argsText),
+            env: parseKeyValueLines(form.envText),
+            enabledApps: Array.from(form.enabledApps),
+          }
+        : {
+            name,
+            transport: form.transport,
+            url: form.url.trim(),
+            headers: parseKeyValueLines(form.headersText),
+            enabledApps: Array.from(form.enabledApps),
+          };
+
+    setSaving(true);
+    setFormError(null);
+    try {
+      await onSave(input);
+      onClose();
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <form
+        className="modal fade-in server-form"
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={handleSubmit}
+      >
+        <h2>{isEditing ? "Edit server" : "Add server"}</h2>
+
+        <label className="form-field">
+          <span>Name</span>
+          <input
+            className="form-input"
+            value={form.name}
+            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            disabled={isEditing}
+            placeholder="filesystem"
+            autoFocus
+          />
+        </label>
+
+        <div className="form-field">
+          <span>Transport</span>
+          <div className="transport-toggle">
+            <button
+              type="button"
+              className={form.transport === "stdio" ? "active" : ""}
+              onClick={() => setForm((f) => ({ ...f, transport: "stdio" }))}
+            >
+              stdio (command)
+            </button>
+            <button
+              type="button"
+              className={form.transport !== "stdio" ? "active" : ""}
+              onClick={() => setForm((f) => ({ ...f, transport: "sse" }))}
+            >
+              remote (URL)
+            </button>
+          </div>
+        </div>
+
+        {form.transport === "stdio" ? (
+          <>
+            <label className="form-field">
+              <span>Command</span>
+              <input
+                className="form-input"
+                value={form.command}
+                onChange={(e) => setForm((f) => ({ ...f, command: e.target.value }))}
+                placeholder="npx"
+              />
+            </label>
+            <label className="form-field">
+              <span>Args (one per line)</span>
+              <textarea
+                className="form-input"
+                value={form.argsText}
+                onChange={(e) => setForm((f) => ({ ...f, argsText: e.target.value }))}
+                rows={3}
+                placeholder={"-y\n@modelcontextprotocol/server-filesystem"}
+              />
+            </label>
+            <label className="form-field">
+              <span>Env (KEY=VALUE, one per line)</span>
+              <textarea
+                className="form-input"
+                value={form.envText}
+                onChange={(e) => setForm((f) => ({ ...f, envText: e.target.value }))}
+                rows={2}
+              />
+            </label>
+          </>
+        ) : (
+          <>
+            <label className="form-field">
+              <span>URL</span>
+              <input
+                className="form-input"
+                value={form.url}
+                onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
+                placeholder="https://example.com/mcp"
+              />
+            </label>
+            <label className="form-field">
+              <span>Headers (KEY=VALUE, one per line)</span>
+              <textarea
+                className="form-input"
+                value={form.headersText}
+                onChange={(e) => setForm((f) => ({ ...f, headersText: e.target.value }))}
+                rows={2}
+              />
+            </label>
+          </>
+        )}
+
+        <div className="form-field">
+          <span>Enable for</span>
+          <div className="app-checkboxes">
+            {APPS.map((app) => (
+              <label key={app.id} className="app-checkbox">
+                <input
+                  type="checkbox"
+                  checked={form.enabledApps.has(app.id)}
+                  onChange={() => toggleApp(app.id)}
+                />
+                <span style={{ color: APP_COLORS[app.id] }}>{app.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {formError && <div className="form-error">{formError}</div>}
+
+        <div className="modal-actions">
+          <button type="button" className="btn modal-close" onClick={onClose}>
+            Cancel
+          </button>
+          <button type="submit" className="btn btn-primary" disabled={saving}>
+            {saving ? "Saving…" : "Save"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
@@ -257,6 +564,7 @@ export default function App() {
   const [pendingUpdate, setPendingUpdate] = useState<Update | null>(null);
   const [updateProgress, setUpdateProgress] = useState(0);
   const [updateError, setUpdateError] = useState("");
+  const [editingServer, setEditingServer] = useState<McpServerEntry | "new" | null>(null);
 
   const dismissPendingRestart = useCallback((appId: AppId) => {
     setPendingRestarts((prev) => {
@@ -288,6 +596,7 @@ export default function App() {
           args: [],
           enabled: { ...defaultEnabled(), claude: true, codex: true },
           sources: ["claude", "codex"],
+          deleted: false,
         },
         {
           name: "filesystem",
@@ -296,6 +605,7 @@ export default function App() {
           args: ["/workspace"],
           enabled: { ...defaultEnabled(), gemini: true, hermes: true },
           sources: ["gemini", "hermes"],
+          deleted: false,
         },
         {
           name: "github",
@@ -304,6 +614,7 @@ export default function App() {
           args: [],
           enabled: { ...defaultEnabled(), opencode: true },
           sources: ["opencode"],
+          deleted: false,
         },
       ]);
       // Only surface non-runtime errors (backend unavailable is expected)
@@ -315,8 +626,21 @@ export default function App() {
     }
   }, []);
 
+  // Re-sync from every tool's live config on every launch, so new/changed/
+  // removed servers are reflected without needing a manual Import click.
+  // loadServers() runs first so something (cache or dev-mode mock data)
+  // paints immediately; the sync then quietly refreshes it.
   useEffect(() => {
-    loadServers();
+    (async () => {
+      await loadServers();
+      try {
+        await invoke<SyncSummary>("import_servers");
+        await loadServers();
+      } catch {
+        // Backend unavailable (e.g. dev mode) — loadServers() already
+        // populated fallback data above, so fail silently here.
+      }
+    })();
   }, [loadServers]);
 
   const handleToggle = useCallback(
@@ -356,15 +680,58 @@ export default function App() {
   const handleImport = useCallback(async () => {
     try {
       setImporting(true);
-      const result = await invoke<{ imported: number }>("import_servers");
-      notify(`Imported ${result.imported} server(s)`, "success");
+      const summary = await invoke<SyncSummary>("import_servers");
       await loadServers();
+      const parts: string[] = [];
+      if (summary.added > 0) parts.push(`${summary.added} new`);
+      if (summary.flaggedDeleted > 0) parts.push(`${summary.flaggedDeleted} moved to Trash`);
+      notify(parts.length > 0 ? `Synced: ${parts.join(", ")}` : "Already up to date", "success");
     } catch {
-      notify("Import failed", "error");
+      notify("Sync failed", "error");
     } finally {
       setImporting(false);
     }
   }, [loadServers, notify]);
+
+  const handleSaveServer = useCallback(
+    async (input: ServerInput) => {
+      await invoke("save_server", { input });
+      notify(`Saved "${input.name}"`, "success");
+      await loadServers();
+    },
+    [loadServers, notify]
+  );
+
+  const handleRestore = useCallback(
+    async (serverName: string) => {
+      try {
+        await invoke("restore_server", { serverName });
+        notify(`Restored "${serverName}"`, "success");
+        await loadServers();
+      } catch {
+        notify("Restore failed", "error");
+      }
+    },
+    [loadServers, notify]
+  );
+
+  const handleDeleteForever = useCallback(
+    async (serverName: string) => {
+      const ok = await confirm(
+        `Permanently delete "${serverName}"? This cannot be undone.`,
+        { title: "Delete forever", kind: "warning" }
+      );
+      if (!ok) return;
+      try {
+        await invoke("delete_server_forever", { serverName });
+        notify(`Deleted "${serverName}" forever`, "success");
+        await loadServers();
+      } catch {
+        notify("Delete failed", "error");
+      }
+    },
+    [loadServers, notify]
+  );
 
   const handleShowAbout = useCallback(async () => {
     setShowAbout(true);
@@ -429,6 +796,7 @@ export default function App() {
   const sorted = sortServers(servers, sortKey, sortDir, filter);
   const sortArrow = (key: SortKey) =>
     sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
+  const trashCount = servers.filter((s) => s.deleted).length;
 
   return (
     <div className="app-container">
@@ -444,12 +812,15 @@ export default function App() {
           <button className="btn" onClick={handleShowAbout} title="About MCP Switch">
             About
           </button>
+          <button className="btn" onClick={() => setEditingServer("new")}>
+            Add server
+          </button>
           <button
             className="btn btn-primary"
             onClick={handleImport}
             disabled={importing}
           >
-            {importing ? "Importing…" : "Import"}
+            {importing ? "Syncing…" : "Import"}
           </button>
         </div>
       </header>
@@ -465,6 +836,14 @@ export default function App() {
           updateError={updateError}
           onCheckForUpdates={handleCheckForUpdates}
           onInstallUpdate={handleInstallUpdate}
+        />
+      )}
+
+      {editingServer !== null && (
+        <ServerFormModal
+          initial={editingServer === "new" ? emptyServerForm() : formFromServer(editingServer)}
+          onClose={() => setEditingServer(null)}
+          onSave={handleSaveServer}
         />
       )}
 
@@ -498,14 +877,16 @@ export default function App() {
       {/* Toolbar */}
       <div className="toolbar">
         <div className="filter-group">
-          {(["all", ...APPS.map((a) => a.id)] as FilterKey[]).map((f) => (
+          {(["all", ...APPS.map((a) => a.id), "trash"] as FilterKey[]).map((f) => (
             <button
               key={f}
-              className={`filter-chip ${filter === f ? "active" : ""}`}
+              className={`filter-chip ${filter === f ? "active" : ""} ${f === "trash" ? "filter-chip-trash" : ""}`}
               onClick={() => setFilter(f)}
             >
               {f === "all"
                 ? "All"
+                : f === "trash"
+                ? `Trash${trashCount > 0 ? ` (${trashCount})` : ""}`
                 : APPS.find((a) => a.id === f)?.label.split(" ")[0] ?? f}
             </button>
           ))}
@@ -534,17 +915,35 @@ export default function App() {
             <p>Loading servers…</p>
           </div>
         ) : sorted.length === 0 ? (
-          <EmptyState onImport={handleImport} />
+          filter === "trash" ? (
+            <div className="empty-state fade-in">
+              <h2>Trash is empty</h2>
+              <p>Servers removed from every tool that used to define them show up here.</p>
+            </div>
+          ) : (
+            <EmptyState onImport={handleImport} />
+          )
         ) : (
           <div className="server-list">
-            {sorted.map((server, i) => (
-              <ServerRow
-                key={server.name}
-                server={server}
-                index={i}
-                onToggle={handleToggle}
-              />
-            ))}
+            {filter === "trash"
+              ? sorted.map((server, i) => (
+                  <TrashRow
+                    key={server.name}
+                    server={server}
+                    index={i}
+                    onRestore={handleRestore}
+                    onDeleteForever={handleDeleteForever}
+                  />
+                ))
+              : sorted.map((server, i) => (
+                  <ServerRow
+                    key={server.name}
+                    server={server}
+                    index={i}
+                    onToggle={handleToggle}
+                    onEdit={setEditingServer}
+                  />
+                ))}
           </div>
         )}
       </div>

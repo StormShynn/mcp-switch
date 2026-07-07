@@ -21,10 +21,29 @@ export interface McpServerEntry {
   enabled: Record<AppId, boolean>;
   /** App ids whose real config actually defines this server. */
   sources: AppId[];
+  /** Soft-trashed: vanished from every app it used to be enabled in. */
+  deleted: boolean;
 }
 
 export interface Store {
   servers: McpServerEntry[];
+}
+
+/** Payload for the add/edit server form (backend command `save_server`). */
+export interface ServerInput {
+  name: string;
+  transport: Transport;
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  url?: string;
+  headers?: Record<string, string>;
+  enabledApps: AppId[];
+}
+
+export interface SyncSummary {
+  added: number;
+  flaggedDeleted: number;
 }
 
 export interface AppInfo {

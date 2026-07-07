@@ -616,3 +616,107 @@ body {
   color: var(--danger);
   cursor: help;
 }
+
+/* Clickable server row (opens edit form) */
+.server-row-clickable {
+  cursor: pointer;
+}
+
+/* Small button variant, used in the Trash view */
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 0.8125rem;
+}
+
+/* Trash badge + filter chip */
+.badge-trash {
+  color: var(--text-muted);
+}
+
+.filter-chip-trash {
+  border-style: dashed;
+}
+
+/* Add/Edit server form modal */
+.server-form {
+  width: 420px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.form-input {
+  padding: 7px 10px;
+  font-size: 0.8125rem;
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+.transport-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.transport-toggle button {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.transport-toggle button.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.app-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.app-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.form-error {
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  font-size: 0.8125rem;
+  color: var(--danger);
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: var(--radius-sm);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}

@@ -103,6 +103,7 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
                 headers: mcp_json::string_map(obj, "headers"),
                 enabled: HashMap::new(),
                 sources: Vec::new(),
+                deleted: false,
             })
         }
         "local" => {
@@ -123,6 +124,7 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
                 headers: None,
                 enabled: HashMap::new(),
                 sources: Vec::new(),
+                deleted: false,
             })
         }
         other => Err(format!("unsupported type '{other}'")),
@@ -220,6 +222,7 @@ mod tests {
             headers: None,
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         };
         let written = spec_from_entry(&entry);
         assert_eq!(written["type"], "local");
@@ -240,6 +243,7 @@ mod tests {
             headers: None,
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         };
         let written = spec_from_entry(&entry);
         assert_eq!(written["command"], json!(["cmd", "/c", "npx", "-y", "foo"]));
@@ -257,6 +261,7 @@ mod tests {
             headers: None,
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         };
         let written = spec_from_entry(&entry);
         assert_eq!(written["type"], "remote");

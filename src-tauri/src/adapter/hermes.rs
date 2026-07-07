@@ -231,6 +231,7 @@ fn entry_from_toml(value: &toml::Value) -> Result<McpServerEntry, String> {
             headers: None,
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         });
     }
 
@@ -249,6 +250,7 @@ fn entry_from_toml(value: &toml::Value) -> Result<McpServerEntry, String> {
             headers,
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         });
     }
 
@@ -333,6 +335,7 @@ fn entry_from_json(spec: &Value) -> Result<McpServerEntry, String> {
             headers: None,
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         });
     }
 
@@ -347,6 +350,7 @@ fn entry_from_json(spec: &Value) -> Result<McpServerEntry, String> {
             headers: mcp_json::string_map(obj, "headers"),
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         });
     }
 
@@ -438,6 +442,7 @@ mod tests {
             headers: None,
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         };
         let written = json_from_entry(&entry);
         assert_eq!(written["url"], "https://example.com/mcp");

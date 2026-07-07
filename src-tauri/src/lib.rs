@@ -7,7 +7,10 @@ mod store;
 mod types;
 mod winshim;
 
-use commands::{get_store_path, import_servers, list_servers, toggle_server};
+use commands::{
+    delete_server_forever, get_store_path, import_servers, list_servers, restore_server,
+    save_server, toggle_server,
+};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -21,6 +24,9 @@ pub fn run() {
             toggle_server,
             import_servers,
             get_store_path,
+            restore_server,
+            delete_server_forever,
+            save_server,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

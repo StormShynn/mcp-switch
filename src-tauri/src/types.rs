@@ -31,6 +31,14 @@ pub struct McpServerEntry {
     /// import). Drives which per-app toggle(s) the UI shows for this entry.
     #[serde(default)]
     pub sources: Vec<String>,
+    /// Soft-trash flag: set automatically when a sync finds this server has
+    /// disappeared from every app that used to define it (and isn't enabled
+    /// anywhere else either). Never set by a manual toggle. Trashed entries
+    /// keep their data and are hidden from the main list until restored or
+    /// permanently deleted, so an external removal can never silently lose
+    /// a working command/args/env the user might want back.
+    #[serde(default)]
+    pub deleted: bool,
 }
 
 /// The single source of truth store.

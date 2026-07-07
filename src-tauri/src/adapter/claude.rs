@@ -101,6 +101,7 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
                 headers: mcp_json::string_map(obj, "headers"),
                 enabled: HashMap::new(),
                 sources: Vec::new(),
+                deleted: false,
             })
         }
         "stdio" => {
@@ -118,6 +119,7 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
                 headers: None,
                 enabled: HashMap::new(),
                 sources: Vec::new(),
+                deleted: false,
             })
         }
         other => Err(format!("unsupported type '{other}'")),
@@ -212,6 +214,7 @@ mod tests {
             headers: None,
             enabled: HashMap::new(),
             sources: Vec::new(),
+            deleted: false,
         };
         let written = spec_from_entry(&entry);
         assert!(written.get("type").is_none());
