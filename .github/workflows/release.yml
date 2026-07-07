@@ -229,7 +229,7 @@ jobs:
               BATCH=()
               BATCH_NUM=$((BATCH_NUM + 1))
             fi
-          done < <(find artifacts -type f ! -iname "*.icns" ! -iname "*.ico" ! -iname "*.png" -print0)
+          done < <(find artifacts -type f ! -iname "*.icns" ! -iname "*.ico" ! -iname "*.png" ! -iname "copyright" -print0)
 
           # Upload remaining files
           if [[ ${#BATCH[@]} -gt 0 ]]; then
