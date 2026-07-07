@@ -1,0 +1,17 @@
+﻿      - name: Upload artifacts as release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.release_tag }}
+          name: ${{ steps.version.outputs.release_name }}
+          prerelease: ${{ steps.version.outputs.prerelease }}
+          fail_on_unmatched_files: false
+          generate_release_notes: false
+          body_path: release-body.md
+          files: |
+            update.json
+            artifacts/**/*.nsis
+            artifacts/**/*.msi
+            artifacts/**/*.dmg
+            artifacts/**/*.deb
+            artifacts/**/*.AppImage
+            artifacts/**/*.exe

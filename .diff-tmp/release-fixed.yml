@@ -1,0 +1,151 @@
+﻿name: release
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+concurrency:
+  group: release-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            args: '--target aarch64-apple-darwin'
+            bundles: 'app,dmg'
+          - platform: macos-latest
+            target: x86_64-apple-darwin
+            args: '--target x86_64-apple-darwin'
+            bundles: 'app,dmg'
+          - platform: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            args: ''
+            bundles: 'deb,appimage'
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            args: ''
+            bundles: 'nsis'
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Install npm deps
+        run: npm install
+      - name: Install Linux deps
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: Build frontend
+        run: npm run build
+      - name: Build Tauri bundle
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npx tauri build --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+      - name: List bundle output
+        if: always()
+        shell: bash
+        run: |
+          echo "=== artifacts ==="
+          find "src-tauri/target/${{ matrix.target }}/release/bundle" -type f 2>/dev/null || echo "no bundle files"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-switch-${{ matrix.target }}
+          path: |
+            src-tauri/target/${{ matrix.target }}/release/bundle/**
+          if-no-files-found: warn
+
+  publish:
+    needs: release
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Generate version info
+        id: version
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+            echo "release_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "release_name=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "version=0.1.0-nightly-$(date +%s)" >> "$GITHUB_OUTPUT"
+            echo "release_tag=nightly" >> "$GITHUB_OUTPUT"
+            echo "release_name=Nightly Build ($(date +%Y-%m-%d))" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.1.0-ci-$(date +%s)" >> "$GITHUB_OUTPUT"
+            echo "release_tag=ci-$(date +%s)" >> "$GITHUB_OUTPUT"
+            echo "release_name=CI Build ($(date +%Y-%m-%d))" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: false
+
+      - name: List downloaded artifacts
+        run: find artifacts -type f 2>/dev/null || echo "no artifacts downloaded"
+
+      - name: Generate update.json
+        run: |
+          node scripts/generate-update-json.mjs \
+            "${{ steps.version.outputs.version }}" \
+            artifacts \
+            "${{ steps.version.outputs.release_tag }}" \
+            > update.json
+          cat update.json
+
+      - name: Generate release body
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            cp CHANGELOG.md release-body.md
+          else
+            echo "Auto-built from commit ${{ github.sha }} on ${{ github.ref_name }}." > release-body.md
+          fi
+
+      - name: Upload artifacts as release (idempotent)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.release_tag }}
+          name: ${{ steps.version.outputs.release_name }}
+          prerelease: ${{ steps.version.outputs.prerelease }}
+          fail_on_unmatched_files: false
+          generate_release_notes: false
+          body_path: release-body.md
+          files: |
+            update.json
+            artifacts/**/*.nsis
+            artifacts/**/*.msi
+            artifacts/**/*.dmg
+            artifacts/**/*.deb
+            artifacts/**/*.AppImage
+            artifacts/**/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
