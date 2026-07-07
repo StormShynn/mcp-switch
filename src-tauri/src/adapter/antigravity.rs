@@ -44,7 +44,7 @@ impl Adapter for AntigravityAdapter {
         Ok(servers)
     }
 
-    fn write_enabled(&self, enabled: &[McpServerEntry]) -> Result<(), McpError> {
+    fn write_server(&self, name: &str, entry: Option<&McpServerEntry>) -> Result<(), McpError> {
         let path = paths::antigravity_config();
         let content = read_file_optional(&path)?.unwrap_or_else(|| "{}".to_string());
 
@@ -58,9 +58,14 @@ impl Adapter for AntigravityAdapter {
         }
 
         let mut config: AntigravityConfig = serde_json::from_str(&content)?;
-        let mut servers = HashMap::new();
-        for entry in enabled {
-            servers.insert(entry.name.clone(), spec_from_entry(entry));
+        let mut servers = config.mcp_servers.unwrap_or_default();
+        match entry {
+            Some(e) => {
+                servers.insert(name.to_string(), spec_from_entry(e));
+            }
+            None => {
+                servers.remove(name);
+            }
         }
         config.mcp_servers = if servers.is_empty() {
             None

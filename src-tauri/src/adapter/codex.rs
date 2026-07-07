@@ -43,7 +43,7 @@ impl Adapter for CodexAdapter {
         Ok(servers)
     }
 
-    fn write_enabled(&self, enabled: &[McpServerEntry]) -> Result<(), McpError> {
+    fn write_server(&self, name: &str, entry: Option<&McpServerEntry>) -> Result<(), McpError> {
         let path = paths::codex_config();
         let content = read_file_optional(&path)?.unwrap_or_else(String::new);
 
@@ -64,11 +64,14 @@ impl Adapter for CodexAdapter {
             },
         };
 
-        let mut servers = HashMap::new();
-        for entry in enabled {
-            servers.insert(entry.name.clone(), toml_from_entry(entry));
+        match entry {
+            Some(e) => {
+                config.mcp_servers.insert(name.to_string(), toml_from_entry(e));
+            }
+            None => {
+                config.mcp_servers.remove(name);
+            }
         }
-        config.mcp_servers = servers;
 
         let output = toml::to_string_pretty(&config).map_err(|e| {
             McpError::InvalidConfig(format!("TOML serialization error: {e}"))

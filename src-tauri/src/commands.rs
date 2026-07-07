@@ -27,15 +27,17 @@ pub fn toggle_server(server_name: String, app_id: String, enabled: bool) -> Resu
     // Update the store
     let store = store::toggle_server(&server_name, &app_id, enabled)?;
 
-    // Write the enabled servers to the target app's config
+    // Surgically upsert/remove just this one server in the target app's live
+    // config. This reads the file fresh and touches only this entry, so a
+    // server added or edited in that app outside MCP Switch since the last
+    // import is never clobbered or deleted by an unrelated toggle.
     if let Some(adapter) = adapter_for(&app_id) {
-        let enabled_servers: Vec<McpServerEntry> = store
-            .servers
-            .iter()
-            .filter(|s| s.enabled.get(&app_id).copied().unwrap_or(false))
-            .cloned()
-            .collect();
-        adapter.write_enabled(&enabled_servers)?;
+        let entry = if enabled {
+            store.servers.iter().find(|s| s.name == server_name)
+        } else {
+            None
+        };
+        adapter.write_server(&server_name, entry)?;
     }
 
     Ok(store)

@@ -30,14 +30,14 @@ impl Adapter for HermesAdapter {
         }
     }
 
-    fn write_enabled(&self, enabled: &[McpServerEntry]) -> Result<(), McpError> {
+    fn write_server(&self, name: &str, entry: Option<&McpServerEntry>) -> Result<(), McpError> {
         let toml_path = paths::hermes_config();
         let json_path = paths::hermes_config_json();
 
         if toml_path.exists() {
-            self.write_toml(&toml_path, enabled)
+            self.write_toml(&toml_path, name, entry)
         } else {
-            self.write_json(&json_path, enabled)
+            self.write_json(&json_path, name, entry)
         }
     }
 }
@@ -99,7 +99,12 @@ impl HermesAdapter {
         Ok(servers)
     }
 
-    fn write_toml(&self, path: &std::path::Path, enabled: &[McpServerEntry]) -> Result<(), McpError> {
+    fn write_toml(
+        &self,
+        path: &std::path::Path,
+        name: &str,
+        entry: Option<&McpServerEntry>,
+    ) -> Result<(), McpError> {
         let content = read_file_optional(path)?.unwrap_or_default();
 
         #[derive(serde::Deserialize, serde::Serialize)]
@@ -116,7 +121,13 @@ impl HermesAdapter {
             extra: HashMap::new(),
         });
 
-        let servers: Vec<toml::Value> = enabled.iter().map(toml_from_entry).collect();
+        let mut servers = config.mcp_servers.unwrap_or_default();
+        upsert_or_remove_by_name(
+            &mut servers,
+            name,
+            |v| v.as_table().and_then(|t| t.get("name")).and_then(|v| v.as_str()),
+            entry.map(toml_from_entry),
+        );
 
         config.mcp_servers = if servers.is_empty() {
             None
@@ -129,7 +140,12 @@ impl HermesAdapter {
         crate::atomic::atomic_write(path, &output)
     }
 
-    fn write_json(&self, path: &std::path::Path, enabled: &[McpServerEntry]) -> Result<(), McpError> {
+    fn write_json(
+        &self,
+        path: &std::path::Path,
+        name: &str,
+        entry: Option<&McpServerEntry>,
+    ) -> Result<(), McpError> {
         let content = read_file_optional(path)?.unwrap_or_else(|| "{}".to_string());
 
         #[derive(serde::Deserialize, serde::Serialize)]
@@ -142,7 +158,13 @@ impl HermesAdapter {
         }
 
         let mut config: HermesConfig = serde_json::from_str(&content)?;
-        let servers: Vec<Value> = enabled.iter().map(json_from_entry).collect();
+        let mut servers = config.mcp_servers.unwrap_or_default();
+        upsert_or_remove_by_name(
+            &mut servers,
+            name,
+            |v| v.as_object().and_then(|o| o.get("name")).and_then(|v| v.as_str()),
+            entry.map(json_from_entry),
+        );
 
         config.mcp_servers = if servers.is_empty() {
             None
@@ -152,6 +174,25 @@ impl HermesAdapter {
 
         let output = serde_json::to_string_pretty(&config)?;
         crate::atomic::atomic_write(path, &output)
+    }
+}
+
+/// Upserts (`Some`) or removes (`None`) the item whose `name_of` matches
+/// `name` in `items`, preserving every other item and their relative order.
+fn upsert_or_remove_by_name<T>(
+    items: &mut Vec<T>,
+    name: &str,
+    name_of: impl Fn(&T) -> Option<&str>,
+    new_item: Option<T>,
+) {
+    let index = items.iter().position(|item| name_of(item) == Some(name));
+    match (new_item, index) {
+        (Some(item), Some(idx)) => items[idx] = item,
+        (Some(item), None) => items.push(item),
+        (None, Some(idx)) => {
+            items.remove(idx);
+        }
+        (None, None) => {}
     }
 }
 
@@ -402,5 +443,48 @@ mod tests {
         assert_eq!(written["url"], "https://example.com/mcp");
         assert!(written.get("type").is_none());
         assert!(written.get("command").is_none());
+    }
+
+    // ---- upsert_or_remove_by_name tests ----
+
+    #[test]
+    fn upsert_replaces_matching_item_in_place() {
+        let mut items = vec!["a:1".to_string(), "b:2".to_string(), "c:3".to_string()];
+        upsert_or_remove_by_name(
+            &mut items,
+            "b",
+            |s| s.split(':').next(),
+            Some("b:99".to_string()),
+        );
+        assert_eq!(items, vec!["a:1", "b:99", "c:3"]);
+    }
+
+    #[test]
+    fn upsert_appends_when_not_found() {
+        let mut items = vec!["a:1".to_string()];
+        upsert_or_remove_by_name(
+            &mut items,
+            "new",
+            |s| s.split(':').next(),
+            Some("new:1".to_string()),
+        );
+        assert_eq!(items, vec!["a:1", "new:1"]);
+    }
+
+    #[test]
+    fn remove_drops_matching_item_and_leaves_others_untouched() {
+        let mut items = vec!["a:1".to_string(), "b:2".to_string(), "c:3".to_string()];
+        upsert_or_remove_by_name(&mut items, "b", |s| s.split(':').next(), None);
+        assert_eq!(items, vec!["a:1", "c:3"]);
+    }
+
+    #[test]
+    fn remove_of_untracked_name_is_a_no_op() {
+        // This is the core guarantee the toggle refactor depends on: a name
+        // MCP Switch never imported (added/edited outside MCP Switch) must
+        // survive being written to when an unrelated server is toggled.
+        let mut items = vec!["foreign:1".to_string(), "tracked:2".to_string()];
+        upsert_or_remove_by_name(&mut items, "tracked", |s| s.split(':').next(), None);
+        assert_eq!(items, vec!["foreign:1"]);
     }
 }

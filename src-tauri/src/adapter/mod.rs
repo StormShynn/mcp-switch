@@ -1,7 +1,7 @@
 use crate::types::{McpError, McpServerEntry};
 
 /// An adapter reads MCP server definitions from a specific tool's config
-/// and can write back the enabled servers.
+/// and can write a single server back into it.
 pub trait Adapter: Send + Sync {
     /// The unique identifier for this tool (e.g. "claude", "codex").
     fn id(&self) -> &'static str;
@@ -9,8 +9,12 @@ pub trait Adapter: Send + Sync {
     /// Read MCP servers from this tool's config file.
     fn read_servers(&self) -> Result<Vec<McpServerEntry>, McpError>;
 
-    /// Write only the enabled servers back to this tool's config.
-    fn write_enabled(&self, enabled: &[McpServerEntry]) -> Result<(), McpError>;
+    /// Upsert (`Some`) or remove (`None`) a single named server in this
+    /// tool's live config. Every other entry already on disk — including
+    /// ones MCP Switch doesn't track, e.g. added or edited outside MCP
+    /// Switch since the last import — is read fresh and left untouched, so
+    /// toggling one server can never clobber or delete another.
+    fn write_server(&self, name: &str, entry: Option<&McpServerEntry>) -> Result<(), McpError>;
 }
 
 mod antigravity;
