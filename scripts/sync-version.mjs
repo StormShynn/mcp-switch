@@ -5,7 +5,8 @@
  *   node scripts/sync-version.mjs <new-version>
  *
  * Updates:
- *   - package.json        → "version"
+ *   - package.json          → "version"
+ *   - package-lock.json     → "version"
  *   - src-tauri/Cargo.toml  → [package].version
  *   - src-tauri/tauri.conf.json → "version"
  */
@@ -35,6 +36,18 @@ let cargo = fs.readFileSync(cargoPath, "utf8");
 cargo = cargo.replace(/^version\s*=\s*"[^"]+"/m, `version = "${newVersion}"`);
 fs.writeFileSync(cargoPath, cargo);
 console.log(`✓ Updated Cargo.toml → ${newVersion}`);
+
+// ------- package-lock.json -------
+const lockPath = path.join(rootDir, "package-lock.json");
+const lock = JSON.parse(fs.readFileSync(lockPath, "utf8"));
+if (lock.version) {
+  lock.version = newVersion;
+}
+if (lock.packages?.[""]?.version) {
+  lock.packages[""].version = newVersion;
+}
+fs.writeFileSync(lockPath, JSON.stringify(lock, null, 2) + "\n");
+console.log(`✓ Updated package-lock.json → ${newVersion}`);
 
 // ------- src-tauri/tauri.conf.json -------
 const tauriConfPath = path.join(rootDir, "src-tauri", "tauri.conf.json");

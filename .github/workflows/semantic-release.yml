@@ -18,6 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -28,6 +29,24 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Semantic Release
-        run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Retry helper with exponential backoff
+          retry() {
+            local n=1 max=5 delay=10
+            while true; do
+              "$@" && return 0 || {
+                if [[ $n -lt $max ]]; then
+                  >&2 echo "Retry $n/$max after ${delay}s..."
+                  sleep "$delay"
+                  n=$((n + 1))
+                  delay=$((delay * 2))
+                else
+                  >&2 echo "Failed after $max attempts."
+                  return 1
+                fi
+              }
+            done
+          }
+          retry npx semantic-release

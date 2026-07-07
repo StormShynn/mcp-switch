@@ -43,6 +43,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -91,6 +92,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Generate version info
         id: version
@@ -144,19 +146,92 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
         run: |
-          gh release delete nightly --yes 2>/dev/null || true
-          git push --delete origin nightly 2>/dev/null || true
+          # Retry helper with exponential backoff
+          retry() {
+            local n=1 max=5 delay=10
+            while true; do
+              "$@" && return 0 || {
+                if [[ $n -lt $max ]]; then
+                  >&2 echo "Retry $n/$max after ${delay}s..."
+                  sleep "$delay"
+                  n=$((n + 1))
+                  delay=$((delay * 2))
+                else
+                  >&2 echo "Failed after $max attempts."
+                  return 1
+                fi
+              }
+            done
+          }
+          retry gh release delete nightly --yes 2>/dev/null || true
+          retry git push --delete origin nightly 2>/dev/null || true
+          echo "Waiting 10s to avoid rate limits..."
+          sleep 10
 
       - name: Upload artifacts as release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.version.outputs.release_tag }}
-          name: ${{ steps.version.outputs.release_name }}
-          body_path: release-body.md
-          draft: false
-          prerelease: ${{ steps.version.outputs.prerelease }}
-          files: |
-            update.json
-            artifacts/**/*
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Retry helper with exponential backoff
+          retry() {
+            local n=1 max=5 delay=10
+            while true; do
+              "$@" && return 0 || {
+                if [[ $n -lt $max ]]; then
+                  >&2 echo "Retry $n/$max after ${delay}s..."
+                  sleep "$delay"
+                  n=$((n + 1))
+                  delay=$((delay * 2))
+                else
+                  >&2 echo "Failed after $max attempts."
+                  return 1
+                fi
+              }
+            done
+          }
+
+          TAG="${{ steps.version.outputs.release_tag }}"
+          TITLE="${{ steps.version.outputs.release_name }}"
+          PRERELEASE="${{ steps.version.outputs.prerelease }}"
+          PRERELEASE_FLAG=""
+          [[ "$PRERELEASE" == "true" ]] && PRERELEASE_FLAG="--prerelease"
+
+          # Clean up any existing release for this tag (safe for re-runs)
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          sleep 5
+
+          # Create the release
+          echo "Creating release: $TAG"
+          retry gh release create "$TAG" \
+            --title "$TITLE" \
+            --notes-file release-body.md \
+            $PRERELEASE_FLAG
+
+          # Upload update.json first
+          echo "Uploading update.json..."
+          retry gh release upload "$TAG" update.json --clobber
+          sleep 3
+
+          # Upload artifacts in batches to avoid secondary rate limits
+          BATCH_SIZE=3
+          BATCH_NUM=1
+          BATCH=()
+          echo "Uploading artifacts in batches of $BATCH_SIZE..."
+          while IFS= read -r -d '' f; do
+            BATCH+=("$f")
+            if [[ ${#BATCH[@]} -ge $BATCH_SIZE ]]; then
+              echo "  Batch $BATCH_NUM (${#BATCH[@]} files)..."
+              retry gh release upload "$TAG" "${BATCH[@]}" --clobber
+              sleep 5
+              BATCH=()
+              BATCH_NUM=$((BATCH_NUM + 1))
+            fi
+          done < <(find artifacts -type f -print0)
+
+          # Upload remaining files
+          if [[ ${#BATCH[@]} -gt 0 ]]; then
+            echo "  Final batch (${#BATCH[@]} files)..."
+            retry gh release upload "$TAG" "${BATCH[@]}" --clobber
+          fi
+
+          echo "Release published successfully!"
