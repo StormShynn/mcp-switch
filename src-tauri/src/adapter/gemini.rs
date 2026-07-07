@@ -32,7 +32,7 @@ impl Adapter for GeminiAdapter {
             .mcp_servers
             .unwrap_or_default()
             .into_iter()
-            .filter_map(|(name, spec)| match entry_from_spec(&name, &spec) {
+            .filter_map(|(name, spec)| match entry_from_spec(&name, &spec, self.id()) {
                 Ok(entry) => Some(entry),
                 Err(e) => {
                     eprintln!("Skipping invalid Gemini MCP server '{name}': {e}");
@@ -80,34 +80,34 @@ impl Adapter for GeminiAdapter {
 
 /// Gemini CLI has no `type` field — it infers transport from which field is
 /// present: `command` -> stdio, `httpUrl` -> http, `url` (alone) -> sse.
-fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
+fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry, String> {
     let obj = spec.as_object().ok_or("not a JSON object")?;
 
     if let Some(http_url) = obj.get("httpUrl").and_then(|v| v.as_str()) {
         return Ok(McpServerEntry {
             name: name.to_string(),
+            app: app.to_string(),
             transport: "http".to_string(),
             command: None,
             args: None,
             env: None,
             url: Some(http_url.to_string()),
             headers: mcp_json::string_map(obj, "headers"),
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         });
     }
     if let Some(url) = obj.get("url").and_then(|v| v.as_str()) {
         return Ok(McpServerEntry {
             name: name.to_string(),
+            app: app.to_string(),
             transport: "sse".to_string(),
             command: None,
             args: None,
             env: None,
             url: Some(url.to_string()),
             headers: mcp_json::string_map(obj, "headers"),
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         });
     }
@@ -118,14 +118,14 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
         .ok_or("missing 'command'/'url'/'httpUrl' field")?;
     Ok(McpServerEntry {
         name: name.to_string(),
+        app: app.to_string(),
         transport: "stdio".to_string(),
         command: Some(command.to_string()),
         args: mcp_json::string_array(obj, "args"),
         env: mcp_json::string_map(obj, "env"),
         url: None,
         headers: None,
-        enabled: HashMap::new(),
-        sources: Vec::new(),
+        enabled: true,
         deleted: false,
     })
 }
@@ -182,7 +182,7 @@ mod tests {
     #[test]
     fn stdio_entry_infers_from_command_field() {
         let spec = json!({"command": "npx", "args": ["-y", "foo"], "env": {"KEY": "val"}});
-        let entry = entry_from_spec("foo", &spec).unwrap();
+        let entry = entry_from_spec("foo", &spec, "gemini").unwrap();
         assert_eq!(entry.transport, "stdio");
         assert_eq!(entry.command, Some("npx".to_string()));
         assert_eq!(entry.env.unwrap().get("KEY"), Some(&"val".to_string()));
@@ -191,7 +191,7 @@ mod tests {
     #[test]
     fn http_url_field_maps_to_http_transport() {
         let spec = json!({"httpUrl": "https://example.com/mcp"});
-        let entry = entry_from_spec("remote", &spec).unwrap();
+        let entry = entry_from_spec("remote", &spec, "gemini").unwrap();
         assert_eq!(entry.transport, "http");
         assert_eq!(entry.url, Some("https://example.com/mcp".to_string()));
 
@@ -203,7 +203,7 @@ mod tests {
     #[test]
     fn bare_url_field_maps_to_sse_transport() {
         let spec = json!({"url": "https://example.com/sse"});
-        let entry = entry_from_spec("remote", &spec).unwrap();
+        let entry = entry_from_spec("remote", &spec, "gemini").unwrap();
         assert_eq!(entry.transport, "sse");
 
         let written = spec_from_entry(&entry);
@@ -214,6 +214,6 @@ mod tests {
     #[test]
     fn entry_without_command_or_url_is_rejected() {
         let spec = json!({"foo": "bar"});
-        assert!(entry_from_spec("bad", &spec).is_err());
+        assert!(entry_from_spec("bad", &spec, "gemini").is_err());
     }
 }

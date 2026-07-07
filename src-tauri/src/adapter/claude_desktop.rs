@@ -32,7 +32,7 @@ impl Adapter for ClaudeDesktopAdapter {
             .mcp_servers
             .unwrap_or_default()
             .into_iter()
-            .filter_map(|(name, spec)| match entry_from_spec(&name, &spec) {
+            .filter_map(|(name, spec)| match entry_from_spec(&name, &spec, self.id()) {
                 Ok(entry) => Some(entry),
                 Err(e) => {
                     eprintln!("Skipping invalid Claude Desktop MCP server '{name}': {e}");
@@ -81,7 +81,7 @@ impl Adapter for ClaudeDesktopAdapter {
 /// Claude Desktop uses the same `mcpServers` shape as Claude Code: `type`
 /// defaults to "stdio" when absent; "http"/"sse" carry `url`/`headers`
 /// instead of `command`/`args`/`env`.
-fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
+fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry, String> {
     let obj = spec.as_object().ok_or("not a JSON object")?;
     let transport = obj.get("type").and_then(|v| v.as_str()).unwrap_or("stdio");
 
@@ -93,14 +93,14 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
                 .ok_or("missing 'url' field")?;
             Ok(McpServerEntry {
                 name: name.to_string(),
+                app: app.to_string(),
                 transport: transport.to_string(),
                 command: None,
                 args: None,
                 env: None,
                 url: Some(url.to_string()),
                 headers: mcp_json::string_map(obj, "headers"),
-                enabled: HashMap::new(),
-                sources: Vec::new(),
+                enabled: true,
                 deleted: false,
             })
         }
@@ -111,14 +111,14 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
                 .ok_or("missing 'command' field")?;
             Ok(McpServerEntry {
                 name: name.to_string(),
+                app: app.to_string(),
                 transport: "stdio".to_string(),
                 command: Some(command.to_string()),
                 args: mcp_json::string_array(obj, "args"),
                 env: mcp_json::string_map(obj, "env"),
                 url: None,
                 headers: None,
-                enabled: HashMap::new(),
-                sources: Vec::new(),
+                enabled: true,
                 deleted: false,
             })
         }

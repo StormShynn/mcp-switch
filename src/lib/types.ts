@@ -10,18 +10,26 @@ export type AppId =
 /** "stdio" launches `command`; "http"/"sse" connect to `url` instead. */
 export type Transport = "stdio" | "http" | "sse";
 
+/**
+ * A single MCP server entry, scoped to exactly one app. The same name can
+ * exist independently for several apps (e.g. "fs" for both "claude" and
+ * "codex"), each with its own command/args/env/url/headers — real-world MCP
+ * servers often genuinely need different config per tool (different
+ * cookie/token file paths, different transports), so entries are never
+ * shared or fanned out across apps.
+ */
 export interface McpServerEntry {
   name: string;
+  app: AppId;
   transport: Transport;
   command?: string;
   args?: string[];
   env?: Record<string, string>;
   url?: string;
   headers?: Record<string, string>;
-  enabled: Record<AppId, boolean>;
-  /** App ids whose real config actually defines this server. */
-  sources: AppId[];
-  /** Soft-trashed: vanished from every app it used to be enabled in. */
+  /** Whether this entry is currently written into `app`'s live config. */
+  enabled: boolean;
+  /** Soft-trashed: vanished from its app's live config while enabled. */
   deleted: boolean;
 }
 
@@ -32,13 +40,14 @@ export interface Store {
 /** Payload for the add/edit server form (backend command `save_server`). */
 export interface ServerInput {
   name: string;
+  app: AppId;
   transport: Transport;
   command?: string;
   args?: string[];
   env?: Record<string, string>;
   url?: string;
   headers?: Record<string, string>;
-  enabledApps: AppId[];
+  enabled: boolean;
 }
 
 export interface SyncSummary {
@@ -57,7 +66,7 @@ export const APPS: AppInfo[] = [
   { id: "claude-desktop", label: "Claude Desktop", configFile: "claude_desktop_config.json" },
   { id: "codex", label: "Codex CLI", configFile: "~/.codex/config.toml" },
   { id: "gemini", label: "Gemini CLI", configFile: "~/.gemini/settings.json" },
-  { id: "hermes", label: "Hermes", configFile: "~/.hermes/config.{toml,json}" },
+  { id: "hermes", label: "Hermes", configFile: "~/.hermes/config.yaml" },
   { id: "opencode", label: "OpenCode", configFile: "~/.config/opencode/config.json" },
   { id: "antigravity", label: "Antigravity", configFile: "~/.gemini/config/mcp_config.json" },
 ];
@@ -71,15 +80,3 @@ export const APP_COLORS: Record<AppId, string> = {
   opencode: "#fbbf24",
   antigravity: "#ef4444",
 };
-
-export function defaultEnabled(): Record<AppId, boolean> {
-  return {
-    claude: false,
-    "claude-desktop": false,
-    codex: false,
-    gemini: false,
-    hermes: false,
-    opencode: false,
-    antigravity: false,
-  };
-}

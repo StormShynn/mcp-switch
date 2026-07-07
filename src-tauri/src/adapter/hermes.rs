@@ -17,32 +17,127 @@ impl Adapter for HermesAdapter {
     }
 
     fn read_servers(&self) -> Result<Vec<McpServerEntry>, McpError> {
-        // Try TOML first, fall back to JSON
-        let toml_path = paths::hermes_config();
-        let json_path = paths::hermes_config_json();
-
-        if toml_path.exists() {
-            self.read_toml(&toml_path)
-        } else if json_path.exists() {
-            self.read_json(&json_path)
-        } else {
-            Ok(Vec::new())
+        // YAML is Hermes's real, documented format — confirmed against
+        // NousResearch's own docs. TOML/JSON are unconfirmed fallbacks kept
+        // in case some installation genuinely uses one of those instead.
+        let yaml_path = paths::hermes_config_yaml();
+        if yaml_path.exists() {
+            return self.read_yaml(&yaml_path);
         }
+        let toml_path = paths::hermes_config();
+        if toml_path.exists() {
+            return self.read_toml(&toml_path);
+        }
+        let json_path = paths::hermes_config_json();
+        if json_path.exists() {
+            return self.read_json(&json_path);
+        }
+        Ok(Vec::new())
     }
 
     fn write_server(&self, name: &str, entry: Option<&McpServerEntry>) -> Result<(), McpError> {
-        let toml_path = paths::hermes_config();
-        let json_path = paths::hermes_config_json();
-
-        if toml_path.exists() {
-            self.write_toml(&toml_path, name, entry)
-        } else {
-            self.write_json(&json_path, name, entry)
+        let yaml_path = paths::hermes_config_yaml();
+        if yaml_path.exists() {
+            return self.write_yaml(&yaml_path, name, entry);
         }
+        let toml_path = paths::hermes_config();
+        if toml_path.exists() {
+            return self.write_toml(&toml_path, name, entry);
+        }
+        let json_path = paths::hermes_config_json();
+        if json_path.exists() {
+            return self.write_json(&json_path, name, entry);
+        }
+        // Nothing on disk yet — create fresh in the confirmed-correct format.
+        self.write_yaml(&yaml_path, name, entry)
     }
 }
 
 impl HermesAdapter {
+    /// `mcp_servers` here is a map keyed by server name — the same shape
+    /// Claude/Codex/Gemini use — not the list-of-objects-with-a-`name`-field
+    /// the TOML/JSON fallbacks below assume.
+    fn read_yaml(&self, path: &std::path::Path) -> Result<Vec<McpServerEntry>, McpError> {
+        let Some(content) = read_file_optional(path)? else {
+            return Ok(Vec::new());
+        };
+
+        #[derive(serde::Deserialize)]
+        struct HermesConfig {
+            #[serde(default)]
+            mcp_servers: Option<HashMap<String, serde_yaml::Value>>,
+        }
+
+        let config: HermesConfig = serde_yaml::from_str(&content)?;
+        let servers = config
+            .mcp_servers
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|(name, spec)| match entry_from_yaml_spec(&name, &spec, self.id()) {
+                Ok(entry) => Some(entry),
+                Err(e) => {
+                    eprintln!("Skipping invalid Hermes MCP server '{name}': {e}");
+                    None
+                }
+            })
+            .collect();
+
+        Ok(servers)
+    }
+
+    /// Surgically upserts/removes just `name` in the `mcp_servers` map,
+    /// preserving every other key in the file (including Hermes-specific
+    /// per-server fields this adapter doesn't model, like `auth: oauth` or
+    /// `tools.include`, on entries other than the one being touched) and
+    /// every unrelated top-level key (`model`, `custom_providers`, ...).
+    ///
+    /// Known limitation: writing *this* entry always goes through the
+    /// unified command/args/env/url/headers shape, so if the entry being
+    /// toggled itself relies on a Hermes-only field outside that shape
+    /// (OAuth auth, tools/prompts/resources filtering), that field is lost
+    /// on this write — the same limitation every other adapter already has
+    /// for fields outside the common model, not something specific to this
+    /// change.
+    fn write_yaml(
+        &self,
+        path: &std::path::Path,
+        name: &str,
+        entry: Option<&McpServerEntry>,
+    ) -> Result<(), McpError> {
+        let content = read_file_optional(path)?.unwrap_or_default();
+
+        #[derive(serde::Deserialize, serde::Serialize)]
+        struct HermesConfig {
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            mcp_servers: Option<HashMap<String, serde_yaml::Value>>,
+            #[serde(flatten)]
+            extra: HashMap<String, serde_yaml::Value>,
+        }
+
+        let mut config: HermesConfig = if content.trim().is_empty() {
+            HermesConfig {
+                mcp_servers: None,
+                extra: HashMap::new(),
+            }
+        } else {
+            serde_yaml::from_str(&content)?
+        };
+
+        let mut servers = config.mcp_servers.unwrap_or_default();
+        match entry {
+            Some(e) => {
+                servers.insert(name.to_string(), yaml_spec_from_entry(e));
+            }
+            None => {
+                servers.remove(name);
+            }
+        }
+        config.mcp_servers = if servers.is_empty() { None } else { Some(servers) };
+
+        let output = serde_yaml::to_string(&config)?;
+        crate::atomic::atomic_write(path, &output)
+    }
+
     fn read_toml(&self, path: &std::path::Path) -> Result<Vec<McpServerEntry>, McpError> {
         let Some(content) = read_file_optional(path)? else {
             return Ok(Vec::new());
@@ -59,7 +154,7 @@ impl HermesAdapter {
             .mcp_servers
             .unwrap_or_default()
             .into_iter()
-            .filter_map(|spec| match entry_from_toml(&spec) {
+            .filter_map(|spec| match entry_from_toml(&spec, self.id()) {
                 Ok(entry) => Some(entry),
                 Err(e) => {
                     eprintln!("Skipping invalid Hermes MCP server: {e}");
@@ -87,7 +182,7 @@ impl HermesAdapter {
             .mcp_servers
             .unwrap_or_default()
             .into_iter()
-            .filter_map(|spec| match entry_from_json(&spec) {
+            .filter_map(|spec| match entry_from_json(&spec, self.id()) {
                 Ok(entry) => Some(entry),
                 Err(e) => {
                     eprintln!("Skipping invalid Hermes MCP server: {e}");
@@ -197,13 +292,121 @@ fn upsert_or_remove_by_name<T>(
 }
 
 // ============================================================================
+// YAML <-> unified entry (Hermes's real, documented format)
+// ============================================================================
+
+/// `command` present -> stdio; otherwise `url` -> remote. Hermes doesn't
+/// distinguish http/sse on read (remote entries always come back as
+/// "sse", matching the convention used by Hermes's other transports here);
+/// a `headers`-less remote entry may really be using Hermes's `auth: oauth`
+/// instead — that's imported fine as a plain remote entry, just without
+/// the OAuth marker (see `write_yaml`'s doc comment for the round-trip
+/// implication).
+fn entry_from_yaml_spec(name: &str, spec: &serde_yaml::Value, app: &str) -> Result<McpServerEntry, String> {
+    let map = spec.as_mapping().ok_or("not a YAML mapping")?;
+
+    if let Some(command) = map.get("command").and_then(|v| v.as_str()) {
+        let args = map.get("args").and_then(|v| v.as_sequence()).map(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_str().map(str::to_string))
+                .collect()
+        });
+        let env = map
+            .get("env")
+            .and_then(|v| v.as_mapping())
+            .map(yaml_mapping_to_string_map);
+        return Ok(McpServerEntry {
+            name: name.to_string(),
+            app: app.to_string(),
+            transport: "stdio".to_string(),
+            command: Some(command.to_string()),
+            args,
+            env,
+            url: None,
+            headers: None,
+            enabled: true,
+            deleted: false,
+        });
+    }
+
+    if let Some(url) = map.get("url").and_then(|v| v.as_str()) {
+        let headers = map
+            .get("headers")
+            .and_then(|v| v.as_mapping())
+            .map(yaml_mapping_to_string_map);
+        return Ok(McpServerEntry {
+            name: name.to_string(),
+            app: app.to_string(),
+            transport: "sse".to_string(),
+            command: None,
+            args: None,
+            env: None,
+            url: Some(url.to_string()),
+            headers,
+            enabled: true,
+            deleted: false,
+        });
+    }
+
+    Err("neither 'command' nor 'url' field present".to_string())
+}
+
+fn yaml_spec_from_entry(entry: &McpServerEntry) -> serde_yaml::Value {
+    let mut map = serde_yaml::Mapping::new();
+
+    if entry.transport == "http" || entry.transport == "sse" {
+        map.insert(
+            "url".into(),
+            entry.url.clone().unwrap_or_default().into(),
+        );
+        if let Some(headers) = &entry.headers {
+            if !headers.is_empty() {
+                map.insert("headers".into(), string_map_to_yaml_mapping(headers).into());
+            }
+        }
+        return serde_yaml::Value::Mapping(map);
+    }
+
+    let (command, args) =
+        winshim::wrap_for_windows(entry.command.as_deref().unwrap_or_default(), entry.args.clone());
+    map.insert("command".into(), command.into());
+    if let Some(args) = args {
+        if !args.is_empty() {
+            map.insert(
+                "args".into(),
+                serde_yaml::Value::Sequence(args.into_iter().map(Into::into).collect()),
+            );
+        }
+    }
+    if let Some(env) = &entry.env {
+        if !env.is_empty() {
+            map.insert("env".into(), string_map_to_yaml_mapping(env).into());
+        }
+    }
+    serde_yaml::Value::Mapping(map)
+}
+
+fn yaml_mapping_to_string_map(mapping: &serde_yaml::Mapping) -> HashMap<String, String> {
+    mapping
+        .iter()
+        .filter_map(|(k, v)| Some((k.as_str()?.to_string(), v.as_str()?.to_string())))
+        .collect()
+}
+
+fn string_map_to_yaml_mapping(map: &HashMap<String, String>) -> serde_yaml::Mapping {
+    map.iter()
+        .map(|(k, v)| (serde_yaml::Value::String(k.clone()), serde_yaml::Value::String(v.clone())))
+        .collect()
+}
+
+// ============================================================================
 // TOML <-> unified entry
 // ============================================================================
 
 /// Hermes has no `type` field: `command` present -> stdio, otherwise `url` ->
 /// remote (Hermes doesn't distinguish http/sse on read, so remote entries
 /// always come back as "sse"; `write_*` treats "http" the same as "sse").
-fn entry_from_toml(value: &toml::Value) -> Result<McpServerEntry, String> {
+fn entry_from_toml(value: &toml::Value, app: &str) -> Result<McpServerEntry, String> {
     let table = value.as_table().ok_or("not a TOML table")?;
     let name = table
         .get("name")
@@ -223,14 +426,14 @@ fn entry_from_toml(value: &toml::Value) -> Result<McpServerEntry, String> {
             .map(toml_table_to_string_map);
         return Ok(McpServerEntry {
             name,
+            app: app.to_string(),
             transport: "stdio".to_string(),
             command: Some(command.to_string()),
             args,
             env,
             url: None,
             headers: None,
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         });
     }
@@ -242,14 +445,14 @@ fn entry_from_toml(value: &toml::Value) -> Result<McpServerEntry, String> {
             .map(toml_table_to_string_map);
         return Ok(McpServerEntry {
             name,
+            app: app.to_string(),
             transport: "sse".to_string(),
             command: None,
             args: None,
             env: None,
             url: Some(url.to_string()),
             headers,
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         });
     }
@@ -316,7 +519,7 @@ fn string_map_to_toml_table(map: &HashMap<String, String>) -> toml::value::Table
 // JSON <-> unified entry
 // ============================================================================
 
-fn entry_from_json(spec: &Value) -> Result<McpServerEntry, String> {
+fn entry_from_json(spec: &Value, app: &str) -> Result<McpServerEntry, String> {
     let obj = spec.as_object().ok_or("not a JSON object")?;
     let name = obj
         .get("name")
@@ -327,14 +530,14 @@ fn entry_from_json(spec: &Value) -> Result<McpServerEntry, String> {
     if let Some(command) = obj.get("command").and_then(|v| v.as_str()) {
         return Ok(McpServerEntry {
             name,
+            app: app.to_string(),
             transport: "stdio".to_string(),
             command: Some(command.to_string()),
             args: mcp_json::string_array(obj, "args"),
             env: mcp_json::string_map(obj, "env"),
             url: None,
             headers: None,
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         });
     }
@@ -342,14 +545,14 @@ fn entry_from_json(spec: &Value) -> Result<McpServerEntry, String> {
     if let Some(url) = obj.get("url").and_then(|v| v.as_str()) {
         return Ok(McpServerEntry {
             name,
+            app: app.to_string(),
             transport: "sse".to_string(),
             command: None,
             args: None,
             env: None,
             url: Some(url.to_string()),
             headers: mcp_json::string_map(obj, "headers"),
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         });
     }
@@ -392,6 +595,114 @@ mod tests {
     use super::*;
 
     #[test]
+    fn yaml_stdio_entry_reads_map_shape_matching_real_hermes_docs() {
+        let doc: serde_yaml::Value = serde_yaml::from_str(
+            r#"
+            command: "npx"
+            args: ["-y", "@modelcontextprotocol/server-filesystem", "/home/user/project"]
+            env:
+              KEY: val
+            "#,
+        )
+        .unwrap();
+        let entry = entry_from_yaml_spec("fs", &doc, "hermes").unwrap();
+        assert_eq!(entry.name, "fs");
+        assert_eq!(entry.transport, "stdio");
+        assert_eq!(entry.command, Some("npx".to_string()));
+        assert_eq!(
+            entry.args,
+            Some(vec![
+                "-y".to_string(),
+                "@modelcontextprotocol/server-filesystem".to_string(),
+                "/home/user/project".to_string(),
+            ])
+        );
+        assert_eq!(entry.env.unwrap().get("KEY"), Some(&"val".to_string()));
+    }
+
+    #[test]
+    fn yaml_remote_entry_with_headers_infers_sse() {
+        let doc: serde_yaml::Value = serde_yaml::from_str(
+            r#"
+            url: "https://mcp.internal.example.com"
+            headers:
+              Authorization: "Bearer xyz"
+            "#,
+        )
+        .unwrap();
+        let entry = entry_from_yaml_spec("internal_api", &doc, "hermes").unwrap();
+        assert_eq!(entry.transport, "sse");
+        assert_eq!(entry.url, Some("https://mcp.internal.example.com".to_string()));
+        assert_eq!(
+            entry.headers.unwrap().get("Authorization"),
+            Some(&"Bearer xyz".to_string())
+        );
+    }
+
+    #[test]
+    fn yaml_oauth_remote_entry_without_headers_still_imports() {
+        // Hermes's `auth: oauth` shorthand has no `headers` field at all —
+        // must still import as a plain remote entry rather than being
+        // rejected, even though the OAuth marker itself isn't modeled.
+        let doc: serde_yaml::Value = serde_yaml::from_str(
+            r#"
+            url: "https://mcp.linear.app/mcp"
+            auth: oauth
+            "#,
+        )
+        .unwrap();
+        let entry = entry_from_yaml_spec("linear", &doc, "hermes").unwrap();
+        assert_eq!(entry.transport, "sse");
+        assert_eq!(entry.url, Some("https://mcp.linear.app/mcp".to_string()));
+        assert!(entry.headers.is_none());
+    }
+
+    #[test]
+    fn yaml_write_reads_full_config_map_keyed_by_name_not_a_list() {
+        let dir = std::env::temp_dir();
+        let path = dir.join("mcp_switch_test_hermes_config.yaml");
+        std::fs::write(
+            &path,
+            "custom_providers: []\nmodel:\n  provider: unlimited-ai\nmcp_servers: {}\n",
+        )
+        .unwrap();
+
+        let adapter = HermesAdapter;
+        // Uses a command outside winshim's known shim list (unlike "npx")
+        // so this test isolates the map-shape round-trip from Windows
+        // `cmd /c` wrapping, which winshim's own tests already cover.
+        let entry = McpServerEntry {
+            name: "fs".to_string(),
+            app: "hermes".to_string(),
+            transport: "stdio".to_string(),
+            command: Some("python3".to_string()),
+            args: Some(vec!["-y".to_string(), "foo".to_string()]),
+            env: None,
+            url: None,
+            headers: None,
+            enabled: true,
+            deleted: false,
+        };
+        adapter.write_yaml(&path, "fs", Some(&entry)).unwrap();
+
+        let written = std::fs::read_to_string(&path).unwrap();
+        let doc: serde_yaml::Value = serde_yaml::from_str(&written).unwrap();
+        // The pre-existing `model`/`custom_providers` keys must survive
+        // untouched — this is Hermes's own real config shape, not a fixture
+        // invented for the test.
+        assert_eq!(
+            doc.get("model").and_then(|m| m.get("provider")).and_then(|p| p.as_str()),
+            Some("unlimited-ai")
+        );
+        let servers = adapter.read_yaml(&path).unwrap();
+        assert_eq!(servers.len(), 1);
+        assert_eq!(servers[0].name, "fs");
+        assert_eq!(servers[0].command, Some("python3".to_string()));
+
+        std::fs::remove_file(&path).unwrap();
+    }
+
+    #[test]
     fn toml_stdio_entry_infers_from_command_field() {
         let value: toml::Value = toml::from_str(
             r#"
@@ -404,7 +715,7 @@ mod tests {
             "#,
         )
         .unwrap();
-        let entry = entry_from_toml(&value).unwrap();
+        let entry = entry_from_toml(&value, "hermes").unwrap();
         assert_eq!(entry.name, "fs");
         assert_eq!(entry.transport, "stdio");
         assert_eq!(entry.env.unwrap().get("KEY"), Some(&"val".to_string()));
@@ -419,7 +730,7 @@ mod tests {
             "#,
         )
         .unwrap();
-        let entry = entry_from_toml(&value).unwrap();
+        let entry = entry_from_toml(&value, "hermes").unwrap();
         assert_eq!(entry.transport, "sse");
         assert_eq!(entry.url, Some("https://example.com/mcp".to_string()));
     }
@@ -427,21 +738,21 @@ mod tests {
     #[test]
     fn json_entry_missing_name_is_rejected() {
         let spec = json!({"command": "npx"});
-        assert!(entry_from_json(&spec).is_err());
+        assert!(entry_from_json(&spec, "hermes").is_err());
     }
 
     #[test]
     fn json_http_transport_writes_plain_url_no_type() {
         let entry = McpServerEntry {
             name: "remote".to_string(),
+            app: "hermes".to_string(),
             transport: "http".to_string(),
             command: None,
             args: None,
             env: None,
             url: Some("https://example.com/mcp".to_string()),
             headers: None,
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         };
         let written = json_from_entry(&entry);

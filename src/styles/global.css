@@ -425,14 +425,6 @@ body {
   gap: 4px !important;
 }
 
-.toggle-label {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  min-width: 28px;
-}
-
 /* Footer */
 .app-footer {
   padding: 10px 20px;
@@ -534,6 +526,47 @@ body {
 }
 
 .restart-chip:hover .restart-chip-x {
+  color: var(--warning);
+}
+
+/* Restart chip variant with a real "kill & relaunch" action button plus a
+   separate dismiss (×) button, for apps MCP Switch can restart itself. */
+.restart-chip-actionable {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.restart-chip-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.restart-chip-action:hover {
+  background: var(--bg-hover);
+  color: var(--warning);
+}
+
+.restart-chip-actionable > .restart-chip-x {
+  padding: 3px 8px 3px 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.restart-chip-actionable > .restart-chip-x:hover {
   color: var(--warning);
 }
 
@@ -719,4 +752,29 @@ body {
   justify-content: flex-end;
   gap: 8px;
   margin-top: 4px;
+}
+
+.modal-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Paste-JSON-to-autofill row under the textarea */
+.json-paste-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.json-paste-notice {
+  font-size: 0.75rem;
+}
+
+.json-paste-notice-success {
+  color: var(--success);
+}
+
+.json-paste-notice-error {
+  color: var(--danger);
 }

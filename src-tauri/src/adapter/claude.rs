@@ -32,7 +32,7 @@ impl Adapter for ClaudeAdapter {
             .mcp_servers
             .unwrap_or_default()
             .into_iter()
-            .filter_map(|(name, spec)| match entry_from_spec(&name, &spec) {
+            .filter_map(|(name, spec)| match entry_from_spec(&name, &spec, self.id()) {
                 Ok(entry) => Some(entry),
                 Err(e) => {
                     eprintln!("Skipping invalid Claude MCP server '{name}': {e}");
@@ -81,7 +81,7 @@ impl Adapter for ClaudeAdapter {
 /// Parses one raw `mcpServers` entry. Claude's native shape defaults `type`
 /// to "stdio" when absent; "http"/"sse" carry `url`/`headers` instead of
 /// `command`/`args`/`env`.
-fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
+fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry, String> {
     let obj = spec.as_object().ok_or("not a JSON object")?;
     let transport = obj.get("type").and_then(|v| v.as_str()).unwrap_or("stdio");
 
@@ -93,14 +93,14 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
                 .ok_or("missing 'url' field")?;
             Ok(McpServerEntry {
                 name: name.to_string(),
+                app: app.to_string(),
                 transport: transport.to_string(),
                 command: None,
                 args: None,
                 env: None,
                 url: Some(url.to_string()),
                 headers: mcp_json::string_map(obj, "headers"),
-                enabled: HashMap::new(),
-                sources: Vec::new(),
+                enabled: true,
                 deleted: false,
             })
         }
@@ -111,14 +111,14 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
                 .ok_or("missing 'command' field")?;
             Ok(McpServerEntry {
                 name: name.to_string(),
+                app: app.to_string(),
                 transport: "stdio".to_string(),
                 command: Some(command.to_string()),
                 args: mcp_json::string_array(obj, "args"),
                 env: mcp_json::string_map(obj, "env"),
                 url: None,
                 headers: None,
-                enabled: HashMap::new(),
-                sources: Vec::new(),
+                enabled: true,
                 deleted: false,
             })
         }
@@ -167,7 +167,7 @@ mod tests {
     #[test]
     fn stdio_without_type_field_defaults_to_stdio() {
         let spec = json!({"command": "node", "args": ["server.js"]});
-        let entry = entry_from_spec("fs", &spec).unwrap();
+        let entry = entry_from_spec("fs", &spec, "claude").unwrap();
         assert_eq!(entry.transport, "stdio");
         assert_eq!(entry.command, Some("node".to_string()));
         assert_eq!(entry.args, Some(vec!["server.js".to_string()]));
@@ -177,7 +177,7 @@ mod tests {
     #[test]
     fn http_entry_requires_url() {
         let spec = json!({"type": "http"});
-        assert!(entry_from_spec("bad", &spec).is_err());
+        assert!(entry_from_spec("bad", &spec, "claude").is_err());
     }
 
     #[test]
@@ -187,7 +187,7 @@ mod tests {
             "url": "https://example.com/mcp",
             "headers": {"Authorization": "Bearer xyz"}
         });
-        let entry = entry_from_spec("remote", &spec).unwrap();
+        let entry = entry_from_spec("remote", &spec, "claude").unwrap();
         assert_eq!(entry.transport, "sse");
         assert_eq!(entry.url, Some("https://example.com/mcp".to_string()));
         assert_eq!(
@@ -206,14 +206,14 @@ mod tests {
     fn stdio_write_omits_type_field() {
         let entry = McpServerEntry {
             name: "fs".to_string(),
+            app: "claude".to_string(),
             transport: "stdio".to_string(),
             command: Some("node".to_string()),
             args: None,
             env: None,
             url: None,
             headers: None,
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         };
         let written = spec_from_entry(&entry);

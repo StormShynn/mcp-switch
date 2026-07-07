@@ -32,7 +32,7 @@ impl Adapter for AntigravityAdapter {
             .mcp_servers
             .unwrap_or_default()
             .into_iter()
-            .filter_map(|(name, spec)| match entry_from_spec(&name, &spec) {
+            .filter_map(|(name, spec)| match entry_from_spec(&name, &spec, self.id()) {
                 Ok(entry) => Some(entry),
                 Err(e) => {
                     eprintln!("Skipping invalid Antigravity MCP server '{name}': {e}");
@@ -82,20 +82,20 @@ impl Adapter for AntigravityAdapter {
 /// `env` (e.g. a `docker run ...` entry). Remote servers use `serverUrl`
 /// (NOT `url`/`httpUrl` like other tools) + `headers`; Antigravity doesn't
 /// distinguish http vs sse, so remote entries import as "sse".
-fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
+fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry, String> {
     let obj = spec.as_object().ok_or("not a JSON object")?;
 
     if let Some(server_url) = obj.get("serverUrl").and_then(|v| v.as_str()) {
         return Ok(McpServerEntry {
             name: name.to_string(),
+            app: app.to_string(),
             transport: "sse".to_string(),
             command: None,
             args: None,
             env: None,
             url: Some(server_url.to_string()),
             headers: mcp_json::string_map(obj, "headers"),
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         });
     }
@@ -106,14 +106,14 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
         .ok_or("missing 'command'/'serverUrl' field")?;
     Ok(McpServerEntry {
         name: name.to_string(),
+        app: app.to_string(),
         transport: "stdio".to_string(),
         command: Some(command.to_string()),
         args: mcp_json::string_array(obj, "args"),
         env: mcp_json::string_map(obj, "env"),
         url: None,
         headers: None,
-        enabled: HashMap::new(),
-        sources: Vec::new(),
+        enabled: true,
         deleted: false,
     })
 }
@@ -166,7 +166,7 @@ mod tests {
             "args": ["run", "-i", "--rm"],
             "env": {"KEY": "val"}
         });
-        let entry = entry_from_spec("github", &spec).unwrap();
+        let entry = entry_from_spec("github", &spec, "antigravity").unwrap();
         assert_eq!(entry.transport, "stdio");
         assert_eq!(entry.command, Some("docker".to_string()));
         assert_eq!(entry.env.unwrap().get("KEY"), Some(&"val".to_string()));
@@ -178,7 +178,7 @@ mod tests {
             "serverUrl": "https://api.githubcopilot.com/mcp/",
             "headers": {"Authorization": "Bearer xyz"}
         });
-        let entry = entry_from_spec("github", &spec).unwrap();
+        let entry = entry_from_spec("github", &spec, "antigravity").unwrap();
         assert_eq!(entry.transport, "sse");
         assert_eq!(
             entry.url,
@@ -194,6 +194,6 @@ mod tests {
     #[test]
     fn entry_without_command_or_server_url_is_rejected() {
         let spec = json!({"foo": "bar"});
-        assert!(entry_from_spec("bad", &spec).is_err());
+        assert!(entry_from_spec("bad", &spec, "antigravity").is_err());
     }
 }

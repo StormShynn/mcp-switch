@@ -85,8 +85,19 @@ pub fn gemini_config() -> PathBuf {
     home.join(".gemini").join("settings.json")
 }
 
-/// Returns the config file path for Hermes.
-/// Hermes supports both .toml and .json; we try TOML first.
+/// Returns the config file path for Hermes Agent's real, documented format:
+/// `~/.hermes/config.yaml` (confirmed against NousResearch's own docs —
+/// `mcp_servers` there is a map keyed by server name, the same shape
+/// Claude/Codex/Gemini use, not a list).
+pub fn hermes_config_yaml() -> PathBuf {
+    let home = dirs::home_dir().expect("could not find home directory");
+    home.join(".hermes").join("config.yaml")
+}
+
+/// Older guesses at Hermes's config format, kept as a fallback in case an
+/// installation genuinely uses one of these instead — but unlike
+/// `hermes_config_yaml`, neither has been confirmed against real Hermes
+/// documentation or a real install. [Unverified]
 pub fn hermes_config() -> PathBuf {
     let home = dirs::home_dir().expect("could not find home directory");
     home.join(".hermes").join("config.toml")

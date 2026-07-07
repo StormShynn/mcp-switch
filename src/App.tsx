@@ -13,7 +13,7 @@ import { check, type Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { confirm } from "@tauri-apps/plugin-dialog";
 import type { McpServerEntry, AppId, ServerInput, SyncSummary, Transport } from "./lib/types";
-import { APPS, APP_COLORS, defaultEnabled } from "./lib/types";
+import { APPS, APP_COLORS } from "./lib/types";
 
 type UpdateStatus =
   | "idle"
@@ -26,22 +26,16 @@ type UpdateStatus =
 
 const REPO_URL = "https://github.com/StormShynn/mcp-switch";
 
+/** Apps MCP Switch can kill-and-relaunch itself (both are Windows Store
+ * packages with a discoverable launch id). CLI tools run interactively in
+ * whatever terminal the user already has open for them — there's no
+ * single well-defined process to restart — so they only ever get the
+ * plain "I already restarted it myself" dismiss action. */
+const RESTARTABLE_APPS: ReadonlySet<AppId> = new Set(["claude-desktop", "antigravity"]);
+
 type SortKey = "name" | "status";
 type SortDir = "asc" | "desc";
 type FilterKey = "all" | AppId | "trash";
-
-/** Whether `appId` is a relevant scope for this server: it's one of the
- * apps whose real config defines it (or, for legacy entries imported
- * before `sources` existed, until they're re-imported), or it's already
- * enabled there. This is independent of on/off state on purpose — toggling
- * a server must never make it appear/disappear from its own app's tab. */
-function isRelevantApp(server: McpServerEntry, appId: AppId): boolean {
-  return (
-    server.sources.length === 0 ||
-    server.sources.includes(appId) ||
-    server.enabled[appId]
-  );
-}
 
 function sortServers(
   servers: McpServerEntry[],
@@ -55,7 +49,7 @@ function sortServers(
   } else if (filter === "all") {
     filtered = servers.filter((s) => !s.deleted);
   } else {
-    filtered = servers.filter((s) => !s.deleted && isRelevantApp(s, filter));
+    filtered = servers.filter((s) => !s.deleted && s.app === filter);
   }
 
   return [...filtered].sort((a, b) => {
@@ -63,9 +57,7 @@ function sortServers(
     if (key === "name") {
       cmp = a.name.localeCompare(b.name);
     } else {
-      const aOn = APPS.filter((app) => a.enabled[app.id]).length;
-      const bOn = APPS.filter((app) => b.enabled[app.id]).length;
-      cmp = bOn - aOn;
+      cmp = Number(b.enabled) - Number(a.enabled);
     }
     return dir === "asc" ? cmp : -cmp;
   });
@@ -77,16 +69,15 @@ function ServerRow({
   index,
   onToggle,
   onEdit,
+  onTrash,
 }: {
   server: McpServerEntry;
   index: number;
   onToggle: (serverName: string, appId: AppId, enabled: boolean) => void;
   onEdit: (server: McpServerEntry) => void;
+  onTrash: (serverName: string, appId: AppId) => void;
 }) {
-  // Same app-relevance rule the filter tabs use, so a server never appears
-  // or disappears anywhere just because it was toggled on/off.
-  const visibleApps = APPS.filter((a) => isRelevantApp(server, a.id));
-  const enabledCount = visibleApps.filter((a) => server.enabled[a.id]).length;
+  const appLabel = APPS.find((a) => a.id === server.app)?.label ?? server.app;
 
   return (
     <div
@@ -101,36 +92,35 @@ function ServerRow({
           {server.transport === "stdio" ? server.command : server.url}
         </div>
         <div className="server-meta">
-          <span className="badge">
-            {enabledCount}/{visibleApps.length} apps
+          <span className="badge" style={{ color: APP_COLORS[server.app] }}>
+            {appLabel}
           </span>
         </div>
       </div>
 
       <div className="server-toggles">
-        {visibleApps.map((app) => (
-          <label
-            key={app.id}
-            className="toggle app-toggle"
-            title={`${app.label} — ${server.enabled[app.id] ? "enabled" : "disabled"}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <input
-              type="checkbox"
-              checked={server.enabled[app.id]}
-              onChange={(e) =>
-                onToggle(server.name, app.id, e.target.checked)
-              }
-            />
-            <span className="toggle-track" />
-            <span
-              className="toggle-label"
-              style={{ color: APP_COLORS[app.id] }}
-            >
-              {app.id}
-            </span>
-          </label>
-        ))}
+        <label
+          className="toggle app-toggle"
+          title={`${appLabel} — ${server.enabled ? "enabled" : "disabled"}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <input
+            type="checkbox"
+            checked={server.enabled}
+            onChange={(e) => onToggle(server.name, server.app, e.target.checked)}
+          />
+          <span className="toggle-track" />
+        </label>
+        <button
+          className="btn btn-sm btn-danger"
+          title="Move to Trash"
+          onClick={(e) => {
+            e.stopPropagation();
+            onTrash(server.name, server.app);
+          }}
+        >
+          Delete
+        </button>
       </div>
     </div>
   );
@@ -145,9 +135,11 @@ function TrashRow({
 }: {
   server: McpServerEntry;
   index: number;
-  onRestore: (serverName: string) => void;
-  onDeleteForever: (serverName: string) => void;
+  onRestore: (serverName: string, appId: AppId) => void;
+  onDeleteForever: (serverName: string, appId: AppId) => void;
 }) {
+  const appLabel = APPS.find((a) => a.id === server.app)?.label ?? server.app;
+
   return (
     <div className="server-row fade-in" style={{ animationDelay: `${index * 30}ms` }}>
       <div className="server-info">
@@ -156,17 +148,20 @@ function TrashRow({
           {server.transport === "stdio" ? server.command : server.url}
         </div>
         <div className="server-meta">
-          <span className="badge badge-trash">No longer found in any tool</span>
+          <span className="badge" style={{ color: APP_COLORS[server.app] }}>
+            {appLabel}
+          </span>
+          <span className="badge badge-trash">No longer found</span>
         </div>
       </div>
 
       <div className="server-toggles">
-        <button className="btn btn-sm" onClick={() => onRestore(server.name)}>
+        <button className="btn btn-sm" onClick={() => onRestore(server.name, server.app)}>
           Restore
         </button>
         <button
           className="btn btn-sm btn-danger"
-          onClick={() => onDeleteForever(server.name)}
+          onClick={() => onDeleteForever(server.name, server.app)}
         >
           Delete forever
         </button>
@@ -208,26 +203,28 @@ function EmptyState({ onImport }: { onImport: () => void }) {
 interface ServerFormState {
   originalName: string | null;
   name: string;
+  app: AppId | "";
+  enabled: boolean;
   transport: Transport;
   command: string;
   argsText: string;
   envText: string;
   url: string;
   headersText: string;
-  enabledApps: Set<AppId>;
 }
 
 function emptyServerForm(): ServerFormState {
   return {
     originalName: null,
     name: "",
+    app: "",
+    enabled: true,
     transport: "stdio",
     command: "",
     argsText: "",
     envText: "",
     url: "",
     headersText: "",
-    enabledApps: new Set(),
   };
 }
 
@@ -241,13 +238,14 @@ function formFromServer(server: McpServerEntry): ServerFormState {
   return {
     originalName: server.name,
     name: server.name,
+    app: server.app,
+    enabled: server.enabled,
     transport: server.transport,
     command: server.command ?? "",
     argsText: (server.args ?? []).join("\n"),
     envText: keyValueMapToLines(server.env),
     url: server.url ?? "",
     headersText: keyValueMapToLines(server.headers),
-    enabledApps: new Set(APPS.filter((a) => server.enabled[a.id]).map((a) => a.id)),
   };
 }
 
@@ -269,6 +267,136 @@ function parseKeyValueLines(text: string): Record<string, string> | undefined {
   return Object.keys(out).length > 0 ? out : undefined;
 }
 
+/* ── Paste-JSON-to-autofill ──────────────────────── */
+interface ParsedServerJson {
+  name?: string;
+  transport?: Transport;
+  command?: string;
+  argsText?: string;
+  envText?: string;
+  url?: string;
+  headersText?: string;
+}
+
+function asStringArray(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const items = value.filter((v): v is string => typeof v === "string");
+  return items.length > 0 ? items : undefined;
+}
+
+function asStringRecord(value: unknown): Record<string, string> | undefined {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined;
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof v === "string") out[k] = v;
+    else if (typeof v === "number" || typeof v === "boolean") out[k] = String(v);
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
+function looksLikeServerEntry(value: unknown): value is Record<string, unknown> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    ("command" in value || "url" in value || "httpUrl" in value || "serverUrl" in value)
+  );
+}
+
+/** Parses `raw` as JSON. If that fails and `raw` doesn't already look like a
+ * complete object/array (e.g. the user copied just `"name": { ... }` from
+ * inside their real config's `mcpServers` block, braces and all left
+ * behind), retries after wrapping it in `{ }` — stripping a trailing comma
+ * first, since a copied middle-of-object entry often has one. Throws the
+ * *original* error when even that doesn't parse, since it's more likely to
+ * point at the real problem than an error from the synthetic wrapper. */
+function tryParseJson(raw: string): unknown {
+  try {
+    return JSON.parse(raw);
+  } catch (firstErr) {
+    const trimmed = raw.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) throw firstErr;
+    try {
+      return JSON.parse(`{${trimmed.replace(/,\s*$/, "")}}`);
+    } catch {
+      throw firstErr instanceof Error ? firstErr : new Error("Invalid JSON");
+    }
+  }
+}
+
+/** Recognizes the JSON shapes MCP servers are commonly documented in — a
+ * bare entry (`{"command": "npx", ...}`), a full `{"mcpServers": {name:
+ * {...}}}` block copied from another tool's config, or a single `{name:
+ * {...}}` pair — and pulls out the fields the form needs. Returns null when
+ * `raw` doesn't look like a server config at all. */
+function extractServerConfig(raw: string): ParsedServerJson | null {
+  const parsed: unknown = tryParseJson(raw);
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error("Expected a JSON object");
+  }
+
+  let name: string | undefined;
+  let body: Record<string, unknown> = parsed as Record<string, unknown>;
+
+  const mcpServers = body.mcpServers;
+  if (typeof mcpServers === "object" && mcpServers !== null && !Array.isArray(mcpServers)) {
+    const [firstName, firstValue] = Object.entries(mcpServers)[0] ?? [];
+    if (firstValue !== undefined && looksLikeServerEntry(firstValue)) {
+      name = firstName;
+      body = firstValue;
+    }
+  } else if (!looksLikeServerEntry(body)) {
+    const [firstName, firstValue] = Object.entries(body)[0] ?? [];
+    if (firstValue !== undefined && looksLikeServerEntry(firstValue)) {
+      name = firstName;
+      body = firstValue;
+    }
+  }
+
+  if (!looksLikeServerEntry(body)) return null;
+
+  let command: string | undefined;
+  let args: string[] | undefined;
+  if (Array.isArray(body.command)) {
+    const [cmd, ...rest] = body.command;
+    if (typeof cmd === "string") command = cmd;
+    args = asStringArray(rest);
+  } else if (typeof body.command === "string") {
+    command = body.command;
+    args = asStringArray(body.args);
+  }
+
+  const url = [body.url, body.httpUrl, body.serverUrl].find(
+    (v): v is string => typeof v === "string"
+  );
+  const rawType =
+    typeof body.type === "string"
+      ? body.type
+      : typeof body.transport === "string"
+      ? body.transport
+      : undefined;
+  const transport: Transport | undefined = command
+    ? "stdio"
+    : url
+    ? rawType === "http" || rawType === "streamable-http"
+      ? "http"
+      : "sse"
+    : undefined;
+
+  const env = asStringRecord(body.env ?? body.environment);
+  const headers = asStringRecord(body.headers ?? body.http_headers);
+
+  return {
+    name,
+    transport,
+    command,
+    argsText: args ? args.join("\n") : undefined,
+    envText: env ? keyValueMapToLines(env) : undefined,
+    url,
+    headersText: headers ? keyValueMapToLines(headers) : undefined,
+  };
+}
+
 function ServerFormModal({
   initial,
   onClose,
@@ -281,15 +409,48 @@ function ServerFormModal({
   const [form, setForm] = useState<ServerFormState>(initial);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [jsonPaste, setJsonPaste] = useState("");
+  const [jsonNotice, setJsonNotice] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
   const isEditing = initial.originalName !== null;
 
-  const toggleApp = (id: AppId) => {
-    setForm((f) => {
-      const next = new Set(f.enabledApps);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return { ...f, enabledApps: next };
-    });
+  const applyJsonPasteText = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    try {
+      const parsed = extractServerConfig(trimmed);
+      if (!parsed) {
+        setJsonNotice({ type: "error", message: "Couldn't find a server config in that JSON" });
+        return;
+      }
+      setForm((f) => ({
+        ...f,
+        name: !isEditing && parsed.name ? parsed.name : f.name,
+        transport: parsed.transport ?? f.transport,
+        command: parsed.command ?? f.command,
+        argsText: parsed.argsText ?? f.argsText,
+        envText: parsed.envText ?? f.envText,
+        url: parsed.url ?? f.url,
+        headersText: parsed.headersText ?? f.headersText,
+      }));
+      setJsonNotice({ type: "success", message: "Filled from JSON" });
+      setJsonPaste("");
+    } catch (err) {
+      setJsonNotice({
+        type: "error",
+        message: err instanceof Error ? err.message : "Invalid JSON",
+      });
+    }
+  };
+
+  const handleJsonPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const text = e.clipboardData.getData("text");
+    if (!text.trim()) return;
+    e.preventDefault();
+    setJsonPaste(text);
+    applyJsonPasteText(text);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -297,6 +458,10 @@ function ServerFormModal({
     const name = form.name.trim();
     if (!name) {
       setFormError("Name is required");
+      return;
+    }
+    if (!form.app) {
+      setFormError("Choose which app this server belongs to");
       return;
     }
     if (form.transport === "stdio" && !form.command.trim()) {
@@ -312,18 +477,20 @@ function ServerFormModal({
       form.transport === "stdio"
         ? {
             name,
+            app: form.app,
+            enabled: form.enabled,
             transport: "stdio",
             command: form.command.trim(),
             args: parseLines(form.argsText),
             env: parseKeyValueLines(form.envText),
-            enabledApps: Array.from(form.enabledApps),
           }
         : {
             name,
+            app: form.app,
+            enabled: form.enabled,
             transport: form.transport,
             url: form.url.trim(),
             headers: parseKeyValueLines(form.headersText),
-            enabledApps: Array.from(form.enabledApps),
           };
 
     setSaving(true);
@@ -347,6 +514,32 @@ function ServerFormModal({
       >
         <h2>{isEditing ? "Edit server" : "Add server"}</h2>
 
+        <div className="form-field">
+          <span>Paste JSON (optional)</span>
+          <textarea
+            className="form-input"
+            value={jsonPaste}
+            onChange={(e) => setJsonPaste(e.target.value)}
+            onPaste={handleJsonPaste}
+            rows={3}
+            placeholder={'e.g. {"command": "npx", "args": ["-y", "@scope/server"]}'}
+          />
+          <div className="json-paste-row">
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => applyJsonPasteText(jsonPaste)}
+            >
+              Fill from JSON
+            </button>
+            {jsonNotice && (
+              <span className={`json-paste-notice json-paste-notice-${jsonNotice.type}`}>
+                {jsonNotice.message}
+              </span>
+            )}
+          </div>
+        </div>
+
         <label className="form-field">
           <span>Name</span>
           <input
@@ -358,6 +551,24 @@ function ServerFormModal({
             autoFocus
           />
         </label>
+
+        <div className="form-field">
+          <span>App</span>
+          <div className="app-checkboxes">
+            {APPS.map((appInfo) => (
+              <label key={appInfo.id} className="app-checkbox">
+                <input
+                  type="radio"
+                  name="app"
+                  checked={form.app === appInfo.id}
+                  disabled={isEditing}
+                  onChange={() => setForm((f) => ({ ...f, app: appInfo.id }))}
+                />
+                <span style={{ color: APP_COLORS[appInfo.id] }}>{appInfo.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
 
         <div className="form-field">
           <span>Transport</span>
@@ -434,25 +645,21 @@ function ServerFormModal({
         )}
 
         <div className="form-field">
-          <span>Enable for</span>
-          <div className="app-checkboxes">
-            {APPS.map((app) => (
-              <label key={app.id} className="app-checkbox">
-                <input
-                  type="checkbox"
-                  checked={form.enabledApps.has(app.id)}
-                  onChange={() => toggleApp(app.id)}
-                />
-                <span style={{ color: APP_COLORS[app.id] }}>{app.label}</span>
-              </label>
-            ))}
-          </div>
+          <span>Status</span>
+          <label className="app-checkbox">
+            <input
+              type="checkbox"
+              checked={form.enabled}
+              onChange={(e) => setForm((f) => ({ ...f, enabled: e.target.checked }))}
+            />
+            <span>Enabled</span>
+          </label>
         </div>
 
         {formError && <div className="form-error">{formError}</div>}
 
         <div className="modal-actions">
-          <button type="button" className="btn modal-close" onClick={onClose}>
+          <button type="button" className="btn" onClick={onClose}>
             Cancel
           </button>
           <button type="submit" className="btn btn-primary" disabled={saving}>
@@ -587,33 +794,53 @@ export default function App() {
       const store = await invoke<{ servers: McpServerEntry[] }>("list_servers");
       setServers(store.servers);
     } catch (err) {
-      // Fallback: show sample data when backend is unavailable
+      // Fallback: show sample data when backend is unavailable. "playwright"
+      // appears twice on purpose — once per app — to illustrate that each
+      // app's definition is independent even when the name matches.
       setServers([
         {
           name: "playwright",
+          app: "claude",
           transport: "stdio",
           command: "npx @anthropic-ai/claude-code-mcp",
           args: [],
-          enabled: { ...defaultEnabled(), claude: true, codex: true },
-          sources: ["claude", "codex"],
+          enabled: true,
+          deleted: false,
+        },
+        {
+          name: "playwright",
+          app: "codex",
+          transport: "stdio",
+          command: "npx @anthropic-ai/claude-code-mcp",
+          args: [],
+          enabled: true,
           deleted: false,
         },
         {
           name: "filesystem",
+          app: "gemini",
           transport: "stdio",
           command: "npx @modelcontextprotocol/server-filesystem",
           args: ["/workspace"],
-          enabled: { ...defaultEnabled(), gemini: true, hermes: true },
-          sources: ["gemini", "hermes"],
+          enabled: true,
+          deleted: false,
+        },
+        {
+          name: "filesystem",
+          app: "hermes",
+          transport: "stdio",
+          command: "npx @modelcontextprotocol/server-filesystem",
+          args: ["/workspace"],
+          enabled: true,
           deleted: false,
         },
         {
           name: "github",
+          app: "opencode",
           transport: "stdio",
           command: "npx @modelcontextprotocol/server-github",
           args: [],
-          enabled: { ...defaultEnabled(), opencode: true },
-          sources: ["opencode"],
+          enabled: true,
           deleted: false,
         },
       ]);
@@ -645,12 +872,11 @@ export default function App() {
 
   const handleToggle = useCallback(
     async (serverName: string, appId: AppId, enabled: boolean) => {
-      // Optimistic update
+      // Optimistic update. Matches on (name, app) together, since the same
+      // name can exist as a separate entry for another app.
       setServers((prev) =>
         prev.map((s) =>
-          s.name === serverName
-            ? { ...s, enabled: { ...s.enabled, [appId]: enabled } }
-            : s
+          s.name === serverName && s.app === appId ? { ...s, enabled } : s
         )
       );
 
@@ -666,9 +892,7 @@ export default function App() {
         // Revert on failure
         setServers((prev) =>
           prev.map((s) =>
-            s.name === serverName
-              ? { ...s, enabled: { ...s.enabled, [appId]: !enabled } }
-              : s
+            s.name === serverName && s.app === appId ? { ...s, enabled: !enabled } : s
           )
         );
         notify("Failed to toggle server", "error");
@@ -702,10 +926,42 @@ export default function App() {
     [loadServers, notify]
   );
 
-  const handleRestore = useCallback(
-    async (serverName: string) => {
+  const handleTrash = useCallback(
+    async (serverName: string, appId: AppId) => {
       try {
-        await invoke("restore_server", { serverName });
+        await invoke("trash_server", { serverName, appId });
+        notify(`Moved "${serverName}" to Trash`, "success");
+        await loadServers();
+      } catch {
+        notify("Failed to move to Trash", "error");
+      }
+    },
+    [loadServers, notify]
+  );
+
+  const handleRestartApp = useCallback(
+    async (appId: AppId) => {
+      const appLabel = APPS.find((a) => a.id === appId)?.label ?? appId;
+      const ok = await confirm(
+        `Restart ${appLabel}? Any unsaved state in it will be lost.`,
+        { title: "Restart app", kind: "warning" }
+      );
+      if (!ok) return;
+      try {
+        await invoke("restart_app", { appId });
+        notify(`Restarted ${appLabel}`, "success");
+        dismissPendingRestart(appId);
+      } catch (err) {
+        notify(err instanceof Error ? err.message : String(err), "error");
+      }
+    },
+    [dismissPendingRestart, notify]
+  );
+
+  const handleRestore = useCallback(
+    async (serverName: string, appId: AppId) => {
+      try {
+        await invoke("restore_server", { serverName, appId });
         notify(`Restored "${serverName}"`, "success");
         await loadServers();
       } catch {
@@ -716,14 +972,14 @@ export default function App() {
   );
 
   const handleDeleteForever = useCallback(
-    async (serverName: string) => {
+    async (serverName: string, appId: AppId) => {
       const ok = await confirm(
         `Permanently delete "${serverName}"? This cannot be undone.`,
         { title: "Delete forever", kind: "warning" }
       );
       if (!ok) return;
       try {
-        await invoke("delete_server_forever", { serverName });
+        await invoke("delete_server_forever", { serverName, appId });
         notify(`Deleted "${serverName}" forever`, "success");
         await loadServers();
       } catch {
@@ -852,17 +1108,37 @@ export default function App() {
         <div className="restart-banner">
           <span className="restart-banner-label">Restart to apply:</span>
           <div className="restart-banner-chips">
-            {APPS.filter((a) => pendingRestarts.has(a.id)).map((a) => (
-              <button
-                key={a.id}
-                className="restart-chip"
-                onClick={() => dismissPendingRestart(a.id)}
-                title={`Dismiss — I already restarted ${a.label}`}
-              >
-                <span style={{ color: APP_COLORS[a.id] }}>{a.label}</span>
-                <span className="restart-chip-x">×</span>
-              </button>
-            ))}
+            {APPS.filter((a) => pendingRestarts.has(a.id)).map((a) =>
+              RESTARTABLE_APPS.has(a.id) ? (
+                <span key={a.id} className="restart-chip restart-chip-actionable">
+                  <button
+                    className="restart-chip-action"
+                    onClick={() => handleRestartApp(a.id)}
+                    title={`Kill and relaunch ${a.label}`}
+                  >
+                    <span style={{ color: APP_COLORS[a.id] }}>{a.label}</span>
+                    <span> — Restart</span>
+                  </button>
+                  <button
+                    className="restart-chip-x"
+                    onClick={() => dismissPendingRestart(a.id)}
+                    title={`Dismiss — I already restarted ${a.label}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ) : (
+                <button
+                  key={a.id}
+                  className="restart-chip"
+                  onClick={() => dismissPendingRestart(a.id)}
+                  title={`Dismiss — I already restarted ${a.label}`}
+                >
+                  <span style={{ color: APP_COLORS[a.id] }}>{a.label}</span>
+                  <span className="restart-chip-x">×</span>
+                </button>
+              )
+            )}
           </div>
         </div>
       )}
@@ -928,7 +1204,7 @@ export default function App() {
             {filter === "trash"
               ? sorted.map((server, i) => (
                   <TrashRow
-                    key={server.name}
+                    key={`${server.name}::${server.app}`}
                     server={server}
                     index={i}
                     onRestore={handleRestore}
@@ -937,11 +1213,12 @@ export default function App() {
                 ))
               : sorted.map((server, i) => (
                   <ServerRow
-                    key={server.name}
+                    key={`${server.name}::${server.app}`}
                     server={server}
                     index={i}
                     onToggle={handleToggle}
                     onEdit={setEditingServer}
+                    onTrash={handleTrash}
                   />
                 ))}
           </div>

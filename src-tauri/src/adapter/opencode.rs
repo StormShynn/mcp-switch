@@ -33,7 +33,7 @@ impl Adapter for OpenCodeAdapter {
             .mcp
             .unwrap_or_default()
             .into_iter()
-            .filter_map(|(name, spec)| match entry_from_spec(&name, &spec) {
+            .filter_map(|(name, spec)| match entry_from_spec(&name, &spec, self.id()) {
                 Ok(entry) => Some(entry),
                 Err(e) => {
                     eprintln!("Skipping invalid OpenCode MCP server '{name}': {e}");
@@ -83,7 +83,7 @@ impl Adapter for OpenCodeAdapter {
 /// into a single `command` array (`environment` holds env vars); `type:
 /// "remote"` carries `url`/`headers`. OpenCode doesn't distinguish http vs
 /// sse, so remote entries import as "sse" (mirrors Hermes).
-fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
+fn entry_from_spec(name: &str, spec: &Value, app: &str) -> Result<McpServerEntry, String> {
     let obj = spec.as_object().ok_or("not a JSON object")?;
     let transport = obj.get("type").and_then(|v| v.as_str()).unwrap_or("local");
 
@@ -95,14 +95,14 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
                 .ok_or("missing 'url' field")?;
             Ok(McpServerEntry {
                 name: name.to_string(),
+                app: app.to_string(),
                 transport: "sse".to_string(),
                 command: None,
                 args: None,
                 env: None,
                 url: Some(url.to_string()),
                 headers: mcp_json::string_map(obj, "headers"),
-                enabled: HashMap::new(),
-                sources: Vec::new(),
+                enabled: true,
                 deleted: false,
             })
         }
@@ -116,14 +116,14 @@ fn entry_from_spec(name: &str, spec: &Value) -> Result<McpServerEntry, String> {
             let args: Vec<String> = parts.collect();
             Ok(McpServerEntry {
                 name: name.to_string(),
+                app: app.to_string(),
                 transport: "stdio".to_string(),
                 command: Some(command),
                 args: if args.is_empty() { None } else { Some(args) },
                 env: mcp_json::string_map(obj, "environment"),
                 url: None,
                 headers: None,
-                enabled: HashMap::new(),
-                sources: Vec::new(),
+                enabled: true,
                 deleted: false,
             })
         }
@@ -179,7 +179,7 @@ mod tests {
             "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem"],
             "environment": {"HOME": "/tmp"}
         });
-        let entry = entry_from_spec("fs", &spec).unwrap();
+        let entry = entry_from_spec("fs", &spec, "opencode").unwrap();
         assert_eq!(entry.transport, "stdio");
         assert_eq!(entry.command, Some("npx".to_string()));
         assert_eq!(
@@ -195,14 +195,14 @@ mod tests {
     #[test]
     fn local_entry_without_type_field_defaults_to_local() {
         let spec = json!({"command": ["node", "server.js"]});
-        let entry = entry_from_spec("fs", &spec).unwrap();
+        let entry = entry_from_spec("fs", &spec, "opencode").unwrap();
         assert_eq!(entry.transport, "stdio");
     }
 
     #[test]
     fn remote_entry_maps_to_sse_transport() {
         let spec = json!({"type": "remote", "url": "https://example.com/mcp"});
-        let entry = entry_from_spec("remote", &spec).unwrap();
+        let entry = entry_from_spec("remote", &spec, "opencode").unwrap();
         assert_eq!(entry.transport, "sse");
         assert_eq!(entry.url, Some("https://example.com/mcp".to_string()));
     }
@@ -214,14 +214,14 @@ mod tests {
         // (covered separately by winshim's own tests).
         let entry = McpServerEntry {
             name: "fs".to_string(),
+            app: "opencode".to_string(),
             transport: "stdio".to_string(),
             command: Some("python3".to_string()),
             args: Some(vec!["server.py".to_string()]),
             env: None,
             url: None,
             headers: None,
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         };
         let written = spec_from_entry(&entry);
@@ -235,14 +235,14 @@ mod tests {
     fn write_wraps_npx_as_first_array_element_on_windows() {
         let entry = McpServerEntry {
             name: "fs".to_string(),
+            app: "opencode".to_string(),
             transport: "stdio".to_string(),
             command: Some("npx".to_string()),
             args: Some(vec!["-y".to_string(), "foo".to_string()]),
             env: None,
             url: None,
             headers: None,
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         };
         let written = spec_from_entry(&entry);
@@ -253,14 +253,14 @@ mod tests {
     fn write_remote_entry_uses_remote_type() {
         let entry = McpServerEntry {
             name: "remote".to_string(),
+            app: "opencode".to_string(),
             transport: "sse".to_string(),
             command: None,
             args: None,
             env: None,
             url: Some("https://example.com/mcp".to_string()),
             headers: None,
-            enabled: HashMap::new(),
-            sources: Vec::new(),
+            enabled: true,
             deleted: false,
         };
         let written = spec_from_entry(&entry);

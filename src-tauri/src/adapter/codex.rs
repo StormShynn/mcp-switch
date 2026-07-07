@@ -31,7 +31,7 @@ impl Adapter for CodexAdapter {
         let servers = config
             .mcp_servers
             .into_iter()
-            .filter_map(|(name, spec)| match entry_from_toml(&name, &spec) {
+            .filter_map(|(name, spec)| match entry_from_toml(&name, &spec, self.id()) {
                 Ok(entry) => Some(entry),
                 Err(e) => {
                     eprintln!("Skipping invalid Codex MCP server '{name}': {e}");
@@ -83,7 +83,7 @@ impl Adapter for CodexAdapter {
 /// Parses one `[mcp_servers.*]` entry. Codex requires an explicit `type`
 /// ("stdio", "http", or "sse"); stdio carries `command`/`args`/`env`, while
 /// http/sse carry `url`/`http_headers`.
-fn entry_from_toml(name: &str, value: &toml::Value) -> Result<McpServerEntry, String> {
+fn entry_from_toml(name: &str, value: &toml::Value, app: &str) -> Result<McpServerEntry, String> {
     let table = value.as_table().ok_or("not a TOML table")?;
     let transport = table.get("type").and_then(|v| v.as_str()).unwrap_or("stdio");
 
@@ -99,14 +99,14 @@ fn entry_from_toml(name: &str, value: &toml::Value) -> Result<McpServerEntry, St
                 .map(toml_table_to_string_map);
             Ok(McpServerEntry {
                 name: name.to_string(),
+                app: app.to_string(),
                 transport: transport.to_string(),
                 command: None,
                 args: None,
                 env: None,
                 url: Some(url.to_string()),
                 headers,
-                enabled: HashMap::new(),
-                sources: Vec::new(),
+                enabled: true,
                 deleted: false,
             })
         }
@@ -126,14 +126,14 @@ fn entry_from_toml(name: &str, value: &toml::Value) -> Result<McpServerEntry, St
                 .map(toml_table_to_string_map);
             Ok(McpServerEntry {
                 name: name.to_string(),
+                app: app.to_string(),
                 transport: "stdio".to_string(),
                 command: Some(command.to_string()),
                 args,
                 env,
                 url: None,
                 headers: None,
-                enabled: HashMap::new(),
-                sources: Vec::new(),
+                enabled: true,
                 deleted: false,
             })
         }
@@ -211,7 +211,7 @@ mod tests {
             "#,
         )
         .unwrap();
-        let entry = entry_from_toml("foo", &value).unwrap();
+        let entry = entry_from_toml("foo", &value, "codex").unwrap();
         assert_eq!(entry.transport, "stdio");
         assert_eq!(entry.command, Some("npx".to_string()));
     }
@@ -228,7 +228,7 @@ mod tests {
             "#,
         )
         .unwrap();
-        let entry = entry_from_toml("remote", &value).unwrap();
+        let entry = entry_from_toml("remote", &value, "codex").unwrap();
         assert_eq!(entry.transport, "http");
         assert_eq!(entry.url, Some("https://example.com/mcp".to_string()));
         assert_eq!(
@@ -246,6 +246,6 @@ mod tests {
     #[test]
     fn sse_entry_without_url_is_rejected() {
         let value: toml::Value = toml::from_str(r#"type = "sse""#).unwrap();
-        assert!(entry_from_toml("bad", &value).is_err());
+        assert!(entry_from_toml("bad", &value, "codex").is_err());
     }
 }
