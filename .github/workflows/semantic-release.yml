@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   release:
@@ -50,3 +51,18 @@ jobs:
             done
           }
           retry npx semantic-release
+
+      # Tags pushed with GITHUB_TOKEN don't trigger other workflows (GitHub's
+      # loop-prevention), so release.yml's `tags: v*` trigger never fires here.
+      # Dispatch it explicitly for the tag semantic-release just created.
+      - name: Trigger release build for new tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="$(git describe --tags --exact-match HEAD 2>/dev/null || true)"
+          if [[ -n "$TAG" ]]; then
+            echo "New release tag: $TAG — dispatching release.yml"
+            gh workflow run release.yml --ref "$TAG"
+          else
+            echo "No new tag on HEAD — semantic-release made no release, skipping dispatch."
+          fi
