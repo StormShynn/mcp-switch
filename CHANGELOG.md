@@ -1,3 +1,17 @@
+## [0.4.2](https://github.com/StormShynn/mcp-switch/compare/v0.4.1...v0.4.2) (2026-07-08)
+
+
+### Bug Fixes
+
+* **ci:** dispatch release.yml explicitly after semantic-release tags a version ([a370c9f](https://github.com/StormShynn/mcp-switch/commit/a370c9fbb271732ab97c5076bdda9f0322ed84f3))
+
+## [0.4.2](https://github.com/StormShynn/mcp-switch/compare/v0.4.1...v0.4.2) (2026-07-08)
+
+
+### Bug Fixes
+
+* **ci:** dispatch release.yml explicitly after semantic-release tags a version ([a370c9f](https://github.com/StormShynn/mcp-switch/commit/a370c9fbb271732ab97c5076bdda9f0322ed84f3))
+
 ## [0.4.1](https://github.com/StormShynn/mcp-switch/compare/v0.4.0...v0.4.1) (2026-07-07)
 
 
