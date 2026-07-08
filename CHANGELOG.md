@@ -1,3 +1,10 @@
+## [0.4.3](https://github.com/StormShynn/mcp-switch/compare/v0.4.2...v0.4.3) (2026-07-08)
+
+
+### Bug Fixes
+
+* **release:** drop unused bundle formats and scope artifact upload path ([ecbd2d8](https://github.com/StormShynn/mcp-switch/commit/ecbd2d83d979736a98121d0e4e906f38736634e3))
+
 ## [0.4.2](https://github.com/StormShynn/mcp-switch/compare/v0.4.1...v0.4.2) (2026-07-08)
 
 
