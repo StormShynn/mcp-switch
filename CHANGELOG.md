@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/StormShynn/mcp-switch/compare/v0.6.0...v0.7.0) (2026-07-14)
+
+
+### Features
+
+* add Export/Import JSON, server templates, Clone button ([cdb8557](https://github.com/StormShynn/mcp-switch/commit/cdb85577991633edbada6762ed54638d46291184))
+
 # [0.6.0](https://github.com/StormShynn/mcp-switch/compare/v0.5.0...v0.6.0) (2026-07-14)
 
 
