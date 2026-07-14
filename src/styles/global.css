@@ -889,3 +889,48 @@ body {
 }
 
 /* Native title attribute tooltip is used (no JS needed) */
+
+/* Server template grid */
+.btn-template-toggle {
+  margin-left: 8px;
+}
+
+.template-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.template-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+  min-width: 120px;
+  flex: 1;
+}
+
+.template-chip:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+}
+
+.template-chip-name {
+  font-weight: 600;
+  font-size: 0.8125rem;
+}
+
+.template-chip-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}

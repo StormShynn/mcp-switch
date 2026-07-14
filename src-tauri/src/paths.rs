@@ -148,3 +148,17 @@ pub fn antigravity_config() -> PathBuf {
         .expect("could not resolve an Antigravity config path")
 }
 
+/// Returns the config file path for a given app ID, if known.
+pub fn app_config_path(app_id: &str) -> Option<PathBuf> {
+    match app_id {
+        "claude" => Some(claude_config()),
+        "claude-desktop" => Some(claude_desktop_config()),
+        "codex" => Some(codex_config()),
+        "gemini" => Some(gemini_config()),
+        "hermes" => Some(hermes_config_yaml()),
+        "opencode" => Some(opencode_config()),
+        "antigravity" => Some(antigravity_config()),
+        _ => None,
+    }
+}
+

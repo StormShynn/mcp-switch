@@ -10,8 +10,9 @@ mod types;
 mod winshim;
 
 use commands::{
-    delete_server_forever, get_store_path, import_servers, list_servers, restart_app,
-    restore_server, save_server, test_server_connection, toggle_server, trash_server,
+    delete_server_forever, export_servers, get_app_config_path, get_store_path,
+    import_servers, import_servers_from_file, list_servers, restart_app, restore_server,
+    save_server, test_server_connection, toggle_server, trash_server,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -32,6 +33,9 @@ pub fn run() {
             save_server,
             restart_app,
             test_server_connection,
+            export_servers,
+            import_servers_from_file,
+            get_app_config_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

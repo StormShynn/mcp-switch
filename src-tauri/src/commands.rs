@@ -141,6 +141,52 @@ pub fn test_server_connection(server_name: String, app_id: String) -> Result<Con
     Ok(crate::mcp_test::test_connection(entry))
 }
 
+/// Export the entire server store to a JSON file at the given path.
+/// Useful for backup or transferring config between machines.
+#[tauri::command]
+pub fn export_servers(path: String) -> Result<(), String> {
+    let store = store::list_servers().map_err(|e| e.to_string())?;
+    let content = serde_json::to_string_pretty(&store).map_err(|e| e.to_string())?;
+    std::fs::write(&path, content).map_err(|e| format!("Failed to write export file: {e}"))?;
+    Ok(())
+}
+
+/// Import servers from a JSON file and merge them into the store.
+/// Returns the number of servers added.
+#[tauri::command]
+pub fn import_servers_from_file(path: String) -> Result<usize, String> {
+    let content = std::fs::read_to_string(&path).map_err(|e| format!("Failed to read import file: {e}"))?;
+    let imported: Store = serde_json::from_str(&content).map_err(|e| format!("Invalid server file: {e}"))?;
+
+    let mut store = store::load_store().map_err(|e| e.to_string())?;
+    let mut added = 0;
+    for entry in imported.servers {
+        if !crate::types::APPS.contains(&entry.app.as_str()) {
+            eprintln!("Skipping entry '{}' — unknown app '{}'", entry.name, entry.app);
+            continue;
+        }
+        if store.find_server_mut(&entry.name, &entry.app).is_some() {
+            // Server already exists, skip to avoid overwriting
+            continue;
+        }
+        store.servers.push(entry);
+        added += 1;
+    }
+    store::save_store(&store).map_err(|e| e.to_string())?;
+    Ok(added)
+}
+
+/// Return the live config file path for a given app (for the "Open config" feature).
+#[tauri::command]
+pub fn get_app_config_path(app_id: String) -> Result<String, String> {
+    if !crate::types::APPS.contains(&app_id.as_str()) {
+        return Err(McpError::UnknownApp(app_id).into());
+    }
+    let path = crate::paths::app_config_path(&app_id)
+        .ok_or_else(|| format!("No config path known for app '{app_id}'"))?;
+    Ok(path.display().to_string())
+}
+
 /// Payload for creating or editing a server from the UI's Add/Edit form.
 /// Every server belongs to exactly one app: real-world MCP server configs
 /// often genuinely differ per tool (different cookie/token paths, different

@@ -11,7 +11,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
-import { confirm } from "@tauri-apps/plugin-dialog";
+import { confirm, save, open } from "@tauri-apps/plugin-dialog";
 import type { ConnectionTestResult, McpServerEntry, AppId, ServerInput, SyncSummary, Transport } from "./lib/types";
 import { APPS, APP_COLORS } from "./lib/types";
 
@@ -63,6 +63,33 @@ function sortServers(
   });
 }
 
+let nextId = 1000;
+function uniqueId(): number {
+  return nextId++;
+}
+
+/* ── Server templates ───────────────────────────── */
+interface ServerTemplate {
+  label: string;
+  description: string;
+  transport: Transport;
+  command: string;
+  args: string;
+  envNotes?: string;
+}
+
+const SERVER_TEMPLATES: ServerTemplate[] = [
+  { label: "Filesystem", description: "Read, write, search files", transport: "stdio", command: "npx", args: "-y\n@modelcontextprotocol/server-filesystem\n<path>" },
+  { label: "GitHub", description: "Issues, PRs, repos", transport: "stdio", command: "npx", args: "-y\n@modelcontextprotocol/server-github", envNotes: "Set GITHUB_TOKEN" },
+  { label: "PostgreSQL", description: "Read, query PostgreSQL", transport: "stdio", command: "npx", args: "-y\n@modelcontextprotocol/server-postgres\npostgresql://localhost/mydb" },
+  { label: "SQLite", description: "Read, query SQLite DB", transport: "stdio", command: "npx", args: "-y\n@modelcontextprotocol/server-sqlite\n<path>" },
+  { label: "Memory", description: "Persistent memory", transport: "stdio", command: "npx", args: "-y\n@modelcontextprotocol/server-memory" },
+  { label: "Puppeteer", description: "Browser automation", transport: "stdio", command: "npx", args: "-y\n@modelcontextprotocol/server-puppeteer" },
+  { label: "Fetch", description: "HTTP requests", transport: "stdio", command: "npx", args: "-y\n@modelcontextprotocol/server-fetch" },
+  { label: "Sequential Thinking", description: "Step-by-step reasoning", transport: "stdio", command: "npx", args: "-y\n@modelcontextprotocol/server-sequential-thinking" },
+  { label: "Brave Search", description: "Web search", transport: "stdio", command: "npx", args: "-y\n@modelcontextprotocol/server-brave-search", envNotes: "Set BRAVE_API_KEY" },
+];
+
 /* ── Server row component ────────────────────────── */
 function ServerRow({
   server,
@@ -71,6 +98,7 @@ function ServerRow({
   onEdit,
   onTrash,
   onTest,
+  onClone,
   testResult,
 }: {
   server: McpServerEntry;
@@ -79,6 +107,7 @@ function ServerRow({
   onEdit: (server: McpServerEntry) => void;
   onTrash: (serverName: string, appId: AppId) => void;
   onTest: (serverName: string, appId: AppId) => void;
+  onClone: (server: McpServerEntry) => void;
   testResult: { status: "testing" } | ConnectionTestResult | null;
 }) {
   const appLabel = APPS.find((a) => a.id === server.app)?.label ?? server.app;
@@ -149,6 +178,16 @@ function ServerRow({
           />
           <span className="toggle-track" />
         </label>
+        <button
+          className="btn btn-sm"
+          title="Clone to another app"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClone(server);
+          }}
+        >
+          Clone
+        </button>
         <button
           className="btn btn-sm btn-danger"
           title="Move to Trash"
@@ -453,6 +492,7 @@ function ServerFormModal({
     message: string;
   } | null>(null);
   const isEditing = initial.originalName !== null;
+  const [templatesOpen, setTemplatesOpen] = useState(false);
 
   const applyJsonPasteText = (text: string) => {
     const trimmed = text.trim();
@@ -576,6 +616,47 @@ function ServerFormModal({
               </span>
             )}
           </div>
+        </div>
+
+        <div className="form-field">
+          <span>
+            Templates
+            <button
+              type="button"
+              className="btn btn-sm btn-template-toggle"
+              onClick={() => setTemplatesOpen((p) => !p)}
+            >
+              {templatesOpen ? "Hide" : "Browse"}
+            </button>
+          </span>
+          {templatesOpen && (
+            <div className="template-grid">
+              {SERVER_TEMPLATES.map((t) => (
+                <button
+                  key={t.label}
+                  type="button"
+                  className="template-chip"
+                  title={t.description}
+                  onClick={() => {
+                    setForm((f) => ({
+                      ...f,
+                      name: t.label.toLowerCase().replace(/\s+/g, "-"),
+                      transport: t.transport,
+                      command: t.command,
+                      argsText: t.args,
+                      envText: t.envNotes ? `# ${t.envNotes}` : "",
+                      url: "",
+                      headersText: "",
+                    }));
+                    setTemplatesOpen(false);
+                  }}
+                >
+                  <span className="template-chip-name">{t.label}</span>
+                  <span className="template-chip-desc">{t.description}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <label className="form-field">
@@ -994,6 +1075,38 @@ export default function App() {
     [loadServers, notify]
   );
 
+  const handleExport = useCallback(async () => {
+    try {
+      const filePath = await save({
+        filters: [{ name: "MCP Switch Config", extensions: ["json"] }],
+        defaultPath: "mcp-switch-servers.json",
+      });
+      if (!filePath) return;
+      await invoke("export_servers", { path: filePath });
+      notify("Exported successfully", "success");
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Export failed", "error");
+    }
+  }, [notify]);
+
+  const handleImportFromFile = useCallback(async () => {
+    try {
+      const filePath = await open({
+        filters: [{ name: "MCP Switch Config", extensions: ["json"] }],
+        multiple: false,
+      });
+      if (!filePath) return;
+      const added = await invoke<number>("import_servers_from_file", { path: filePath });
+      await loadServers();
+      notify(
+        added > 0 ? `Imported ${added} server${added > 1 ? "s" : ""}` : "No new servers to import",
+        "success"
+      );
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Import failed", "error");
+    }
+  }, [loadServers, notify]);
+
   const handleTrash = useCallback(
     async (serverName: string, appId: AppId) => {
       try {
@@ -1088,6 +1201,13 @@ export default function App() {
     []
   );
 
+  const handleClone = useCallback((server: McpServerEntry) => {
+    setEditingServer({
+      ...server,
+      name: `${server.name}-copy`,
+    });
+  }, []);
+
   const handleShowAbout = useCallback(async () => {
     setShowAbout(true);
     if (!version) {
@@ -1179,6 +1299,12 @@ export default function App() {
             disabled={importing}
           >
             {importing ? "Syncing…" : "Import"}
+          </button>
+          <button className="btn" onClick={handleExport} title="Export servers to JSON file">
+            Export
+          </button>
+          <button className="btn" onClick={handleImportFromFile} title="Import servers from JSON file">
+            Import file
           </button>
         </div>
       </header>
@@ -1337,6 +1463,7 @@ export default function App() {
                     onEdit={setEditingServer}
                     onTrash={handleTrash}
                     onTest={handleTestConnection}
+                    onClone={handleClone}
                     testResult={testResults[`${server.name}::${server.app}`] ?? null}
                   />
                 ))}
