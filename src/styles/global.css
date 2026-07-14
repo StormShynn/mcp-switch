@@ -778,3 +778,49 @@ body {
 .json-paste-notice-error {
   color: var(--danger);
 }
+
+/* Test connection button */
+.btn-test {
+  color: var(--accent);
+  border-color: rgba(88, 166, 255, 0.3);
+  min-width: 52px;
+  justify-content: center;
+}
+
+.btn-test:hover {
+  background: rgba(88, 166, 255, 0.1);
+  border-color: var(--accent);
+}
+
+.btn-test:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.test-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--accent);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* Test result badges */
+.test-badge {
+  margin-left: 6px;
+  font-weight: 700;
+}
+
+.test-badge-ok {
+  color: var(--success);
+  background: rgba(63, 185, 80, 0.15);
+  border-color: rgba(63, 185, 80, 0.3);
+}
+
+.test-badge-fail {
+  color: var(--danger);
+  background: rgba(248, 81, 73, 0.12);
+  border-color: rgba(248, 81, 73, 0.3);
+}

@@ -3,6 +3,7 @@ mod app_control;
 mod atomic;
 mod commands;
 mod mcp_json;
+mod mcp_test;
 mod paths;
 mod store;
 mod types;
@@ -10,7 +11,7 @@ mod winshim;
 
 use commands::{
     delete_server_forever, get_store_path, import_servers, list_servers, restart_app,
-    restore_server, save_server, toggle_server, trash_server,
+    restore_server, save_server, test_server_connection, toggle_server, trash_server,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -30,6 +31,7 @@ pub fn run() {
             delete_server_forever,
             save_server,
             restart_app,
+            test_server_connection,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

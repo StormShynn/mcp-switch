@@ -12,7 +12,7 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { confirm } from "@tauri-apps/plugin-dialog";
-import type { McpServerEntry, AppId, ServerInput, SyncSummary, Transport } from "./lib/types";
+import type { ConnectionTestResult, McpServerEntry, AppId, ServerInput, SyncSummary, Transport } from "./lib/types";
 import { APPS, APP_COLORS } from "./lib/types";
 
 type UpdateStatus =
@@ -70,12 +70,16 @@ function ServerRow({
   onToggle,
   onEdit,
   onTrash,
+  onTest,
+  testResult,
 }: {
   server: McpServerEntry;
   index: number;
   onToggle: (serverName: string, appId: AppId, enabled: boolean) => void;
   onEdit: (server: McpServerEntry) => void;
   onTrash: (serverName: string, appId: AppId) => void;
+  onTest: (serverName: string, appId: AppId) => void;
+  testResult: { status: "testing" } | ConnectionTestResult | null;
 }) {
   const appLabel = APPS.find((a) => a.id === server.app)?.label ?? server.app;
 
@@ -95,10 +99,30 @@ function ServerRow({
           <span className="badge" style={{ color: APP_COLORS[server.app] }}>
             {appLabel}
           </span>
+          {testResult && "success" in testResult && (
+            <span className={`badge test-badge ${testResult.success ? "test-badge-ok" : "test-badge-fail"}`}>
+              {testResult.success ? "OK" : "FAIL"}
+            </span>
+          )}
         </div>
       </div>
 
       <div className="server-toggles">
+        <button
+          className="btn btn-sm btn-test"
+          title="Test MCP connection"
+          disabled={testResult !== null && "status" in testResult}
+          onClick={(e) => {
+            e.stopPropagation();
+            onTest(server.name, server.app);
+          }}
+        >
+          {testResult !== null && "status" in testResult ? (
+            <span className="test-spinner" />
+          ) : (
+            "Test"
+          )}
+        </button>
         <label
           className="toggle app-toggle"
           title={`${appLabel} — ${server.enabled ? "enabled" : "disabled"}`}
@@ -772,6 +796,7 @@ export default function App() {
   const [updateProgress, setUpdateProgress] = useState(0);
   const [updateError, setUpdateError] = useState("");
   const [editingServer, setEditingServer] = useState<McpServerEntry | "new" | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, { status: "testing" } | ConnectionTestResult>>({});
 
   const dismissPendingRestart = useCallback((appId: AppId) => {
     setPendingRestarts((prev) => {
@@ -987,6 +1012,37 @@ export default function App() {
       }
     },
     [loadServers, notify]
+  );
+
+  const handleTestConnection = useCallback(
+    async (serverName: string, appId: AppId) => {
+      const key = `${serverName}::${appId}`;
+      setTestResults((prev) => ({ ...prev, [key]: { status: "testing" } }));
+      try {
+        const result = await invoke<ConnectionTestResult>("test_server_connection", { serverName, appId });
+        setTestResults((prev) => ({ ...prev, [key]: result }));
+        setTimeout(() => {
+          setTestResults((prev) => {
+            const next = { ...prev };
+            delete next[key];
+            return next;
+          });
+        }, 6000);
+      } catch (err) {
+        setTestResults((prev) => ({
+          ...prev,
+          [key]: { success: false, message: err instanceof Error ? err.message : String(err), serverInfo: null },
+        }));
+        setTimeout(() => {
+          setTestResults((prev) => {
+            const next = { ...prev };
+            delete next[key];
+            return next;
+          });
+        }, 6000);
+      }
+    },
+    []
   );
 
   const handleShowAbout = useCallback(async () => {
@@ -1219,6 +1275,8 @@ export default function App() {
                     onToggle={handleToggle}
                     onEdit={setEditingServer}
                     onTrash={handleTrash}
+                    onTest={handleTestConnection}
+                    testResult={testResults[`${server.name}::${server.app}`] ?? null}
                   />
                 ))}
           </div>

@@ -92,6 +92,15 @@ pub const APPS: &[&str] = &[
     "antigravity",
 ];
 
+/// Result of an MCP server connection test.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConnectionTestResult {
+    pub success: bool,
+    pub message: String,
+    pub server_info: Option<String>,
+}
+
 /// Error type for MCP Switch operations.
 #[derive(Debug, thiserror::Error)]
 pub enum McpError {
@@ -111,6 +120,10 @@ pub enum McpError {
     InvalidConfig(String),
     #[error("Restart failed: {0}")]
     RestartFailed(String),
+    #[error("Connection test failed: {0}")]
+    TestFailed(String),
+    #[error("HTTP error: {0}")]
+    Http(String),
 }
 
 impl From<McpError> for String {

@@ -53,6 +53,12 @@ export interface ServerInput {
   enabled: boolean;
 }
 
+export interface ConnectionTestResult {
+  success: boolean;
+  message: string;
+  serverInfo: string | null;
+}
+
 export interface SyncSummary {
   added: number;
   flaggedDeleted: number;

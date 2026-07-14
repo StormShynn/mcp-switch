@@ -37,6 +37,15 @@ pub fn wrap_for_windows(command: &str, args: Option<Vec<String>>) -> (String, Op
     (command.to_string(), args)
 }
 
+/// Convenience wrapper: returns `(command, Vec<args>)` suitable for
+/// `Command::new(cmd).args(&args)` across all platforms.
+pub fn build_test_command(command: &str, args: &[&str]) -> (String, Vec<String>) {
+    let str_args: Vec<String> = args.iter().map(|s| s.to_string()).collect();
+    let (cmd, wrapped) = wrap_for_windows(command, Some(str_args));
+    let final_args = wrapped.unwrap_or_default();
+    (cmd, final_args)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -4,7 +4,7 @@ use crate::adapter::{adapter_for, all_adapters};
 use crate::paths;
 use crate::store;
 use crate::store::SyncSummary;
-use crate::types::{McpError, McpServerEntry, Store};
+use crate::types::{ConnectionTestResult, McpError, McpServerEntry, Store};
 
 /// Returns the on-disk path of the SSOT store, for display in the UI.
 #[tauri::command]
@@ -118,6 +118,27 @@ pub fn restore_server(server_name: String, app_id: String) -> Result<Store, Stri
 #[tauri::command]
 pub fn delete_server_forever(server_name: String, app_id: String) -> Result<Store, String> {
     store::delete_server_forever(&server_name, &app_id).map_err(|e| e.to_string())
+}
+
+/// Tests whether an MCP server is reachable by performing the MCP initialize
+/// handshake. For stdio servers it spawns the process and sends an initialize
+/// request over stdin; for HTTP/SSE servers it makes network requests to the
+/// configured URL. Returns a `ConnectionTestResult` with the server's
+/// reported identity on success, or an error description on failure.
+#[tauri::command]
+pub fn test_server_connection(server_name: String, app_id: String) -> Result<ConnectionTestResult, String> {
+    if !crate::types::APPS.contains(&app_id.as_str()) {
+        return Err(McpError::UnknownApp(app_id).into());
+    }
+
+    let store = store::list_servers().map_err(|e| e.to_string())?;
+    let entry = store
+        .servers
+        .iter()
+        .find(|s| s.name == server_name && s.app == app_id)
+        .ok_or_else(|| McpError::ServerNotFound(server_name).to_string())?;
+
+    Ok(crate::mcp_test::test_connection(entry))
 }
 
 /// Payload for creating or editing a server from the UI's Add/Edit form.
