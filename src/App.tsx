@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 /** Detect Tauri invoke errors that occur when the Rust backend isn't running */
 function isBackendError(err: Error): boolean {
@@ -83,6 +83,17 @@ function ServerRow({
 }) {
   const appLabel = APPS.find((a) => a.id === server.app)?.label ?? server.app;
 
+  const configLines: string[] = [];
+  if (server.transport === "stdio") {
+    configLines.push(`Command: ${server.command ?? ""}`);
+    if (server.args?.length) configLines.push(`Args: ${server.args.join(" ")}`);
+    if (server.env) configLines.push(`Env: ${Object.keys(server.env).length} variables`);
+  } else {
+    configLines.push(`URL: ${server.url ?? ""}`);
+    if (server.headers) configLines.push(`Headers: ${Object.keys(server.headers).length} headers`);
+  }
+  configLines.push(`Transport: ${server.transport}`);
+
   return (
     <div
       className="server-row fade-in server-row-clickable"
@@ -91,7 +102,10 @@ function ServerRow({
       title="Click to edit"
     >
       <div className="server-info">
-        <div className="server-name">{server.name}</div>
+        <div className="server-name">
+          {server.name}
+          <span className="server-info-icon" title={configLines.join("\n")}>ⓘ</span>
+        </div>
         <div className="server-command">
           {server.transport === "stdio" ? server.command : server.url}
         </div>
@@ -797,6 +811,8 @@ export default function App() {
   const [updateError, setUpdateError] = useState("");
   const [editingServer, setEditingServer] = useState<McpServerEntry | "new" | null>(null);
   const [testResults, setTestResults] = useState<Record<string, { status: "testing" } | ConnectionTestResult>>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const dismissPendingRestart = useCallback((appId: AppId) => {
     setPendingRestarts((prev) => {
@@ -894,6 +910,33 @@ export default function App() {
       }
     })();
   }, [loadServers]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA";
+
+      if (e.key === "Escape" && editingServer) {
+        setEditingServer(null);
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === "f") {
+        e.preventDefault();
+        searchRef.current?.focus();
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === "n" && !isInput) {
+        e.preventDefault();
+        setEditingServer("new");
+        return;
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [editingServer]);
 
   const handleToggle = useCallback(
     async (serverName: string, appId: AppId, enabled: boolean) => {
@@ -1105,7 +1148,10 @@ export default function App() {
     }
   };
 
-  const sorted = sortServers(servers, sortKey, sortDir, filter);
+  const filtered = searchQuery
+    ? servers.filter((s) => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : servers;
+  const sorted = sortServers(filtered, sortKey, sortDir, filter);
   const sortArrow = (key: SortKey) =>
     sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
   const trashCount = servers.filter((s) => s.deleted).length;
@@ -1124,7 +1170,7 @@ export default function App() {
           <button className="btn" onClick={handleShowAbout} title="About MCP Switch">
             About
           </button>
-          <button className="btn" onClick={() => setEditingServer("new")}>
+          <button className="btn" onClick={() => setEditingServer("new")} title="Ctrl+N">
             Add server
           </button>
           <button
@@ -1208,6 +1254,21 @@ export default function App() {
 
       {/* Toolbar */}
       <div className="toolbar">
+        <div className="toolbar-search">
+          <input
+            ref={searchRef}
+            type="text"
+            className="search-input"
+            placeholder="Search servers… (Ctrl+F)"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button className="search-clear" onClick={() => { setSearchQuery(""); searchRef.current?.focus(); }}>
+              ×
+            </button>
+          )}
+        </div>
         <div className="filter-group">
           {(["all", ...APPS.map((a) => a.id), "trash"] as FilterKey[]).map((f) => (
             <button

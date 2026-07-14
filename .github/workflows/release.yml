@@ -79,11 +79,28 @@ jobs:
           find "src-tauri/target/${{ matrix.target }}/release/bundle" -type f 2>/dev/null || echo "no bundle files"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        shell: bash
+        run: |
+          BUNDLE_DIR="src-tauri/target/${{ matrix.target }}/release/bundle"
+          ARTIFACT_DIR="artifacts/mcp-switch-${{ matrix.target }}"
+          mkdir -p "$ARTIFACT_DIR"
+          # Copy only actual installer bundles and their .sig files
+          find "$BUNDLE_DIR" -type f \( \
+            -iname "*.dmg" -o \
+            -iname "*.AppImage" -o \
+            -iname "*.deb" -o \
+            -iname "*.msi" -o \
+            -iname "*.exe" -o \
+            -iname "*.sig" -o \
+            -iname "*.app.tar.gz" \
+          \) -exec cp {} "$ARTIFACT_DIR/" \;
+          echo "Files to upload:"
+          ls -la "$ARTIFACT_DIR/"
+
+      - uses: actions/upload-artifact@v4
         with:
           name: mcp-switch-${{ matrix.target }}
-          path: |
-            src-tauri/target/${{ matrix.target }}/release/bundle/${{ matrix.bundles }}/**
+          path: artifacts/mcp-switch-${{ matrix.target }}/
           if-no-files-found: warn
 
   publish:
@@ -229,7 +246,16 @@ jobs:
               BATCH=()
               BATCH_NUM=$((BATCH_NUM + 1))
             fi
-          done < <(find artifacts -type f ! -iname "*.icns" ! -iname "*.ico" ! -iname "*.png" ! -iname "copyright" -print0)
+          done < <(find artifacts -type f \( \
+            -iname "*.dmg" -o \
+            -iname "*.AppImage" -o \
+            -iname "*.deb" -o \
+            -iname "*.msi" -o \
+            -iname "*.exe" -o \
+            -iname "*.sig" -o \
+            -iname "*.app.tar.gz" -o \
+            -iname "update.json" \
+          \) -print0)
 
           # Upload remaining files
           if [[ ${#BATCH[@]} -gt 0 ]]; then
