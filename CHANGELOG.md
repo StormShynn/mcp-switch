@@ -1,3 +1,10 @@
+# [0.6.0](https://github.com/StormShynn/mcp-switch/compare/v0.5.0...v0.6.0) (2026-07-14)
+
+
+### Features
+
+* fix updater signing keys, add search bar, keyboard shortcuts, server details ([1a82912](https://github.com/StormShynn/mcp-switch/commit/1a82912259eed7e089e9b65b02ff06bd1c687cb6))
+
 # [0.5.0](https://github.com/StormShynn/mcp-switch/compare/v0.4.3...v0.5.0) (2026-07-14)
 
 

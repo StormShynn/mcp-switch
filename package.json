@@ -1,6 +1,6 @@
 {
   "name": "mcp-switch",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
   "description": "Cross-platform desktop switcher for MCP servers across Claude Code, Codex, Gemini, Hermes, OpenCode.",
