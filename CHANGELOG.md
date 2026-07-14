@@ -1,3 +1,10 @@
+# [0.5.0](https://github.com/StormShynn/mcp-switch/compare/v0.4.3...v0.5.0) (2026-07-14)
+
+
+### Features
+
+* add MCP server connection testing with Test button ([859775e](https://github.com/StormShynn/mcp-switch/commit/859775efb1583a203b9195c9d1ac304d58261068))
+
 ## [0.4.3](https://github.com/StormShynn/mcp-switch/compare/v0.4.2...v0.4.3) (2026-07-08)
 
 

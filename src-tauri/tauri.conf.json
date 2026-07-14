@@ -1,7 +1,7 @@
 {
   "$schema": "https://v2.tauri.app/schema",
   "productName": "MCP Switch",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "identifier": "com.github.stormshynn.mcpswitch",
   "build": {
     "beforeBuildCommand": "npm run build",
