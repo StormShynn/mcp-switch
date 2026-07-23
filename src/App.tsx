@@ -13,7 +13,7 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { confirm, save, open } from "@tauri-apps/plugin-dialog";
-import type { AutoRunKey, ConnectionTestResult, McpServerEntry, AppId, RunningServer, ServerExitEvent, ServerInput, SyncSummary, Transport } from "./lib/types";
+import type { AutoRunKey, ConnectionTestResult, McpServerEntry, AppId, ProfileDto, RestartPolicy, RunningServer, ServerExitEvent, ServerInput, SyncSummary, Transport } from "./lib/types";
 import { APPS, APP_COLORS } from "./lib/types";
 
 type UpdateStatus =
@@ -111,6 +111,8 @@ function ServerRow({
   autoRunOn,
   lastExit,
   onToggleAutoRun,
+  restartPolicy,
+  onChangePolicy,
 }: {
   server: McpServerEntry;
   index: number;
@@ -130,6 +132,8 @@ function ServerRow({
   autoRunOn: boolean;
   lastExit: number | null;
   onToggleAutoRun: (serverName: string, appId: AppId) => void;
+  restartPolicy: RestartPolicy;
+  onChangePolicy: (serverName: string, appId: AppId, policy: RestartPolicy) => void;
 }) {
   const appLabel = APPS.find((a) => a.id === server.app)?.label ?? server.app;
 
@@ -971,6 +975,9 @@ export default function App() {
   const [logVisible, setLogVisible] = useState<Set<string>>(new Set());
   const [autoRun, setAutoRun] = useState<Set<string>>(new Set());
   const [lastExits, setLastExits] = useState<Record<string, number>>({});
+  const [restartPolicies, setRestartPolicies] = useState<Record<string, RestartPolicy>>({});
+  const [profiles, setProfiles] = useState<ProfileDto[]>([]);
+  const [editingProfile, setEditingProfile] = useState<ProfileDto | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -1414,6 +1421,116 @@ export default function App() {
     [autoRun, notify]
   );
 
+  const refreshPolicies = useCallback(async () => {
+    try {
+      const servers = await invoke<{ servers: McpServerEntry[] }>("list_servers");
+      const next: Record<string, RestartPolicy> = {};
+      for (const s of servers.servers) {
+        if (s.transport !== "stdio") continue;
+        try {
+          const p = await invoke<RestartPolicy>("get_restart_policy", {
+            serverName: s.name,
+            appId: s.app,
+          });
+          if (p) next[`${s.app}::${s.name}`] = p;
+        } catch {
+          /* ignore per-server failures */
+        }
+      }
+      setRestartPolicies(next);
+    } catch {
+      /* backend not running */
+    }
+  }, []);
+
+  const refreshProfiles = useCallback(async () => {
+    try {
+      const list = await invoke<ProfileDto[]>("list_profiles");
+      setProfiles(list);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const handleChangePolicy = useCallback(
+    async (serverName: string, appId: AppId, policy: RestartPolicy) => {
+      const k = `${appId}::${serverName}`;
+      const prev = restartPolicies[k] ?? { mode: "never" };
+      setRestartPolicies((p) => ({ ...p, [k]: policy }));
+      try {
+        await invoke("set_restart_policy", {
+          serverName,
+          appId,
+          policy: { mode: policy.mode, maxRetries: "maxRetries" in policy ? policy.maxRetries : undefined, backoffMs: "backoffMs" in policy ? policy.backoffMs : undefined },
+        });
+      } catch (err) {
+        setRestartPolicies((p) => ({ ...p, [k]: prev }));
+        notify(err instanceof Error ? err.message : String(err), "error");
+      }
+    },
+    [restartPolicies, notify]
+  );
+
+  const handleStartProfile = useCallback(
+    async (id: string) => {
+      try {
+        const errs = await invoke<string[]>("start_profile", { id });
+        if (errs.length > 0) {
+          notify(`Profile started with ${errs.length} error(s)`, "error");
+        } else {
+          notify(`Profile \`${id}\` started`, "success");
+        }
+        refreshRunning();
+      } catch (err) {
+        notify(err instanceof Error ? err.message : String(err), "error");
+      }
+    },
+    [notify, refreshRunning]
+  );
+
+  const handleStopProfile = useCallback(
+    async (id: string) => {
+      try {
+        const results = await invoke<[string, string, boolean][]>("stop_profile", { id });
+        const killed = results.filter((r) => r[2]).length;
+        notify(`Stopped ${killed} of ${results.length} in profile \`${id}\``, "success");
+        refreshRunning();
+      } catch (err) {
+        notify(err instanceof Error ? err.message : String(err), "error");
+      }
+    },
+    [notify, refreshRunning]
+  );
+
+  const handleSaveProfile = useCallback(
+    async (profile: ProfileDto) => {
+      try {
+        await invoke("upsert_profile", { profile });
+        notify(`Saved profile \`${profile.label}\``, "success");
+        setEditingProfile(null);
+        refreshProfiles();
+      } catch (err) {
+        notify(err instanceof Error ? err.message : String(err), "error");
+      }
+    },
+    [notify, refreshProfiles]
+  );
+
+  const handleDeleteProfile = useCallback(
+    async (id: string) => {
+      try {
+        const ok = await invoke<boolean>("delete_profile", { id });
+        if (ok) {
+          notify(`Deleted profile`, "success");
+          refreshProfiles();
+        }
+      } catch (err) {
+        notify(err instanceof Error ? err.message : String(err), "error");
+      }
+    },
+    [notify, refreshProfiles]
+  );
+
   // Load the persisted auto-run list once on mount.
   useEffect(() => {
     refreshAutoRun();
@@ -1735,6 +1852,8 @@ export default function App() {
                     autoRunOn={autoRun.has(`${server.name}::${server.app}`)}
                     lastExit={lastExits[`${server.name}::${server.app}`] ?? null}
                     onToggleAutoRun={handleToggleAutoRun}
+                    restartPolicy={restartPolicies[`${server.app}::${server.name}`] ?? { mode: "never" }}
+                    onChangePolicy={handleChangePolicy}
                   />
                 ))}
           </div>

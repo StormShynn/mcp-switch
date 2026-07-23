@@ -280,7 +280,8 @@ pub fn start_server(
         .find(|s| s.name == server_name && s.app == app_id)
         .ok_or_else(|| McpError::ServerNotFound(server_name.clone()).to_string())?;
 
-    state.start_with_app(Some(&app), entry).map_err(|e| e.to_string())
+    let policy = state.get_restart_policy(&server_name, &app_id);
+    state.start_with_app(Some(&app), entry, Some(policy)).map_err(|e| e.to_string())
 }
 
 /// Stop a server previously started by MCP Switch. Returns false when no
@@ -334,6 +335,99 @@ pub fn set_auto_run(
 #[tauri::command]
 pub fn get_auto_run(
     state: tauri::State<'_, crate::runner::RunnerState>,
-) -> Vec<crate::runner::AutoRunKeyDto> {
+) -> Vec<crate::runner::ProfileMemberDto> {
     state.get_auto_run()
+}
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RestartPolicyInput {
+    pub mode: String,
+    #[serde(default)]
+    pub max_retries: Option<u32>,
+    #[serde(default)]
+    pub backoff_ms: Option<u64>,
+}
+
+fn parse_policy(input: RestartPolicyInput) -> crate::runner::RestartPolicy {
+    use crate::runner::RestartPolicy;
+    let max_retries = input.max_retries.unwrap_or(5);
+    let backoff_ms = input.backoff_ms.unwrap_or(1000);
+    match input.mode.as_str() {
+        "onFailure" | "on_failure" => {
+            RestartPolicy::OnFailure { max_retries, backoff_ms }
+        }
+        "always" | "Always" => RestartPolicy::Always { max_retries, backoff_ms },
+        _ => RestartPolicy::Never,
+    }
+}
+
+/// Read the persisted restart policy for a server.
+#[tauri::command]
+pub fn get_restart_policy(
+    server_name: String,
+    app_id: String,
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> crate::runner::RestartPolicy {
+    state.get_restart_policy(&server_name, &app_id)
+}
+
+/// Save the restart policy for a server.
+#[tauri::command]
+pub fn set_restart_policy(
+    server_name: String,
+    app_id: String,
+    policy: RestartPolicyInput,
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Result<(), String> {
+    let parsed = parse_policy(policy);
+    state
+        .set_restart_policy(&server_name, &app_id, parsed)
+        .map_err(|e| e.to_string())
+}
+
+/// List all saved profiles (Foreman-style procfile groups).
+#[tauri::command]
+pub fn list_profiles(
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Vec<crate::runner::ProfileDto> {
+    state.list_profiles()
+}
+
+/// Save (insert or update) a profile by id.
+#[tauri::command]
+pub fn upsert_profile(
+    profile: crate::runner::ProfileDto,
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Result<(), String> {
+    state.upsert_profile(profile).map_err(|e| e.to_string())
+}
+
+/// Delete a profile by id. Returns true if one was actually removed.
+#[tauri::command]
+pub fn delete_profile(
+    id: String,
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Result<bool, String> {
+    state.delete_profile(&id).map_err(|e| e.to_string())
+}
+
+/// Start every member of a profile. Returns a list of error strings
+/// (empty list = all good).
+#[tauri::command]
+pub fn start_profile(
+    id: String,
+    app: tauri::AppHandle,
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Result<Vec<String>, String> {
+    let store = store::list_servers().map_err(|e| e.to_string())?;
+    Ok(state.start_profile(&app, &id, &store.servers))
+}
+
+/// Stop every member of a profile. Returns the list of (name, app, killed).
+#[tauri::command]
+pub fn stop_profile(
+    id: String,
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Vec<(String, String, bool)> {
+    state.stop_profile(&id)
 }

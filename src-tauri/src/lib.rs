@@ -16,7 +16,7 @@ use tauri::Manager;
 use commands::{
     delete_server_forever, export_servers, get_app_config_path, get_store_path,
     import_servers, import_servers_from_file, list_running, list_servers, read_log,
-    get_auto_run, restart_app, restore_server, save_server, set_auto_run, start_server, stop_server,
+    delete_profile, get_auto_run, get_restart_policy, list_profiles, restart_app, restore_server, save_server, set_auto_run, set_restart_policy, start_profile, start_server, stop_profile, stop_server, upsert_profile,
     test_server_connection, toggle_server, trash_server,
 };
 
@@ -67,6 +67,13 @@ pub fn run() {
             read_log,
             set_auto_run,
             get_auto_run,
+            get_restart_policy,
+            set_restart_policy,
+            list_profiles,
+            upsert_profile,
+            delete_profile,
+            start_profile,
+            stop_profile,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

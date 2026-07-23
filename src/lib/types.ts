@@ -117,3 +117,36 @@ export interface ServerExitEvent {
   pid: number;
   code: number;
 }
+
+/** PM2-style restart policy for a runner-launched MCP server. */
+export type RestartPolicy =
+  | { mode: "never" }
+  | { mode: "onFailure"; maxRetries: number; backoffMs: number }
+  | { mode: "always"; maxRetries: number; backoffMs: number };
+
+/** A Foreman-style profile: a named group of `(app, name)` members that
+ *  can be run/stopped together. */
+export interface ProfileDto {
+  id: string;
+  label: string;
+  members: { name: string; app: AppId }[];
+}
+
+/** Payload of the `mcp-server-exited` event emitted when a runner child terminates on its own. */
+export interface ServerExitEvent {
+  name: string;
+  app: AppId;
+  pid: number;
+  code: number;
+  /** True if a follow-up child will be spawned automatically (per restart policy). */
+  willRestart: boolean;
+}
+
+/** Payload of the `mcp-server-updated` event emitted after a successful start
+ *  or auto-restart so the UI's running list can refresh without polling. */
+export interface ServerStartedEvent {
+  name: string;
+  app: AppId;
+  pid: number;
+  restartCount: number;
+}

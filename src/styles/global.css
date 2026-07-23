@@ -917,8 +917,6 @@ body {
 .server-log-peek-body .err {
   color: #f85149;
 }
-  color: #f85149;
-}
 
 /* Auto-run-on-launch checkbox in server row */
 .auto-run-toggle {
