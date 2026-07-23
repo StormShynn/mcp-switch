@@ -1,3 +1,10 @@
+# [0.8.0](https://github.com/StormShynn/mcp-switch/compare/v0.7.0...v0.8.0) (2026-07-23)
+
+
+### Features
+
+* add MCP server management commands and tray-icon support ([83b3581](https://github.com/StormShynn/mcp-switch/commit/83b35815aa1bcaea66a12dff2226db6266dc6a0b))
+
 # [0.7.0](https://github.com/StormShynn/mcp-switch/compare/v0.6.0...v0.7.0) (2026-07-14)
 
 
