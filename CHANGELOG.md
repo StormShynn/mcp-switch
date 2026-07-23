@@ -1,3 +1,10 @@
+# [0.10.0](https://github.com/StormShynn/mcp-switch/compare/v0.9.0...v0.10.0) (2026-07-23)
+
+
+### Features
+
+* use mcp_json for config parsing - Enhances config parsing resilience by switching from serde_json to mcp_json's lenient parser across multiple adapters, improving error handling for malformed configurations while maintaining backward compatibility. ([0a47acc](https://github.com/StormShynn/mcp-switch/commit/0a47acc4a3d9e6fe7567834c665ef0fdf8e7e976))
+
 # [0.9.0](https://github.com/StormShynn/mcp-switch/compare/v0.8.0...v0.9.0) (2026-07-23)
 
 
