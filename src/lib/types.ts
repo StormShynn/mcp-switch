@@ -89,3 +89,31 @@ export const APP_COLORS: Record<AppId, string> = {
   opencode: "#fbbf24",
   antigravity: "#ef4444",
 };
+
+/** Live child process spawned by MCP Switch's runner (backend `runner.rs`). */
+export interface RunningServer {
+  name: string;
+  app: AppId;
+  pid: number;
+  command: string;
+  args: string[];
+  /** Unix seconds (UTC) when the child was spawned. */
+  startedAt: number;
+}
+
+/** Canonical map key for a running server: `${app}::${name}`. */
+export const runningKey = (app: AppId, name: string): string => `${app}::${name}`;
+
+/** One entry in the persisted auto-run list (server spawns when MCP Switch starts). */
+export interface AutoRunKey {
+  name: string;
+  app: AppId;
+}
+
+/** Payload of the `mcp-server-exited` event emitted when a runner child terminates on its own. */
+export interface ServerExitEvent {
+  name: string;
+  app: AppId;
+  pid: number;
+  code: number;
+}

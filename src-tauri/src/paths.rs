@@ -162,3 +162,11 @@ pub fn app_config_path(app_id: &str) -> Option<PathBuf> {
     }
 }
 
+
+/// Returns the path of MCP Switch's small per-process-state file:
+/// `~/.mcp-switch/runner.json`. Used by the runner module to persist the
+/// "auto-run on app launch" preference per server.
+pub fn runner_state_path() -> PathBuf {
+    let home = dirs::home_dir().expect("could not find home directory");
+    home.join(".mcp-switch").join("runner.json")
+}

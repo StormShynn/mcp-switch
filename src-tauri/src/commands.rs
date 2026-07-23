@@ -259,3 +259,81 @@ pub fn save_server(input: ServerInput) -> Result<Store, String> {
 
     Ok(store)
 }
+
+/// Start a stdio MCP server as a child of MCP Switch, with no console window
+/// on Windows. Its stdout/stderr are captured in an in-memory ring buffer.
+#[tauri::command]
+pub fn start_server(
+    server_name: String,
+    app_id: String,
+    app: tauri::AppHandle,
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Result<crate::runner::RunningServer, String> {
+    if !crate::types::APPS.contains(&app_id.as_str()) {
+        return Err(McpError::UnknownApp(app_id).into());
+    }
+
+    let store = store::list_servers().map_err(|e| e.to_string())?;
+    let entry = store
+        .servers
+        .iter()
+        .find(|s| s.name == server_name && s.app == app_id)
+        .ok_or_else(|| McpError::ServerNotFound(server_name.clone()).to_string())?;
+
+    state.start_with_app(Some(&app), entry).map_err(|e| e.to_string())
+}
+
+/// Stop a server previously started by MCP Switch. Returns false when no
+/// live process was registered for that `(name, app)` pair.
+#[tauri::command]
+pub fn stop_server(
+    server_name: String,
+    app_id: String,
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Result<bool, String> {
+    state
+        .stop(&server_name, &app_id)
+        .map_err(|e| e.to_string())
+}
+
+/// Return live child processes owned by MCP Switch. Dead children are reaped
+/// before the snapshot is produced.
+#[tauri::command]
+pub fn list_running(
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Vec<crate::runner::RunningServer> {
+    state.list()
+}
+
+/// Read the most recent stdout/stderr lines captured for a running server.
+#[tauri::command]
+pub fn read_log(
+    server_name: String,
+    app_id: String,
+    tail: Option<usize>,
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Vec<String> {
+    state.read_log(&server_name, &app_id, tail.unwrap_or(100).min(500))
+}
+
+/// Toggle whether `server_name` for `app_id` should auto-spawn when MCP
+/// Switch launches.
+#[tauri::command]
+pub fn set_auto_run(
+    server_name: String,
+    app_id: String,
+    enabled: bool,
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Result<bool, String> {
+    state
+        .set_auto_run(&server_name, &app_id, enabled)
+        .map_err(|e| e.to_string())
+}
+
+/// Return the persisted auto-run list, alphabetised by (app, name).
+#[tauri::command]
+pub fn get_auto_run(
+    state: tauri::State<'_, crate::runner::RunnerState>,
+) -> Vec<crate::runner::AutoRunKeyDto> {
+    state.get_auto_run()
+}

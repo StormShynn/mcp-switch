@@ -7,12 +7,13 @@ function isBackendError(err: Error): boolean {
   return msg.includes("Invoke not available") || msg.includes("backend is not running");
 }
 import { invoke } from "@tauri-apps/api/core";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { confirm, save, open } from "@tauri-apps/plugin-dialog";
-import type { ConnectionTestResult, McpServerEntry, AppId, ServerInput, SyncSummary, Transport } from "./lib/types";
+import type { AutoRunKey, ConnectionTestResult, McpServerEntry, AppId, RunningServer, ServerExitEvent, ServerInput, SyncSummary, Transport } from "./lib/types";
 import { APPS, APP_COLORS } from "./lib/types";
 
 type UpdateStatus =
@@ -100,6 +101,16 @@ function ServerRow({
   onTest,
   onClone,
   testResult,
+  runningInfo,
+  onRun,
+  onStop,
+  busy,
+  logOpen,
+  logLines,
+  onToggleLog,
+  autoRunOn,
+  lastExit,
+  onToggleAutoRun,
 }: {
   server: McpServerEntry;
   index: number;
@@ -109,6 +120,16 @@ function ServerRow({
   onTest: (serverName: string, appId: AppId) => void;
   onClone: (server: McpServerEntry) => void;
   testResult: { status: "testing" } | ConnectionTestResult | null;
+  runningInfo: RunningServer | null;
+  onRun: (serverName: string, appId: AppId) => void;
+  onStop: (serverName: string, appId: AppId) => void;
+  busy: boolean;
+  logOpen: boolean;
+  logLines: string[];
+  onToggleLog: (serverName: string, appId: AppId) => void;
+  autoRunOn: boolean;
+  lastExit: number | null;
+  onToggleAutoRun: (serverName: string, appId: AppId) => void;
 }) {
   const appLabel = APPS.find((a) => a.id === server.app)?.label ?? server.app;
 
@@ -138,6 +159,24 @@ function ServerRow({
         <div className="server-command">
           {server.transport === "stdio" ? server.command : server.url}
         </div>
+        {lastExit !== null && (
+          <span className="badge server-crashed-badge" title={`Last child exited with code ${lastExit}`}>
+          </span>
+        )}
+        {server.transport === "stdio" && (
+          <label
+            className="auto-run-toggle"
+            title="Auto-spawn when MCP Switch launches."
+            onClick={(e) => e.stopPropagation()}
+          >
+            <input
+              type="checkbox"
+              checked={autoRunOn}
+              onChange={() => onToggleAutoRun(server.name, server.app)}
+            />
+            <span className="auto-run-toggle-label">auto-run</span>
+          </label>
+        )}
         <div className="server-meta">
           <span className="badge" style={{ color: APP_COLORS[server.app] }}>
             {appLabel}
@@ -165,6 +204,32 @@ function ServerRow({
           ) : (
             "Test"
           )}
+        </button>
+        <button
+          className={runningInfo ? "btn btn-sm btn-stop" : "btn btn-sm btn-run"}
+          title={runningInfo ? "Stop pid " + runningInfo.pid : (server.transport === "stdio" ? "Run as detached child of MCP Switch" : "Only stdio servers can be run from MCP Switch")}
+          disabled={busy || server.transport !== "stdio"}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (runningInfo !== null) {
+              onStop(server.name, server.app);
+            } else {
+              onRun(server.name, server.app);
+            }
+          }}
+        >
+          {runningInfo ? "Stop" : busy ? "…" : "Run"}
+        </button>
+        <button
+          className={"btn btn-sm btn-log" + (logOpen ? " btn-log-open" : "")}
+          title="Show captured stdout/stderr (last 100 lines)"
+          disabled={!runningInfo}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleLog(server.name, server.app);
+          }}
+        >
+          Log
         </button>
         <label
           className="toggle app-toggle"
@@ -199,6 +264,16 @@ function ServerRow({
           Delete
         </button>
       </div>
+      {logOpen && runningInfo && (
+        <div className="server-log-peek" onClick={(e) => e.stopPropagation()}>
+          <div className="server-log-peek-header">
+            Captured stdout/stderr — pid {runningInfo.pid} {runningInfo.command} {runningInfo.args.join(" ")}
+          </div>
+          <pre className="server-log-peek-body">
+            {logLines.length === 0 ? "(no output yet)" : logLines.join("\n")}
+          </pre>
+        </div>
+      )}
     </div>
   );
 }
@@ -223,8 +298,6 @@ function TrashRow({
         <div className="server-name">{server.name}</div>
         <div className="server-command">
           {server.transport === "stdio" ? server.command : server.url}
-        </div>
-        <div className="server-meta">
           <span className="badge" style={{ color: APP_COLORS[server.app] }}>
             {appLabel}
           </span>
@@ -892,6 +965,12 @@ export default function App() {
   const [updateError, setUpdateError] = useState("");
   const [editingServer, setEditingServer] = useState<McpServerEntry | "new" | null>(null);
   const [testResults, setTestResults] = useState<Record<string, { status: "testing" } | ConnectionTestResult>>({});
+  const [running, setRunning] = useState<Record<string, RunningServer>>({});
+  const [busyRunning, setBusyRunning] = useState<Set<string>>(new Set());
+  const [logPeek, setLogPeek] = useState<Record<string, string[]>>({});
+  const [logVisible, setLogVisible] = useState<Set<string>>(new Set());
+  const [autoRun, setAutoRun] = useState<Set<string>>(new Set());
+  const [lastExits, setLastExits] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -1201,6 +1280,187 @@ export default function App() {
     []
   );
 
+  const keyOf = useCallback((serverName: string, appId: AppId) => `${appId}::${serverName}`, []);
+
+  const refreshRunning = useCallback(async () => {
+    try {
+      const list = await invoke<RunningServer[]>("list_running");
+      const next: Record<string, RunningServer> = {};
+      for (const r of list) next[keyOf(r.name, r.app)] = r;
+      setRunning(next);
+      // refresh any visible log previews so newly-emitted lines show up
+      setLogVisible((prev) => {
+        if (prev.size === 0) return prev;
+        const keys = Array.from(prev);
+        Promise.all(
+          keys.map((k) => {
+            const [app, ...rest] = k.split("::");
+            const name = rest.join("::");
+            return invoke<string[]>("read_log", { serverName: name, appId: app, tail: 100 })
+              .then((lines) => setLogPeek((p) => ({ ...p, [k]: lines })))
+              .catch(() => {});
+          })
+        );
+        return prev;
+      });
+    } catch {
+      // backend not running -- silent, like everywhere else in this file
+    }
+  }, [keyOf]);
+
+  useEffect(() => {
+    refreshRunning();
+    const t = window.setInterval(refreshRunning, 3000);
+    return () => window.clearInterval(t);
+  }, [refreshRunning]);
+
+  const handleRun = useCallback(
+    async (serverName: string, appId: AppId) => {
+      const k = keyOf(serverName, appId);
+      setBusyRunning((prev) => new Set(prev).add(k));
+      try {
+        const info = await invoke<RunningServer>("start_server", { serverName, appId });
+        setRunning((prev) => ({ ...prev, [k]: info }));
+        notify(`Started ${serverName} (pid ${info.pid})`, "success");
+      } catch (err) {
+        notify(err instanceof Error ? err.message : String(err), "error");
+      } finally {
+        setBusyRunning((prev) => {
+          const next = new Set(prev);
+          next.delete(k);
+          return next;
+        });
+      }
+    },
+    [keyOf, notify]
+  );
+
+  const handleStop = useCallback(
+    async (serverName: string, appId: AppId) => {
+      const k = keyOf(serverName, appId);
+      setBusyRunning((prev) => new Set(prev).add(k));
+      try {
+        const killed = await invoke<boolean>("stop_server", { serverName, appId });
+        setRunning((prev) => {
+          const next = { ...prev };
+          delete next[k];
+          return next;
+        });
+        notify(
+          killed ? `Stopped ${serverName}` : `${serverName} wasn't running`,
+          killed ? "success" : "error"
+        );
+      } catch (err) {
+        notify(err instanceof Error ? err.message : String(err), "error");
+      } finally {
+        setBusyRunning((prev) => {
+          const next = new Set(prev);
+          next.delete(k);
+          return next;
+        });
+      }
+    },
+    [keyOf, notify]
+  );
+
+  const handleToggleLog = useCallback(
+    async (serverName: string, appId: AppId) => {
+      const k = keyOf(serverName, appId);
+      const wasOpen = logVisible.has(k);
+      setLogVisible((prev) => {
+        const next = new Set(prev);
+        if (next.has(k)) next.delete(k);
+        else next.add(k);
+        return next;
+      });
+      if (!wasOpen) {
+        try {
+          const lines = await invoke<string[]>("read_log", { serverName, appId, tail: 100 });
+          setLogPeek((prev) => ({ ...prev, [k]: lines }));
+        } catch {
+          setLogPeek((prev) => ({ ...prev, [k]: [] }));
+        }
+      }
+    },
+    [keyOf, logVisible]
+  );
+
+  const refreshAutoRun = useCallback(async () => {
+    try {
+      const list = await invoke<AutoRunKey[]>("get_auto_run");
+      setAutoRun(new Set(list.map((k) => `${k.app}::${k.name}`)));
+    } catch {
+      // backend not running; leave autoRun empty
+    }
+  }, []);
+
+  const handleToggleAutoRun = useCallback(
+    async (serverName: string, appId: AppId) => {
+      const k = `${appId}::${serverName}`;
+      const next = !autoRun.has(k);
+      try {
+        await invoke<boolean>("set_auto_run", { serverName, appId, enabled: next });
+        setAutoRun((prev) => {
+          const out = new Set(prev);
+          if (next) out.add(k);
+          else out.delete(k);
+          return out;
+        });
+        notify(next ? `Auto-run on for ${serverName}` : `Auto-run off for ${serverName}`, "success");
+      } catch (err) {
+        notify(err instanceof Error ? err.message : String(err), "error");
+      }
+    },
+    [autoRun, notify]
+  );
+
+  // Load the persisted auto-run list once on mount.
+  useEffect(() => {
+    refreshAutoRun();
+  }, [refreshAutoRun]);
+
+  // Listen for `mcp-server-exited` so a child that crashed unexpectedly
+  // shows up as a transient toast + a stale `lastExits` entry that the row
+  // can surface as "(crashed, rc=N)" until reaped.
+  useEffect(() => {
+    let unlisten: UnlistenFn | undefined;
+    listen<ServerExitEvent>("mcp-server-exited", (event) => {
+      const { name, app, code } = event.payload;
+      const k = `${app}::${name}`;
+      setLastExits((prev) => ({ ...prev, [k]: code }));
+      notify(
+        code === 0
+          ? `${name} exited cleanly`
+          : `${name} crashed (rc=${code})`,
+        code === 0 ? "success" : "error"
+      );
+      // Optimistically drop the entry from `running` so the UI flips back
+      // to a Stop-less state before the next polling tick.
+      setRunning((prev) => {
+        if (!(k in prev)) return prev;
+        const next = { ...prev };
+        delete next[k];
+        return next;
+      });
+      setTimeout(() => {
+        setLastExits((prev) => {
+          if (!(k in prev)) return prev;
+          const next = { ...prev };
+          delete next[k];
+          return next;
+        });
+      }, 12000);
+      // Refresh the log so the latest lines (incl. the [runner] exit line)
+      // are visible if the user had the peek open.
+      refreshRunning();
+    })
+      .then((fn) => (unlisten = fn))
+      .catch(() => {});
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, [notify, refreshRunning]);
+
   const handleClone = useCallback((server: McpServerEntry) => {
     setEditingServer({
       ...server,
@@ -1463,8 +1723,18 @@ export default function App() {
                     onEdit={setEditingServer}
                     onTrash={handleTrash}
                     onTest={handleTestConnection}
+                    onRun={handleRun}
+                    onStop={handleStop}
                     onClone={handleClone}
                     testResult={testResults[`${server.name}::${server.app}`] ?? null}
+                    runningInfo={running[`${server.name}::${server.app}`] ?? null}
+                    busy={busyRunning.has(`${server.name}::${server.app}`)}
+                    logOpen={logVisible.has(`${server.name}::${server.app}`)}
+                    logLines={logPeek[`${server.name}::${server.app}`] ?? []}
+                    onToggleLog={handleToggleLog}
+                    autoRunOn={autoRun.has(`${server.name}::${server.app}`)}
+                    lastExit={lastExits[`${server.name}::${server.app}`] ?? null}
+                    onToggleAutoRun={handleToggleAutoRun}
                   />
                 ))}
           </div>
