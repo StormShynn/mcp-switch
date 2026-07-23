@@ -28,7 +28,7 @@ impl Adapter for OpenCodeAdapter {
             mcp: Option<HashMap<String, Value>>,
         }
 
-        let config: OpenCodeConfig = serde_json::from_str(&content)?;
+        let config: OpenCodeConfig = mcp_json::from_str_lenient(&content)?;
         let servers = config
             .mcp
             .unwrap_or_default()
@@ -58,7 +58,7 @@ impl Adapter for OpenCodeAdapter {
             extra: serde_json::Map<String, Value>,
         }
 
-        let mut config: OpenCodeConfig = serde_json::from_str(&content)?;
+        let mut config: OpenCodeConfig = mcp_json::from_str_lenient(&content)?;
         let mut servers = config.mcp.unwrap_or_default();
         match entry {
             Some(e) => {

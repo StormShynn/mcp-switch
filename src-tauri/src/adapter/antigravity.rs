@@ -27,7 +27,7 @@ impl Adapter for AntigravityAdapter {
             mcp_servers: Option<HashMap<String, Value>>,
         }
 
-        let config: AntigravityConfig = serde_json::from_str(&content)?;
+        let config: AntigravityConfig = mcp_json::from_str_lenient(&content)?;
         let servers = config
             .mcp_servers
             .unwrap_or_default()
@@ -57,7 +57,7 @@ impl Adapter for AntigravityAdapter {
             extra: serde_json::Map<String, Value>,
         }
 
-        let mut config: AntigravityConfig = serde_json::from_str(&content)?;
+        let mut config: AntigravityConfig = mcp_json::from_str_lenient(&content)?;
         let mut servers = config.mcp_servers.unwrap_or_default();
         match entry {
             Some(e) => {

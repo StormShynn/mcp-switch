@@ -177,7 +177,7 @@ impl HermesAdapter {
             mcp_servers: Option<Vec<Value>>,
         }
 
-        let config: HermesConfig = serde_json::from_str(&content)?;
+        let config: HermesConfig = mcp_json::from_str_lenient(&content)?;
         let servers = config
             .mcp_servers
             .unwrap_or_default()
@@ -252,7 +252,7 @@ impl HermesAdapter {
             extra: serde_json::Map<String, Value>,
         }
 
-        let mut config: HermesConfig = serde_json::from_str(&content)?;
+        let mut config: HermesConfig = mcp_json::from_str_lenient(&content)?;
         let mut servers = config.mcp_servers.unwrap_or_default();
         upsert_or_remove_by_name(
             &mut servers,

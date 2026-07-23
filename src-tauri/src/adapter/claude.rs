@@ -27,7 +27,7 @@ impl Adapter for ClaudeAdapter {
             mcp_servers: Option<HashMap<String, Value>>,
         }
 
-        let config: ClaudeConfig = serde_json::from_str(&content)?;
+        let config: ClaudeConfig = mcp_json::from_str_lenient(&content)?;
         let servers = config
             .mcp_servers
             .unwrap_or_default()
@@ -57,7 +57,7 @@ impl Adapter for ClaudeAdapter {
             extra: serde_json::Map<String, Value>,
         }
 
-        let mut config: ClaudeConfig = serde_json::from_str(&content)?;
+        let mut config: ClaudeConfig = mcp_json::from_str_lenient(&content)?;
         let mut servers = config.mcp_servers.unwrap_or_default();
         match entry {
             Some(e) => {
