@@ -91,6 +91,7 @@ jobs:
             -iname "*.deb" -o \
             -iname "*.msi" -o \
             -iname "*.exe" -o \
+            -iname "*.zip" -o \
             -iname "*.sig" -o \
             -iname "*.app.tar.gz" \
           \) -exec cp {} "$ARTIFACT_DIR/" \;
@@ -252,6 +253,7 @@ jobs:
             -iname "*.deb" -o \
             -iname "*.msi" -o \
             -iname "*.exe" -o \
+            -iname "*.zip" -o \
             -iname "*.sig" -o \
             -iname "*.app.tar.gz" -o \
             -iname "update.json" \

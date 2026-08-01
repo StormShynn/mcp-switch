@@ -44,11 +44,9 @@ const PLATFORM_MAP = {
 
 // Preferred bundle extensions per platform, in priority order
 const BUNDLE_EXT_RANK = [
-  ".dmg",
-  ".AppImage",
-  ".deb",
-  ".msi",
-  ".exe",
+  ".nsis.zip",
+  ".msi.zip",
+  ".AppImage.tar.gz",
   ".app.tar.gz",
 ];
 
@@ -89,18 +87,10 @@ function findBundle(targetDir) {
     }
   }
 
-  // Fallback: highest-ranked bundle even without .sig
-  for (const ext of BUNDLE_EXT_RANK) {
-    const match = bundles.find((b) => b.name.endsWith(ext));
-    if (match) {
-      return {
-        signature: sigs.get(match.name) || "",
-        url: `${BASE_URL}/${encodeURIComponent(match.name)}`,
-      };
-    }
+  const expected = BUNDLE_EXT_RANK.find((ext) => bundles.some((b) => b.name.endsWith(ext)));
+  if (expected) {
+    throw new Error(`Missing signature for updater artifact in ${targetDir}`);
   }
-
-  console.warn(`Warning: No supported bundle found in ${targetDir}`);
   return null;
 }
 
