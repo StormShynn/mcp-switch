@@ -1,0 +1,38 @@
+﻿2026-08-01T05:02:33.8172410Z ##[group]Run npm install
+2026-08-01T05:02:33.8172700Z [36;1mnpm install[0m
+2026-08-01T05:02:33.8265050Z shell: /bin/bash -e {0}
+2026-08-01T05:02:33.8265700Z env:
+2026-08-01T05:02:33.8266170Z   CARGO_HOME: /Users/runner/.cargo
+2026-08-01T05:02:33.8266780Z   CARGO_INCREMENTAL: 0
+2026-08-01T05:02:33.8267290Z   CARGO_TERM_COLOR: always
+2026-08-01T05:02:33.8267970Z ##[endgroup]
+2026-08-01T05:02:34.5434830Z npm warn EBADENGINE Unsupported engine {
+2026-08-01T05:02:34.5540200Z npm warn EBADENGINE   package: '@semantic-release/github@12.0.9',
+2026-08-01T05:02:34.5644060Z npm warn EBADENGINE   required: { node: '^22.14.0 || >= 24.10.0' },
+2026-08-01T05:02:34.5760560Z npm warn EBADENGINE   current: { node: 'v20.20.2', npm: '10.8.2' }
+2026-08-01T05:02:34.5942750Z npm warn EBADENGINE }
+2026-08-01T05:02:34.6221310Z npm warn EBADENGINE Unsupported engine {
+2026-08-01T05:02:34.6365790Z npm warn EBADENGINE   package: '@semantic-release/npm@13.1.5',
+2026-08-01T05:02:34.6366480Z npm warn EBADENGINE   required: { node: '^22.14.0 || >= 24.10.0' },
+2026-08-01T05:02:34.6470650Z npm warn EBADENGINE   current: { node: 'v20.20.2', npm: '10.8.2' }
+2026-08-01T05:02:34.6575420Z npm warn EBADENGINE }
+2026-08-01T05:02:34.6676670Z npm warn EBADENGINE Unsupported engine {
+2026-08-01T05:02:34.6717720Z npm warn EBADENGINE   package: 'semantic-release@25.0.5',
+2026-08-01T05:02:34.6723790Z npm warn EBADENGINE   required: { node: '^22.14.0 || >= 24.10.0' },
+2026-08-01T05:02:34.6763590Z npm warn EBADENGINE   current: { node: 'v20.20.2', npm: '10.8.2' }
+2026-08-01T05:02:34.6769460Z npm warn EBADENGINE }
+2026-08-01T05:02:41.0132480Z 
+2026-08-01T05:02:41.0134230Z added 399 packages, and audited 543 packages in 7s
+2026-08-01T05:02:41.0134890Z 
+2026-08-01T05:02:41.0135930Z 113 packages are looking for funding
+2026-08-01T05:02:41.0137150Z   run `npm fund` for details
+2026-08-01T05:02:41.0236970Z 
+2026-08-01T05:02:41.0238620Z 5 vulnerabilities (4 moderate, 1 high)
+2026-08-01T05:02:41.0239390Z 
+2026-08-01T05:02:41.0240150Z To address issues that do not require attention, run:
+2026-08-01T05:02:41.0241140Z   npm audit fix
+2026-08-01T05:02:41.0241570Z 
+2026-08-01T05:02:41.0242370Z To address all issues (including breaking changes), run:
+2026-08-01T05:02:41.0243500Z   npm audit fix --force
+2026-08-01T05:02:41.0244090Z 
+2026-08-01T05:02:41.0244560Z Run `npm audit` for details.

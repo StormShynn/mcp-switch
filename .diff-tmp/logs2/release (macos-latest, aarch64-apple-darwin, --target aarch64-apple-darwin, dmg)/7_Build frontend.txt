@@ -1,0 +1,25 @@
+﻿2026-08-01T05:02:37.3224820Z ##[group]Run npm run build
+2026-08-01T05:02:37.3225370Z [36;1mnpm run build[0m
+2026-08-01T05:02:37.3272020Z shell: /bin/bash -e {0}
+2026-08-01T05:02:37.3272260Z env:
+2026-08-01T05:02:37.3272520Z   CARGO_HOME: /Users/runner/.cargo
+2026-08-01T05:02:37.3272780Z   CARGO_INCREMENTAL: 0
+2026-08-01T05:02:37.3273000Z   CARGO_TERM_COLOR: always
+2026-08-01T05:02:37.3273270Z ##[endgroup]
+2026-08-01T05:02:37.5580100Z 
+2026-08-01T05:02:37.5582040Z > mcp-switch@0.10.1 build
+2026-08-01T05:02:37.5583240Z > tsc -b && vite build
+2026-08-01T05:02:37.5583650Z 
+2026-08-01T05:02:39.8821970Z [2m5:02:39 AM[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+2026-08-01T05:02:39.8823860Z `optimizeDeps.rollupOptions` / `ssr.optimizeDeps.rollupOptions` is deprecated. Use `optimizeDeps.rolldownOptions` instead. Note that this option may be set by a plugin. Set VITE_DEPRECATION_TRACE=1 to see where it is called.
+2026-08-01T05:02:39.8903870Z [vite:react-babel] We recommend switching to `@vitejs/plugin-react-oxc` for improved performance. More information at https://vite.dev/rolldown
+2026-08-01T05:02:39.8917350Z [36mvite v8.1.3 [32mbuilding client environment for production...[36m[39m
+2026-08-01T05:02:39.8983060Z [2K
+2026-08-01T05:02:39.9299620Z transforming...✓ 25 modules transformed.
+2026-08-01T05:02:40.0108780Z rendering chunks...
+2026-08-01T05:02:40.0155150Z computing gzip size...
+2026-08-01T05:02:40.0184440Z dist/index.html                   0.39 kB │ gzip:  0.26 kB
+2026-08-01T05:02:40.0186240Z dist/assets/index-BwbNJA5S.css   14.56 kB │ gzip:  3.39 kB
+2026-08-01T05:02:40.0187620Z dist/assets/index-B8A8Eud1.js   180.73 kB │ gzip: 57.82 kB
+2026-08-01T05:02:40.0188450Z 
+2026-08-01T05:02:40.0188830Z [32m✓ built in 126ms[39m

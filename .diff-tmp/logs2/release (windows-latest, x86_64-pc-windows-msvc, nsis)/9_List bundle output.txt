@@ -1,0 +1,38 @@
+﻿2026-08-01T05:10:06.2833659Z ##[group]Run echo "=== release dir ==="
+2026-08-01T05:10:06.2834183Z [36;1mecho "=== release dir ==="[0m
+2026-08-01T05:10:06.2834737Z [36;1mls -la "src-tauri/target/x86_64-pc-windows-msvc/release/" 2>/dev/null || echo "no release dir"[0m
+2026-08-01T05:10:06.2835287Z [36;1mecho "=== bundle dir ==="[0m
+2026-08-01T05:10:06.2835861Z [36;1mls -la "src-tauri/target/x86_64-pc-windows-msvc/release/bundle/" 2>/dev/null || echo "no bundle dir"[0m
+2026-08-01T05:10:06.2836417Z [36;1mecho "=== artifacts ==="[0m
+2026-08-01T05:10:06.2836975Z [36;1mfind "src-tauri/target/x86_64-pc-windows-msvc/release/bundle" -type f 2>/dev/null || echo "no bundle files"[0m
+2026-08-01T05:10:06.2853631Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-08-01T05:10:06.2854119Z env:
+2026-08-01T05:10:06.2854384Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-08-01T05:10:06.2854709Z   CARGO_INCREMENTAL: 0
+2026-08-01T05:10:06.2854978Z   CARGO_TERM_COLOR: always
+2026-08-01T05:10:06.2855255Z ##[endgroup]
+2026-08-01T05:10:06.8173489Z === release dir ===
+2026-08-01T05:10:06.8469558Z total 24700
+2026-08-01T05:10:06.8470406Z drwxr-xr-x 1 runneradmin 197121        0 Aug  1 05:09 .
+2026-08-01T05:10:06.8471258Z drwxr-xr-x 1 runneradmin 197121        0 Aug  1 05:03 ..
+2026-08-01T05:10:06.8472277Z -rw-r--r-- 1 runneradmin 197121        0 Aug  1 05:03 .cargo-artifact-lock
+2026-08-01T05:10:06.8473388Z -rw-r--r-- 1 runneradmin 197121        0 Aug  1 05:03 .cargo-build-lock
+2026-08-01T05:10:06.8474425Z -rw-r--r-- 1 runneradmin 197121        0 Aug  1 05:03 .cargo-lock
+2026-08-01T05:10:06.8475728Z drwxr-xr-x 1 runneradmin 197121        0 Aug  1 05:03 .fingerprint
+2026-08-01T05:10:06.8476690Z drwxr-xr-x 1 runneradmin 197121        0 Aug  1 05:03 build
+2026-08-01T05:10:06.8477570Z drwxr-xr-x 1 runneradmin 197121        0 Aug  1 05:09 bundle
+2026-08-01T05:10:06.8478468Z drwxr-xr-x 1 runneradmin 197121        0 Aug  1 05:09 deps
+2026-08-01T05:10:06.8479382Z drwxr-xr-x 1 runneradmin 197121        0 Aug  1 05:03 examples
+2026-08-01T05:10:06.8480345Z drwxr-xr-x 1 runneradmin 197121        0 Aug  1 05:03 incremental
+2026-08-01T05:10:06.8481376Z -rw-r--r-- 1 runneradmin 197121     2372 Aug  1 05:09 mcp-switch.d
+2026-08-01T05:10:06.8482346Z -rwxr-xr-x 2 runneradmin 197121 15636480 Aug  1 05:10 mcp-switch.exe
+2026-08-01T05:10:06.8483359Z -rw-r--r-- 2 runneradmin 197121  9310208 Aug  1 05:09 mcp_switch.pdb
+2026-08-01T05:10:06.8484304Z drwxr-xr-x 1 runneradmin 197121        0 Aug  1 05:09 nsis
+2026-08-01T05:10:06.8484962Z === bundle dir ===
+2026-08-01T05:10:06.8696942Z total 4
+2026-08-01T05:10:06.8697857Z drwxr-xr-x 1 runneradmin 197121 0 Aug  1 05:09 .
+2026-08-01T05:10:06.8698827Z drwxr-xr-x 1 runneradmin 197121 0 Aug  1 05:09 ..
+2026-08-01T05:10:06.8700669Z drwxr-xr-x 1 runneradmin 197121 0 Aug  1 05:10 nsis
+2026-08-01T05:10:06.8705169Z === artifacts ===
+2026-08-01T05:10:06.9058825Z src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/MCP Switch_0.10.1_x64-setup.exe
+2026-08-01T05:10:06.9060386Z src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/MCP Switch_0.10.1_x64-setup.exe.sig

@@ -696,6 +696,12 @@ body {
   cursor: help;
 }
 
+.modal-update-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Clickable server row (opens edit form) */
 .server-row-clickable {
   cursor: pointer;

@@ -1,0 +1,274 @@
+﻿2026-08-01T05:09:24.8892742Z ##[group]Run echo "=== release dir ==="
+2026-08-01T05:09:24.8893123Z [36;1mecho "=== release dir ==="[0m
+2026-08-01T05:09:24.8893615Z [36;1mls -la "src-tauri/target/x86_64-unknown-linux-gnu/release/" 2>/dev/null || echo "no release dir"[0m
+2026-08-01T05:09:24.8894131Z [36;1mecho "=== bundle dir ==="[0m
+2026-08-01T05:09:24.8894628Z [36;1mls -la "src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/" 2>/dev/null || echo "no bundle dir"[0m
+2026-08-01T05:09:24.8895131Z [36;1mecho "=== artifacts ==="[0m
+2026-08-01T05:09:24.8895853Z [36;1mfind "src-tauri/target/x86_64-unknown-linux-gnu/release/bundle" -type f 2>/dev/null || echo "no bundle files"[0m
+2026-08-01T05:09:24.8952836Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-08-01T05:09:24.8953184Z env:
+2026-08-01T05:09:24.8953387Z   CARGO_HOME: /home/runner/.cargo
+2026-08-01T05:09:24.8953641Z   CARGO_INCREMENTAL: 0
+2026-08-01T05:09:24.8953868Z   CARGO_TERM_COLOR: always
+2026-08-01T05:09:24.8954088Z ##[endgroup]
+2026-08-01T05:09:24.9033612Z === release dir ===
+2026-08-01T05:09:24.9051524Z total 22468
+2026-08-01T05:09:24.9052183Z drwxr-xr-x   8 runner runner     4096 Aug  1 05:07 .
+2026-08-01T05:09:24.9052887Z drwxr-xr-x   3 runner runner     4096 Aug  1 05:03 ..
+2026-08-01T05:09:24.9053591Z -rw-r--r--   1 runner runner        0 Aug  1 05:03 .cargo-artifact-lock
+2026-08-01T05:09:24.9054581Z -rw-r--r--   1 runner runner        0 Aug  1 05:03 .cargo-build-lock
+2026-08-01T05:09:24.9055481Z -rw-r--r--   1 runner runner        0 Aug  1 05:03 .cargo-lock
+2026-08-01T05:09:24.9056407Z drwxr-xr-x 329 runner runner    20480 Aug  1 05:03 .fingerprint
+2026-08-01T05:09:24.9057259Z drwxr-xr-x  59 runner runner     4096 Aug  1 05:03 build
+2026-08-01T05:09:24.9057885Z drwxr-xr-x   3 runner runner     4096 Aug  1 05:09 bundle
+2026-08-01T05:09:24.9058386Z drwxr-xr-x   2 runner runner    61440 Aug  1 05:07 deps
+2026-08-01T05:09:24.9058890Z drwxr-xr-x   2 runner runner     4096 Aug  1 05:03 examples
+2026-08-01T05:09:24.9059427Z drwxr-xr-x   2 runner runner     4096 Aug  1 05:03 incremental
+2026-08-01T05:09:24.9059992Z -rwxr-xr-x   2 runner runner 22889288 Aug  1 05:09 mcp-switch
+2026-08-01T05:09:24.9060759Z -rw-r--r--   1 runner runner     2794 Aug  1 05:07 mcp-switch.d
+2026-08-01T05:09:24.9061177Z === bundle dir ===
+2026-08-01T05:09:24.9067921Z total 12
+2026-08-01T05:09:24.9068415Z drwxr-xr-x 3 runner runner 4096 Aug  1 05:09 .
+2026-08-01T05:09:24.9069073Z drwxr-xr-x 8 runner runner 4096 Aug  1 05:07 ..
+2026-08-01T05:09:24.9069512Z drwxr-xr-x 3 runner runner 4096 Aug  1 05:09 appimage
+2026-08-01T05:09:24.9069988Z === artifacts ===
+2026-08-01T05:09:24.9091406Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/AppRun.wrapped
+2026-08-01T05:09:24.9092773Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/bin/xdg-open
+2026-08-01T05:09:24.9094230Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/bin/mcp-switch
+2026-08-01T05:09:24.9095289Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/icons/hicolor/32x32/apps/mcp-switch.png
+2026-08-01T05:09:24.9096487Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/icons/hicolor/256x256@2/apps/mcp-switch.png
+2026-08-01T05:09:24.9097682Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/icons/hicolor/128x128/apps/mcp-switch.png
+2026-08-01T05:09:24.9098799Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libpango1.0-dev/copyright
+2026-08-01T05:09:24.9100794Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libpango-1.0-0/copyright
+2026-08-01T05:09:24.9102536Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libglib2.0-0/copyright
+2026-08-01T05:09:24.9104225Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libkeyutils1/copyright
+2026-08-01T05:09:24.9106252Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/librsvg2-2/copyright
+2026-08-01T05:09:24.9107447Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libpangoft2-1.0-0/copyright
+2026-08-01T05:09:24.9108406Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libpcre3/copyright
+2026-08-01T05:09:24.9109351Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libbz2-1.0/copyright
+2026-08-01T05:09:24.9110939Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libcap2/copyright
+2026-08-01T05:09:24.9112622Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/liblzma5/copyright
+2026-08-01T05:09:24.9113698Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libpangocairo-1.0-0/copyright
+2026-08-01T05:09:24.9114704Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libglib2.0-dev/copyright
+2026-08-01T05:09:24.9115667Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libdbus-1-3/copyright
+2026-08-01T05:09:24.9116654Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libgdk-pixbuf-2.0-dev/copyright
+2026-08-01T05:09:24.9117651Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libselinux1/copyright
+2026-08-01T05:09:24.9118637Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/libgdk-pixbuf-2.0-0/copyright
+2026-08-01T05:09:24.9119622Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/doc/librsvg2-dev/copyright
+2026-08-01T05:09:24.9121048Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.media-handling.gschema.xml
+2026-08-01T05:09:24.9122326Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.datetime.gschema.xml
+2026-08-01T05:09:24.9123571Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.background.gschema.xml
+2026-08-01T05:09:24.9124785Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.mouse.gschema.xml
+2026-08-01T05:09:24.9126020Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.input-sources.gschema.xml
+2026-08-01T05:09:24.9127255Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.peripherals.gschema.xml
+2026-08-01T05:09:24.9128373Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/gschemas.compiled
+2026-08-01T05:09:24.9129506Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gtk.Settings.FileChooser.gschema.xml
+2026-08-01T05:09:24.9130987Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.app-folders.gschema.xml
+2026-08-01T05:09:24.9132229Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.lockdown.gschema.xml
+2026-08-01T05:09:24.9133477Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.search-providers.gschema.xml
+2026-08-01T05:09:24.9134742Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.thumbnail-cache.gschema.xml
+2026-08-01T05:09:24.9136190Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.magnifier.gschema.xml
+2026-08-01T05:09:24.9137403Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.system.location.gschema.xml
+2026-08-01T05:09:24.9138579Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.gschema.xml
+2026-08-01T05:09:24.9139919Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.privacy.gschema.xml
+2026-08-01T05:09:24.9141355Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.keyboard.gschema.xml
+2026-08-01T05:09:24.9142601Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.thumbnailers.gschema.xml
+2026-08-01T05:09:24.9143888Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.interface.gschema.xml
+2026-08-01T05:09:24.9145004Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/gschema.dtd
+2026-08-01T05:09:24.9146111Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gtk.Settings.EmojiChooser.gschema.xml
+2026-08-01T05:09:24.9147344Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gtk.Settings.ColorChooser.gschema.xml
+2026-08-01T05:09:24.9148535Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.system.proxy.gschema.xml
+2026-08-01T05:09:24.9149712Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.system.locale.gschema.xml
+2026-08-01T05:09:24.9151163Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.default-applications.gschema.xml
+2026-08-01T05:09:24.9152456Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.applications.gschema.xml
+2026-08-01T05:09:24.9153737Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.wm.preferences.gschema.xml
+2026-08-01T05:09:24.9154937Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.sound.gschema.xml
+2026-08-01T05:09:24.9156124Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.calendar.gschema.xml
+2026-08-01T05:09:24.9157355Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/10_gsettings-desktop-schemas.gschema.override
+2026-08-01T05:09:24.9158592Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.screensaver.gschema.xml
+2026-08-01T05:09:24.9159781Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gtk.Settings.Debug.gschema.xml
+2026-08-01T05:09:24.9161229Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.session.gschema.xml
+2026-08-01T05:09:24.9162473Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.notifications.gschema.xml
+2026-08-01T05:09:24.9163729Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.wm.keybindings.gschema.xml
+2026-08-01T05:09:24.9165104Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.enums.xml
+2026-08-01T05:09:24.9166289Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/glib-2.0/schemas/org.gnome.desktop.interface.gschema.xml
+2026-08-01T05:09:24.9167396Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/share/applications/MCP Switch.desktop
+2026-08-01T05:09:24.9168504Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgdk_pixbuf-2.0.so.0.4200.8
+2026-08-01T05:09:24.9169417Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libglib-2.0.so.0
+2026-08-01T05:09:24.9170456Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libffi.so.8
+2026-08-01T05:09:24.9171347Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgdk_pixbuf-2.0.so
+2026-08-01T05:09:24.9172213Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/librsvg-2.so
+2026-08-01T05:09:24.9173052Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/liblcms2.so.2
+2026-08-01T05:09:24.9173919Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libnghttp2.so.14
+2026-08-01T05:09:24.9174793Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libwebpdemux.so.2
+2026-08-01T05:09:24.9175672Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgobject-2.0.so.0
+2026-08-01T05:09:24.9176529Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/liblzma.so.5
+2026-08-01T05:09:24.9177372Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpango-1.0.so
+2026-08-01T05:09:24.9178234Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libnettle.so.8
+2026-08-01T05:09:24.9179059Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpsl.so.5
+2026-08-01T05:09:24.9179893Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/liborc-0.4.so.0
+2026-08-01T05:09:24.9180953Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libseccomp.so.2
+2026-08-01T05:09:24.9181799Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libmd.so.0
+2026-08-01T05:09:24.9182631Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libsqlite3.so.0
+2026-08-01T05:09:24.9183466Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXcursor.so.1
+2026-08-01T05:09:24.9184315Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libdatrie.so.1
+2026-08-01T05:09:24.9185179Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgstfft-1.0.so.0
+2026-08-01T05:09:24.9186034Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXdamage.so.1
+2026-08-01T05:09:24.9186911Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libavahi-common.so.3
+2026-08-01T05:09:24.9187779Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libsystemd.so.0
+2026-08-01T05:09:24.9188614Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libmount.so.1
+2026-08-01T05:09:24.9189501Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgstpbutils-1.0.so.0
+2026-08-01T05:09:24.9190575Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libenchant-2.so.2
+2026-08-01T05:09:24.9191670Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgmodule-2.0.so.0
+2026-08-01T05:09:24.9192558Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libxcb-render.so.0
+2026-08-01T05:09:24.9193406Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libatk-1.0.so.0
+2026-08-01T05:09:24.9194387Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXcomposite.so.1
+2026-08-01T05:09:24.9195332Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpcre2-8.so.0
+2026-08-01T05:09:24.9196167Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpcre.so.3
+2026-08-01T05:09:24.9197001Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libselinux.so.1
+2026-08-01T05:09:24.9197830Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXau.so.6
+2026-08-01T05:09:24.9198717Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgobject-2.0.so.0.7200.4
+2026-08-01T05:09:24.9199649Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libatk-bridge-2.0.so.0
+2026-08-01T05:09:24.9200764Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libblkid.so.1
+2026-08-01T05:09:24.9201629Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libidn2.so.0
+2026-08-01T05:09:24.9202489Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgssapi_krb5.so.2
+2026-08-01T05:09:24.9203338Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgdk-3.so.0
+2026-08-01T05:09:24.9204176Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libevdev.so.2
+2026-08-01T05:09:24.9205014Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libhogweed.so.6
+2026-08-01T05:09:24.9205871Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libsecret-1.so.0
+2026-08-01T05:09:24.9206701Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXext.so.6
+2026-08-01T05:09:24.9207575Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgdk_pixbuf-2.0.so.0
+2026-08-01T05:09:24.9208486Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgstreamer-1.0.so.0
+2026-08-01T05:09:24.9209342Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libwebp.so.7
+2026-08-01T05:09:24.9210170Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libthai.so.0
+2026-08-01T05:09:24.9211430Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXdmcp.so.6
+2026-08-01T05:09:24.9212261Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/liblz4.so.1
+2026-08-01T05:09:24.9213172Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpangocairo-1.0.so.0.5000.6
+2026-08-01T05:09:24.9214078Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libsoup-3.0.so.0
+2026-08-01T05:09:24.9214918Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libkrb5.so.3
+2026-08-01T05:09:24.9215724Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXi.so.6
+2026-08-01T05:09:24.9216575Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libmanette-0.2.so.0
+2026-08-01T05:09:24.9217612Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libk5crypto.so.3
+2026-08-01T05:09:24.9218483Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libicui18n.so.70
+2026-08-01T05:09:24.9219356Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgraphite2.so.3
+2026-08-01T05:09:24.9220434Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgudev-1.0.so.0
+2026-08-01T05:09:24.9221467Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgio-2.0.so.0
+2026-08-01T05:09:24.9222330Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libicuuc.so.70
+2026-08-01T05:09:24.9223178Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgnutls.so.30
+2026-08-01T05:09:24.9224034Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgstgl-1.0.so.0
+2026-08-01T05:09:24.9224908Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgstapp-1.0.so.0
+2026-08-01T05:09:24.9225774Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libxkbcommon.so.0
+2026-08-01T05:09:24.9226643Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libxcb-randr.so.0
+2026-08-01T05:09:24.9227516Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/librsvg-2.so.2.48.0
+2026-08-01T05:09:24.9228375Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libcap.so.2
+2026-08-01T05:09:24.9229203Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libzstd.so.1
+2026-08-01T05:09:24.9230050Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgobject-2.0.so
+2026-08-01T05:09:24.9231125Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libdbusmenu-gtk3.so.4
+2026-08-01T05:09:24.9231985Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libudev.so.1
+2026-08-01T05:09:24.9232824Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libhyphen.so.0
+2026-08-01T05:09:24.9233667Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libxcb-shm.so.0
+2026-08-01T05:09:24.9234552Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgstvideo-1.0.so.0
+2026-08-01T05:09:24.9235452Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libbrotlicommon.so.1
+2026-08-01T05:09:24.9236336Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libkrb5support.so.0
+2026-08-01T05:09:24.9237225Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgstbase-1.0.so.0
+2026-08-01T05:09:24.9238103Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libicudata.so.70
+2026-08-01T05:09:24.9238989Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libwayland-cursor.so.0
+2026-08-01T05:09:24.9239881Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libunistring.so.2
+2026-08-01T05:09:24.9240945Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libwayland-egl.so.1
+2026-08-01T05:09:24.9241823Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpango-1.0.so.0
+2026-08-01T05:09:24.9242677Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXrender.so.1
+2026-08-01T05:09:24.9243503Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libelf.so.1
+2026-08-01T05:09:24.9244496Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libp11-kit.so.0
+2026-08-01T05:09:24.9245351Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libbrotlidec.so.1
+2026-08-01T05:09:24.9246289Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libjavascriptcoregtk-4.1.so.0
+2026-08-01T05:09:24.9247173Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libbsd.so.0
+2026-08-01T05:09:24.9248147Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpangoft2-1.0.so
+2026-08-01T05:09:24.9249006Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libcolord.so.2
+2026-08-01T05:09:24.9249841Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libcairo.so.2
+2026-08-01T05:09:24.9250921Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libwoff2dec.so.1.0.2
+2026-08-01T05:09:24.9251794Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libatspi.so.0
+2026-08-01T05:09:24.9252624Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libtasn1.so.6
+2026-08-01T05:09:24.9253492Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libappindicator3.so.1
+2026-08-01T05:09:24.9254358Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libcups.so.2
+2026-08-01T05:09:24.9255199Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libwebpmux.so.3
+2026-08-01T05:09:24.9256051Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXinerama.so.1
+2026-08-01T05:09:24.9256898Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libunwind.so.8
+2026-08-01T05:09:24.9257742Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libatomic.so.1
+2026-08-01T05:09:24.9258618Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libwebkit2gtk-4.1.so.0
+2026-08-01T05:09:24.9259635Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules.cache
+2026-08-01T05:09:24.9260962Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-ti-er.so
+2026-08-01T05:09:24.9262130Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-inuktitut.so
+2026-08-01T05:09:24.9263265Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-am-et.so
+2026-08-01T05:09:24.9264456Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-cyrillic-translit.so
+2026-08-01T05:09:24.9265658Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-waylandgtk.so
+2026-08-01T05:09:24.9266794Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-ti-et.so
+2026-08-01T05:09:24.9267941Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-broadway.so
+2026-08-01T05:09:24.9269066Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-ipa.so
+2026-08-01T05:09:24.9270178Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-viqr.so
+2026-08-01T05:09:24.9271684Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-wayland.so
+2026-08-01T05:09:24.9272813Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-thai.so
+2026-08-01T05:09:24.9273928Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-xim.so
+2026-08-01T05:09:24.9275170Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-cedilla.so
+2026-08-01T05:09:24.9276331Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-multipress.so
+2026-08-01T05:09:24.9277554Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/printbackends/libprintbackend-file.so
+2026-08-01T05:09:24.9278831Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/printbackends/libprintbackend-cups.so
+2026-08-01T05:09:24.9280091Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/printbackends/libprintbackend-lpr.so
+2026-08-01T05:09:24.9281550Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/printbackends/libprintbackend-test.so
+2026-08-01T05:09:24.9282734Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gio/modules/libgiognutls.so
+2026-08-01T05:09:24.9283849Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/webkit2gtk-4.1/WebKitNetworkProcess
+2026-08-01T05:09:24.9284978Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/webkit2gtk-4.1/WebKitWebProcess
+2026-08-01T05:09:24.9286229Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/webkit2gtk-4.1/injected-bundle/libwebkit2gtkinjectedbundle.so
+2026-08-01T05:09:24.9287550Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-xpm.so
+2026-08-01T05:09:24.9288823Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-gif.so
+2026-08-01T05:09:24.9290102Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-qtif.so
+2026-08-01T05:09:24.9291680Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-ani.so
+2026-08-01T05:09:24.9292965Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-bmp.so
+2026-08-01T05:09:24.9294252Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-tiff.so
+2026-08-01T05:09:24.9295526Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so
+2026-08-01T05:09:24.9296810Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-ico.so
+2026-08-01T05:09:24.9298011Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/io-wmf.a
+2026-08-01T05:09:24.9299400Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-tga.so
+2026-08-01T05:09:24.9300838Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-icns.so
+2026-08-01T05:09:24.9302125Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-xbm.so
+2026-08-01T05:09:24.9303528Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-pnm.so
+2026-08-01T05:09:24.9304726Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache
+2026-08-01T05:09:24.9305717Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgcrypt.so.20
+2026-08-01T05:09:24.9306571Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libdbus-1.so.3
+2026-08-01T05:09:24.9307447Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libharfbuzz-icu.so.0
+2026-08-01T05:09:24.9308305Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgio-2.0.so
+2026-08-01T05:09:24.9309129Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgtk-3.so.0
+2026-08-01T05:09:24.9309965Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libxml2.so.2
+2026-08-01T05:09:24.9311080Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libcairo-gobject.so.2
+2026-08-01T05:09:24.9311967Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libdeflate.so.0
+2026-08-01T05:09:24.9312868Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpango-1.0.so.0.5000.6
+2026-08-01T05:09:24.9313803Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpangoft2-1.0.so.0.5000.6
+2026-08-01T05:09:24.9314722Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpangoft2-1.0.so.0
+2026-08-01T05:09:24.9315569Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libdw.so.1
+2026-08-01T05:09:24.9316416Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libkeyutils.so.1
+2026-08-01T05:09:24.9317303Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgio-2.0.so.0.7200.4
+2026-08-01T05:09:24.9318215Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libwoff2common.so.1.0.2
+2026-08-01T05:09:24.9319135Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libdbusmenu-glib.so.4
+2026-08-01T05:09:24.9320027Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libavahi-client.so.3
+2026-08-01T05:09:24.9321041Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libwayland-server.so.0
+2026-08-01T05:09:24.9321899Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libjbig.so.0
+2026-08-01T05:09:24.9322736Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXfixes.so.3
+2026-08-01T05:09:24.9323564Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libjpeg.so.8
+2026-08-01T05:09:24.9324383Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libbz2.so.1.0
+2026-08-01T05:09:24.9325209Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libepoxy.so.0
+2026-08-01T05:09:24.9326203Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgsttag-1.0.so.0
+2026-08-01T05:09:24.9327050Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libxslt.so.1
+2026-08-01T05:09:24.9327919Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libwayland-client.so.0
+2026-08-01T05:09:24.9328791Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/librsvg-2.so.2
+2026-08-01T05:09:24.9329752Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpng16.so.16
+2026-08-01T05:09:24.9330748Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpangocairo-1.0.so.0
+2026-08-01T05:09:24.9331685Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgstallocators-1.0.so.0
+2026-08-01T05:09:24.9332603Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libgstaudio-1.0.so.0
+2026-08-01T05:09:24.9333459Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libXrandr.so.2
+2026-08-01T05:09:24.9334316Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpixman-1.so.0
+2026-08-01T05:09:24.9335195Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libpangocairo-1.0.so
+2026-08-01T05:09:24.9336059Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/usr/lib/libtiff.so.5
+2026-08-01T05:09:24.9336978Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/apprun-hooks/linuxdeploy-plugin-gtk.sh
+2026-08-01T05:09:24.9337816Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/AppRun
+2026-08-01T05:09:24.9338580Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch.AppDir/MCP Switch.png
+2026-08-01T05:09:24.9339514Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch_0.10.1_amd64.AppImage.sig
+2026-08-01T05:09:24.9340746Z src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/MCP Switch_0.10.1_amd64.AppImage

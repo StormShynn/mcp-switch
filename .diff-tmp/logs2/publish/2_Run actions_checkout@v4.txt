@@ -1,0 +1,74 @@
+﻿2026-08-01T05:10:34.4868429Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:10:34.4878083Z ##[group]Run actions/checkout@v4
+2026-08-01T05:10:34.4878931Z with:
+2026-08-01T05:10:34.4879374Z   repository: StormShynn/mcp-switch
+2026-08-01T05:10:34.4883235Z   token: ***
+2026-08-01T05:10:34.4883660Z   ssh-strict: true
+2026-08-01T05:10:34.4884092Z   ssh-user: git
+2026-08-01T05:10:34.4884518Z   persist-credentials: true
+2026-08-01T05:10:34.4884985Z   clean: true
+2026-08-01T05:10:34.4885412Z   sparse-checkout-cone-mode: true
+2026-08-01T05:10:34.4885906Z   fetch-depth: 1
+2026-08-01T05:10:34.4886325Z   fetch-tags: false
+2026-08-01T05:10:34.4886762Z   show-progress: true
+2026-08-01T05:10:34.4887191Z   lfs: false
+2026-08-01T05:10:34.4887786Z   submodules: false
+2026-08-01T05:10:34.4888307Z   set-safe-directory: true
+2026-08-01T05:10:34.4888785Z   allow-unsafe-pr-checkout: false
+2026-08-01T05:10:34.4889485Z ##[endgroup]
+2026-08-01T05:10:34.6075938Z Syncing repository: StormShynn/mcp-switch
+2026-08-01T05:10:34.6079221Z ##[group]Getting Git version info
+2026-08-01T05:10:34.6080360Z Working directory is '/home/runner/work/mcp-switch/mcp-switch'
+2026-08-01T05:10:34.6082069Z [command]/usr/bin/git version
+2026-08-01T05:10:34.6131070Z git version 2.54.0
+2026-08-01T05:10:34.6155361Z ##[endgroup]
+2026-08-01T05:10:34.6175461Z Temporarily overriding HOME='/home/runner/work/_temp/26543711-f10c-452c-a0d8-892f67683f5c' before making global git config changes
+2026-08-01T05:10:34.6182779Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-01T05:10:34.6201754Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mcp-switch/mcp-switch
+2026-08-01T05:10:34.6259230Z Deleting the contents of '/home/runner/work/mcp-switch/mcp-switch'
+2026-08-01T05:10:34.6264666Z ##[group]Initializing the repository
+2026-08-01T05:10:34.6272642Z [command]/usr/bin/git init /home/runner/work/mcp-switch/mcp-switch
+2026-08-01T05:10:34.6359579Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-08-01T05:10:34.6361531Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-08-01T05:10:34.6363061Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-08-01T05:10:34.6364218Z hint: call:
+2026-08-01T05:10:34.6364798Z hint:
+2026-08-01T05:10:34.6365542Z hint: 	git config --global init.defaultBranch <name>
+2026-08-01T05:10:34.6366451Z hint:
+2026-08-01T05:10:34.6367298Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-08-01T05:10:34.6369726Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-08-01T05:10:34.6370849Z hint:
+2026-08-01T05:10:34.6371477Z hint: 	git branch -m <name>
+2026-08-01T05:10:34.6372260Z hint:
+2026-08-01T05:10:34.6373320Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-08-01T05:10:34.6374402Z Initialized empty Git repository in /home/runner/work/mcp-switch/mcp-switch/.git/
+2026-08-01T05:10:34.6401204Z [command]/usr/bin/git remote add origin https://github.com/StormShynn/mcp-switch
+2026-08-01T05:10:34.6457419Z ##[endgroup]
+2026-08-01T05:10:34.6459230Z ##[group]Disabling automatic garbage collection
+2026-08-01T05:10:34.6463313Z [command]/usr/bin/git config --local gc.auto 0
+2026-08-01T05:10:34.6524063Z ##[endgroup]
+2026-08-01T05:10:34.6525008Z ##[group]Setting up auth
+2026-08-01T05:10:34.6525873Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-01T05:10:34.6560669Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-01T05:10:34.6930519Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-01T05:10:34.6975714Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-08-01T05:10:34.7262794Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-01T05:10:34.7303312Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-08-01T05:10:34.7574092Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-08-01T05:10:34.7619819Z ##[endgroup]
+2026-08-01T05:10:34.7620638Z ##[group]Fetching the repository
+2026-08-01T05:10:34.7628719Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3b7095fa3798b7eb1c11dda699dabf35578aa983:refs/remotes/origin/main
+2026-08-01T05:10:35.0077815Z From https://github.com/StormShynn/mcp-switch
+2026-08-01T05:10:35.0079213Z  * [new ref]         3b7095fa3798b7eb1c11dda699dabf35578aa983 -> origin/main
+2026-08-01T05:10:35.0111144Z ##[endgroup]
+2026-08-01T05:10:35.0112478Z ##[group]Determining the checkout info
+2026-08-01T05:10:35.0113873Z ##[endgroup]
+2026-08-01T05:10:35.0115018Z [command]/usr/bin/git sparse-checkout disable
+2026-08-01T05:10:35.0170484Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-08-01T05:10:35.0209882Z ##[group]Checking out the ref
+2026-08-01T05:10:35.0214080Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-08-01T05:10:35.0388548Z Switched to a new branch 'main'
+2026-08-01T05:10:35.0391812Z branch 'main' set up to track 'origin/main'.
+2026-08-01T05:10:35.0398258Z ##[endgroup]
+2026-08-01T05:10:35.0447214Z [command]/usr/bin/git log -1 --format=%H
+2026-08-01T05:10:35.0479893Z 3b7095fa3798b7eb1c11dda699dabf35578aa983

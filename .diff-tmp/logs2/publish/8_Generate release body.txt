@@ -1,0 +1,8 @@
+﻿2026-08-01T05:10:46.4747432Z ##[group]Run if [[ "branch" == "tag" ]]; then
+2026-08-01T05:10:46.4748149Z [36;1mif [[ "branch" == "tag" ]]; then[0m
+2026-08-01T05:10:46.4748484Z [36;1m  cp CHANGELOG.md release-body.md[0m
+2026-08-01T05:10:46.4748809Z [36;1melse[0m
+2026-08-01T05:10:46.4749176Z [36;1m  echo "Auto-built from latest commit on main branch." > release-body.md[0m
+2026-08-01T05:10:46.4749590Z [36;1mfi[0m
+2026-08-01T05:10:46.4813984Z shell: /usr/bin/bash -e {0}
+2026-08-01T05:10:46.4814305Z ##[endgroup]

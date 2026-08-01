@@ -1,0 +1,19 @@
+﻿2026-08-01T05:10:44.7445071Z ##[group]Run if [[ "branch" == "tag" ]]; then
+2026-08-01T05:10:44.7445572Z [36;1mif [[ "branch" == "tag" ]]; then[0m
+2026-08-01T05:10:44.7445951Z [36;1m  echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7446361Z [36;1m  echo "release_tag=main" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7446750Z [36;1m  echo "release_name=main" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7447094Z [36;1m  echo "prerelease=false" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7447419Z [36;1melif [[ "main" == "main" ]]; then[0m
+2026-08-01T05:10:44.7448043Z [36;1m  echo "version=0.1.0-nightly-$(date +%s)" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7448454Z [36;1m  echo "release_tag=nightly" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7448881Z [36;1m  echo "release_name=Nightly Build ($(date +%Y-%m-%d))" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7449614Z [36;1m  echo "prerelease=true" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7449942Z [36;1melse[0m
+2026-08-01T05:10:44.7450215Z [36;1m  echo "version=0.1.0-ci-$(date +%s)" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7450688Z [36;1m  echo "release_tag=ci-$(date +%s)" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7451109Z [36;1m  echo "release_name=CI Build ($(date +%Y-%m-%d))" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7451514Z [36;1m  echo "prerelease=true" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7451801Z [36;1mfi[0m
+2026-08-01T05:10:44.7569074Z shell: /usr/bin/bash -e {0}
+2026-08-01T05:10:44.7569404Z ##[endgroup]

@@ -1,0 +1,373 @@
+﻿2026-08-01T05:10:33.5444477Z Current runner version: '2.336.0'
+2026-08-01T05:10:33.5483250Z ##[group]Runner Image Provisioner
+2026-08-01T05:10:33.5484594Z Hosted Compute Agent
+2026-08-01T05:10:33.5485683Z Version: 20260707.563
+2026-08-01T05:10:33.5486838Z Commit: 02667638d2b423fbc733a8e32a88b44996a3ba6e
+2026-08-01T05:10:33.5488117Z Build Date: 2026-07-07T19:33:50Z
+2026-08-01T05:10:33.5490302Z Worker ID: {b1946f08-8851-4c71-9a2e-aafd58812fc3}
+2026-08-01T05:10:33.5491530Z Azure Region: eastus2
+2026-08-01T05:10:33.5492423Z ##[endgroup]
+2026-08-01T05:10:33.5494587Z ##[group]Operating System
+2026-08-01T05:10:33.5495594Z Ubuntu
+2026-08-01T05:10:33.5496400Z 22.04.5
+2026-08-01T05:10:33.5497360Z LTS
+2026-08-01T05:10:33.5498452Z ##[endgroup]
+2026-08-01T05:10:33.5499392Z ##[group]Runner Image
+2026-08-01T05:10:33.5500372Z Image: ubuntu-22.04
+2026-08-01T05:10:33.5501341Z Version: 20260720.234.2
+2026-08-01T05:10:33.5503506Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260720.234/images/ubuntu/Ubuntu2204-Readme.md
+2026-08-01T05:10:33.5506187Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260720.234
+2026-08-01T05:10:33.5508002Z ##[endgroup]
+2026-08-01T05:10:33.5509719Z ##[group]GITHUB_TOKEN Permissions
+2026-08-01T05:10:33.5513183Z Contents: write
+2026-08-01T05:10:33.5514107Z Metadata: read
+2026-08-01T05:10:33.5515151Z ##[endgroup]
+2026-08-01T05:10:33.5518553Z Secret source: Actions
+2026-08-01T05:10:33.5520632Z Prepare workflow directory
+2026-08-01T05:10:33.6000990Z Prepare all required actions
+2026-08-01T05:10:33.6072062Z Getting action download info
+2026-08-01T05:10:33.7939675Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-08-01T05:10:34.0154124Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-08-01T05:10:34.1188100Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-08-01T05:10:34.4071125Z Complete job name: publish
+2026-08-01T05:10:34.4868465Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:10:34.4878130Z ##[group]Run actions/checkout@v4
+2026-08-01T05:10:34.4878937Z with:
+2026-08-01T05:10:34.4879380Z   repository: StormShynn/mcp-switch
+2026-08-01T05:10:34.4883244Z   token: ***
+2026-08-01T05:10:34.4883664Z   ssh-strict: true
+2026-08-01T05:10:34.4884095Z   ssh-user: git
+2026-08-01T05:10:34.4884521Z   persist-credentials: true
+2026-08-01T05:10:34.4884989Z   clean: true
+2026-08-01T05:10:34.4885417Z   sparse-checkout-cone-mode: true
+2026-08-01T05:10:34.4885909Z   fetch-depth: 1
+2026-08-01T05:10:34.4886328Z   fetch-tags: false
+2026-08-01T05:10:34.4886765Z   show-progress: true
+2026-08-01T05:10:34.4887194Z   lfs: false
+2026-08-01T05:10:34.4887855Z   submodules: false
+2026-08-01T05:10:34.4888311Z   set-safe-directory: true
+2026-08-01T05:10:34.4888788Z   allow-unsafe-pr-checkout: false
+2026-08-01T05:10:34.4889490Z ##[endgroup]
+2026-08-01T05:10:34.6076040Z Syncing repository: StormShynn/mcp-switch
+2026-08-01T05:10:34.6079239Z ##[group]Getting Git version info
+2026-08-01T05:10:34.6080381Z Working directory is '/home/runner/work/mcp-switch/mcp-switch'
+2026-08-01T05:10:34.6082077Z [command]/usr/bin/git version
+2026-08-01T05:10:34.6131111Z git version 2.54.0
+2026-08-01T05:10:34.6155394Z ##[endgroup]
+2026-08-01T05:10:34.6175500Z Temporarily overriding HOME='/home/runner/work/_temp/26543711-f10c-452c-a0d8-892f67683f5c' before making global git config changes
+2026-08-01T05:10:34.6182812Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-01T05:10:34.6201790Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mcp-switch/mcp-switch
+2026-08-01T05:10:34.6259380Z Deleting the contents of '/home/runner/work/mcp-switch/mcp-switch'
+2026-08-01T05:10:34.6264706Z ##[group]Initializing the repository
+2026-08-01T05:10:34.6272683Z [command]/usr/bin/git init /home/runner/work/mcp-switch/mcp-switch
+2026-08-01T05:10:34.6359670Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-08-01T05:10:34.6361550Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-08-01T05:10:34.6363077Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-08-01T05:10:34.6364226Z hint: call:
+2026-08-01T05:10:34.6364804Z hint:
+2026-08-01T05:10:34.6365550Z hint: 	git config --global init.defaultBranch <name>
+2026-08-01T05:10:34.6366459Z hint:
+2026-08-01T05:10:34.6367306Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-08-01T05:10:34.6369739Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-08-01T05:10:34.6370856Z hint:
+2026-08-01T05:10:34.6371484Z hint: 	git branch -m <name>
+2026-08-01T05:10:34.6372289Z hint:
+2026-08-01T05:10:34.6373330Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-08-01T05:10:34.6374409Z Initialized empty Git repository in /home/runner/work/mcp-switch/mcp-switch/.git/
+2026-08-01T05:10:34.6401238Z [command]/usr/bin/git remote add origin https://github.com/StormShynn/mcp-switch
+2026-08-01T05:10:34.6457461Z ##[endgroup]
+2026-08-01T05:10:34.6459243Z ##[group]Disabling automatic garbage collection
+2026-08-01T05:10:34.6463343Z [command]/usr/bin/git config --local gc.auto 0
+2026-08-01T05:10:34.6524100Z ##[endgroup]
+2026-08-01T05:10:34.6525012Z ##[group]Setting up auth
+2026-08-01T05:10:34.6525880Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-01T05:10:34.6560713Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-01T05:10:34.6931214Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-01T05:10:34.6975794Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-08-01T05:10:34.7262890Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-01T05:10:34.7303375Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-08-01T05:10:34.7574199Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-08-01T05:10:34.7619874Z ##[endgroup]
+2026-08-01T05:10:34.7620645Z ##[group]Fetching the repository
+2026-08-01T05:10:34.7628788Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3b7095fa3798b7eb1c11dda699dabf35578aa983:refs/remotes/origin/main
+2026-08-01T05:10:35.0077951Z From https://github.com/StormShynn/mcp-switch
+2026-08-01T05:10:35.0079221Z  * [new ref]         3b7095fa3798b7eb1c11dda699dabf35578aa983 -> origin/main
+2026-08-01T05:10:35.0111212Z ##[endgroup]
+2026-08-01T05:10:35.0112491Z ##[group]Determining the checkout info
+2026-08-01T05:10:35.0113881Z ##[endgroup]
+2026-08-01T05:10:35.0115031Z [command]/usr/bin/git sparse-checkout disable
+2026-08-01T05:10:35.0170556Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-08-01T05:10:35.0209943Z ##[group]Checking out the ref
+2026-08-01T05:10:35.0214111Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-08-01T05:10:35.0388690Z Switched to a new branch 'main'
+2026-08-01T05:10:35.0391852Z branch 'main' set up to track 'origin/main'.
+2026-08-01T05:10:35.0398298Z ##[endgroup]
+2026-08-01T05:10:35.0447267Z [command]/usr/bin/git log -1 --format=%H
+2026-08-01T05:10:35.0479997Z 3b7095fa3798b7eb1c11dda699dabf35578aa983
+2026-08-01T05:10:35.0862072Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:10:35.0867834Z ##[group]Run actions/setup-node@v4
+2026-08-01T05:10:35.0868890Z with:
+2026-08-01T05:10:35.0869733Z   node-version: 20
+2026-08-01T05:10:35.0870574Z   cache: npm
+2026-08-01T05:10:35.0871377Z   always-auth: false
+2026-08-01T05:10:35.0872263Z   check-latest: false
+2026-08-01T05:10:35.0881227Z   token: ***
+2026-08-01T05:10:35.0882037Z ##[endgroup]
+2026-08-01T05:10:35.2503486Z Attempting to download 20...
+2026-08-01T05:10:35.2615684Z (node:2100) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-01T05:10:35.2620915Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-01T05:10:35.6365328Z Acquiring 20.20.2 - x64 from https://github.com/actions/node-versions/releases/download/20.20.2-23521894959/node-20.20.2-linux-x64.tar.gz
+2026-08-01T05:10:36.0009872Z Extracting ...
+2026-08-01T05:10:36.0145931Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/c3decf3d-bb44-46bd-b23c-59ee7259c064 -f /home/runner/work/_temp/a50d4086-c6dd-455b-b572-f5a1cae59925
+2026-08-01T05:10:37.1181780Z Adding to the cache ...
+2026-08-01T05:10:38.7951513Z ##[group]Environment details
+2026-08-01T05:10:39.0297930Z node: v20.20.2
+2026-08-01T05:10:39.0298339Z npm: 10.8.2
+2026-08-01T05:10:39.0298754Z yarn: 1.22.22
+2026-08-01T05:10:39.0299521Z ##[endgroup]
+2026-08-01T05:10:39.0321024Z [command]/opt/hostedtoolcache/node/20.20.2/x64/bin/npm config get cache
+2026-08-01T05:10:39.1411945Z /home/runner/.npm
+2026-08-01T05:10:39.2113008Z Cache hit for: node-cache-Linux-x64-npm-d72ca1e6d781bb848dbc2d89497c8f267f69129c2a6d86761a03f2f9caa05eed
+2026-08-01T05:10:39.2260958Z (node:2100) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-08-01T05:10:40.2594855Z Received 38219763 of 67579891 (56.6%), 36.4 MBs/sec
+2026-08-01T05:10:41.2608542Z Received 38219763 of 67579891 (56.6%), 18.2 MBs/sec
+2026-08-01T05:10:42.2620823Z Received 38219763 of 67579891 (56.6%), 12.1 MBs/sec
+2026-08-01T05:10:43.2633044Z Received 38219763 of 67579891 (56.6%), 9.1 MBs/sec
+2026-08-01T05:10:44.2637324Z Received 38219763 of 67579891 (56.6%), 7.3 MBs/sec
+2026-08-01T05:10:44.5002966Z Received 67579891 of 67579891 (100.0%), 12.3 MBs/sec
+2026-08-01T05:10:44.5003682Z Cache Size: ~64 MB (67579891 B)
+2026-08-01T05:10:44.5127904Z [command]/usr/bin/tar -xf /home/runner/work/_temp/1f467218-af1b-404a-8117-5241313da231/cache.tzst -P -C /home/runner/work/mcp-switch/mcp-switch --use-compress-program unzstd
+2026-08-01T05:10:44.7048732Z Cache restored successfully
+2026-08-01T05:10:44.7207557Z Cache restored from key: node-cache-Linux-x64-npm-d72ca1e6d781bb848dbc2d89497c8f267f69129c2a6d86761a03f2f9caa05eed
+2026-08-01T05:10:44.7445089Z ##[group]Run if [[ "branch" == "tag" ]]; then
+2026-08-01T05:10:44.7445576Z [36;1mif [[ "branch" == "tag" ]]; then[0m
+2026-08-01T05:10:44.7445954Z [36;1m  echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7446364Z [36;1m  echo "release_tag=main" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7446752Z [36;1m  echo "release_name=main" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7447096Z [36;1m  echo "prerelease=false" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7447421Z [36;1melif [[ "main" == "main" ]]; then[0m
+2026-08-01T05:10:44.7448047Z [36;1m  echo "version=0.1.0-nightly-$(date +%s)" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7448456Z [36;1m  echo "release_tag=nightly" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7448884Z [36;1m  echo "release_name=Nightly Build ($(date +%Y-%m-%d))" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7449617Z [36;1m  echo "prerelease=true" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7449945Z [36;1melse[0m
+2026-08-01T05:10:44.7450286Z [36;1m  echo "version=0.1.0-ci-$(date +%s)" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7450690Z [36;1m  echo "release_tag=ci-$(date +%s)" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7451113Z [36;1m  echo "release_name=CI Build ($(date +%Y-%m-%d))" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7451517Z [36;1m  echo "prerelease=true" >> "$GITHUB_OUTPUT"[0m
+2026-08-01T05:10:44.7451803Z [36;1mfi[0m
+2026-08-01T05:10:44.7569095Z shell: /usr/bin/bash -e {0}
+2026-08-01T05:10:44.7569408Z ##[endgroup]
+2026-08-01T05:10:44.7812723Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:10:44.7813947Z ##[group]Run actions/download-artifact@v4
+2026-08-01T05:10:44.7814234Z with:
+2026-08-01T05:10:44.7814450Z   path: artifacts
+2026-08-01T05:10:44.7814673Z   merge-multiple: false
+2026-08-01T05:10:44.7814932Z   repository: StormShynn/mcp-switch
+2026-08-01T05:10:44.7815209Z   run-id: 30685054004
+2026-08-01T05:10:44.7815435Z ##[endgroup]
+2026-08-01T05:10:44.9552975Z (node:2154) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-01T05:10:44.9554235Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-01T05:10:45.0329823Z Found 4 artifact(s)
+2026-08-01T05:10:45.0331183Z No input name, artifact-ids or pattern filtered specified, downloading all artifacts
+2026-08-01T05:10:45.0332242Z An extra directory with the artifact name will be created for each download
+2026-08-01T05:10:45.0333068Z Preparing to download the following artifacts:
+2026-08-01T05:10:45.0334612Z - mcp-switch-x86_64-pc-windows-msvc (ID: 8813678939, Size: 3811056, Expected Digest: sha256:5db7483917631a3727825993a53567dfcefd3ac99c0f86fbf35863389e53f5e1)
+2026-08-01T05:10:45.0336915Z - mcp-switch-x86_64-unknown-linux-gnu (ID: 8813671164, Size: 83535606, Expected Digest: sha256:9f927a5289086b1d7120cd6647cab4a48c3e140aad40e16e2bd49fa0c4cb9ea8)
+2026-08-01T05:10:45.0339603Z - mcp-switch-x86_64-apple-darwin (ID: 8813655768, Size: 6187162, Expected Digest: sha256:9ae420196bc1738dd040bbe9d68af8782d817e8ddc4305d8ae2a81e5f38f1629)
+2026-08-01T05:10:45.0342165Z - mcp-switch-aarch64-apple-darwin (ID: 8813653987, Size: 6023115, Expected Digest: sha256:a9020d02918ab4d37b59bb01fd40e083f5a14540f6f2dee77d16f17a4e9d3e7e)
+2026-08-01T05:10:45.1164509Z Redirecting to blob download url: https://productionresultssa10.blob.core.windows.net/actions-results/d2f25e82-cc9b-4d46-a773-521d76c74d64/workflow-job-run-163bf80b-a172-5e42-bfac-fadafcc7998e/artifacts/e906266a3f981f9797f1c30df135e4f2b8948ea1c5dd822f569b0b6ad3a6d77c.zip
+2026-08-01T05:10:45.1167115Z Starting download of artifact to: /home/runner/work/mcp-switch/mcp-switch/artifacts/mcp-switch-x86_64-pc-windows-msvc
+2026-08-01T05:10:45.1458883Z Redirecting to blob download url: https://productionresultssa10.blob.core.windows.net/actions-results/d2f25e82-cc9b-4d46-a773-521d76c74d64/workflow-job-run-48601896-4f15-52ae-a508-8d556cd00040/artifacts/cb452f3b8ec4ac0ccdf7e15d90402ae3f701cc76d935aae938ed0ec433d049b9.zip
+2026-08-01T05:10:45.1461594Z Starting download of artifact to: /home/runner/work/mcp-switch/mcp-switch/artifacts/mcp-switch-x86_64-unknown-linux-gnu
+2026-08-01T05:10:45.1473957Z Redirecting to blob download url: https://productionresultssa10.blob.core.windows.net/actions-results/d2f25e82-cc9b-4d46-a773-521d76c74d64/workflow-job-run-b62dae64-52dd-5e10-9707-0d77b59cd1e2/artifacts/2e483a1d9af27bbdca8ea5beba74a8810ebf39d3df43dcbb41a854a47d218400.zip
+2026-08-01T05:10:45.1476704Z Starting download of artifact to: /home/runner/work/mcp-switch/mcp-switch/artifacts/mcp-switch-x86_64-apple-darwin
+2026-08-01T05:10:45.1583510Z Redirecting to blob download url: https://productionresultssa10.blob.core.windows.net/actions-results/d2f25e82-cc9b-4d46-a773-521d76c74d64/workflow-job-run-561c302a-9534-541d-aab8-963b52759e6e/artifacts/bf08577452aa221142871a41aff0d79b48f71dad209ede41239e800526468171.zip
+2026-08-01T05:10:45.1585544Z Starting download of artifact to: /home/runner/work/mcp-switch/mcp-switch/artifacts/mcp-switch-aarch64-apple-darwin
+2026-08-01T05:10:45.2011058Z (node:2154) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-08-01T05:10:45.3454433Z SHA256 digest of downloaded artifact is 5db7483917631a3727825993a53567dfcefd3ac99c0f86fbf35863389e53f5e1
+2026-08-01T05:10:45.3455602Z Artifact download completed successfully.
+2026-08-01T05:10:45.4778644Z SHA256 digest of downloaded artifact is 9ae420196bc1738dd040bbe9d68af8782d817e8ddc4305d8ae2a81e5f38f1629
+2026-08-01T05:10:45.4780145Z Artifact download completed successfully.
+2026-08-01T05:10:45.4895341Z SHA256 digest of downloaded artifact is a9020d02918ab4d37b59bb01fd40e083f5a14540f6f2dee77d16f17a4e9d3e7e
+2026-08-01T05:10:45.4896157Z Artifact download completed successfully.
+2026-08-01T05:10:46.3753028Z SHA256 digest of downloaded artifact is 9f927a5289086b1d7120cd6647cab4a48c3e140aad40e16e2bd49fa0c4cb9ea8
+2026-08-01T05:10:46.3754004Z Artifact download completed successfully.
+2026-08-01T05:10:46.3754559Z Total of 4 artifact(s) downloaded
+2026-08-01T05:10:46.3758939Z Download artifact has finished successfully
+2026-08-01T05:10:46.3913023Z ##[group]Run find artifacts -type f 2>/dev/null || echo "no artifacts downloaded"
+2026-08-01T05:10:46.3913640Z [36;1mfind artifacts -type f 2>/dev/null || echo "no artifacts downloaded"[0m
+2026-08-01T05:10:46.3977838Z shell: /usr/bin/bash -e {0}
+2026-08-01T05:10:46.3978247Z ##[endgroup]
+2026-08-01T05:10:46.4084420Z artifacts/mcp-switch-x86_64-unknown-linux-gnu/MCP Switch_0.10.1_amd64.AppImage.sig
+2026-08-01T05:10:46.4085367Z artifacts/mcp-switch-x86_64-unknown-linux-gnu/MCP Switch_0.10.1_amd64.AppImage
+2026-08-01T05:10:46.4086018Z artifacts/mcp-switch-x86_64-apple-darwin/MCP Switch_0.10.1_x64.dmg
+2026-08-01T05:10:46.4086681Z artifacts/mcp-switch-x86_64-pc-windows-msvc/MCP Switch_0.10.1_x64-setup.exe.sig
+2026-08-01T05:10:46.4087316Z artifacts/mcp-switch-x86_64-pc-windows-msvc/MCP Switch_0.10.1_x64-setup.exe
+2026-08-01T05:10:46.4088646Z artifacts/mcp-switch-aarch64-apple-darwin/MCP Switch_0.10.1_aarch64.dmg
+2026-08-01T05:10:46.4120389Z ##[group]Run node scripts/generate-update-json.mjs \
+2026-08-01T05:10:46.4120850Z [36;1mnode scripts/generate-update-json.mjs \[0m
+2026-08-01T05:10:46.4121206Z [36;1m  "0.1.0-nightly-1785561044" \[0m
+2026-08-01T05:10:46.4121516Z [36;1m  artifacts \[0m
+2026-08-01T05:10:46.4121778Z [36;1m  "nightly" \[0m
+2026-08-01T05:10:46.4122046Z [36;1m  > update.json[0m
+2026-08-01T05:10:46.4122299Z [36;1mcat update.json[0m
+2026-08-01T05:10:46.4183933Z shell: /usr/bin/bash -e {0}
+2026-08-01T05:10:46.4184240Z ##[endgroup]
+2026-08-01T05:10:46.4673966Z {
+2026-08-01T05:10:46.4674473Z   "version": "0.1.0-nightly-1785561044",
+2026-08-01T05:10:46.4674936Z   "notes": "Release v0.1.0-nightly-1785561044",
+2026-08-01T05:10:46.4675330Z   "pub_date": "2026-08-01T05:10:46.458Z",
+2026-08-01T05:10:46.4675696Z   "platforms": {
+2026-08-01T05:10:46.4676275Z     "linux-x86_64": {
+2026-08-01T05:10:46.4681045Z       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRci80b1Q5bDlTdFdJNmxZN0FzNFI5L214ZWZDZW5ESnEyTDJLTUN4aGU0TTFSY3Q5Sk14QWNUWjdwam5DSVUxVmx5UnpGN3l3WHNDQml1U0FyZjRuTjgxZVhJTnFXYUFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1NTYwOTY0CWZpbGU6TUNQIFN3aXRjaF8wLjEwLjFfYW1kNjQuQXBwSW1hZ2UKVjZaNFQvSTA5dmZiM2IvZEVFR0ovNkNjQlk3blBlWkoyNVdQMzRCaU1KaTRqamV0dU9LZGx4VXpVcGxZdVdXL2d0WXRPUmNEemVoUzFTekdzenlyQUE9PQo=",
+2026-08-01T05:10:46.4684538Z       "url": "https://github.com/StormShynn/mcp-switch/releases/download/nightly/MCP%20Switch_0.10.1_amd64.AppImage"
+2026-08-01T05:10:46.4685361Z     },
+2026-08-01T05:10:46.4685592Z     "windows-x86_64": {
+2026-08-01T05:10:46.4689387Z       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRci80b1Q5bDlTdFgxY29ZY1RwYjZtTWY0Mi9XRGNGTDM5RGdmTmdlNFZZYmQ4MHB0VituUVJMdGFjeDFRRDVEOWFTUERYV2FyWEZvbDg3UGFKVkkrd28xT2FHeHFCUWd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1NTYxMDA2CWZpbGU6TUNQIFN3aXRjaF8wLjEwLjFfeDY0LXNldHVwLmV4ZQpwdXdKbnBURmRiaXlGdGNnTUJhLzZBNWlmOVFscmEvU1pwUUcyZVFJbzR4Z2ZqZU1XQ3kyU1BsUktsbmszVVF4Z3cxK0tSeDlTWFFLY01zZzcyQ05Edz09Cg==",
+2026-08-01T05:10:46.4692827Z       "url": "https://github.com/StormShynn/mcp-switch/releases/download/nightly/MCP%20Switch_0.10.1_x64-setup.exe"
+2026-08-01T05:10:46.4693355Z     }
+2026-08-01T05:10:46.4693586Z   }
+2026-08-01T05:10:46.4693792Z }
+2026-08-01T05:10:46.4747441Z ##[group]Run if [[ "branch" == "tag" ]]; then
+2026-08-01T05:10:46.4748152Z [36;1mif [[ "branch" == "tag" ]]; then[0m
+2026-08-01T05:10:46.4748485Z [36;1m  cp CHANGELOG.md release-body.md[0m
+2026-08-01T05:10:46.4748812Z [36;1melse[0m
+2026-08-01T05:10:46.4749179Z [36;1m  echo "Auto-built from latest commit on main branch." > release-body.md[0m
+2026-08-01T05:10:46.4749591Z [36;1mfi[0m
+2026-08-01T05:10:46.4813991Z shell: /usr/bin/bash -e {0}
+2026-08-01T05:10:46.4814307Z ##[endgroup]
+2026-08-01T05:10:46.4949702Z ##[group]Run # Retry helper with exponential backoff
+2026-08-01T05:10:46.4950161Z [36;1m# Retry helper with exponential backoff[0m
+2026-08-01T05:10:46.4950492Z [36;1mretry() {[0m
+2026-08-01T05:10:46.4950754Z [36;1m  local n=1 max=5 delay=10[0m
+2026-08-01T05:10:46.4951057Z [36;1m  while true; do[0m
+2026-08-01T05:10:46.4951319Z [36;1m    "$@" && return 0 || {[0m
+2026-08-01T05:10:46.4951629Z [36;1m      if [[ $n -lt $max ]]; then[0m
+2026-08-01T05:10:46.4952006Z [36;1m        >&2 echo "Retry $n/$max after ${delay}s..."[0m
+2026-08-01T05:10:46.4952355Z [36;1m        sleep "$delay"[0m
+2026-08-01T05:10:46.4952642Z [36;1m        n=$((n + 1))[0m
+2026-08-01T05:10:46.4952921Z [36;1m        delay=$((delay * 2))[0m
+2026-08-01T05:10:46.4953226Z [36;1m      else[0m
+2026-08-01T05:10:46.4953505Z [36;1m        >&2 echo "Failed after $max attempts."[0m
+2026-08-01T05:10:46.4953834Z [36;1m        return 1[0m
+2026-08-01T05:10:46.4954085Z [36;1m      fi[0m
+2026-08-01T05:10:46.4954342Z [36;1m    }[0m
+2026-08-01T05:10:46.4954567Z [36;1m  done[0m
+2026-08-01T05:10:46.4954795Z [36;1m}[0m
+2026-08-01T05:10:46.4955113Z [36;1mretry gh release delete nightly --yes 2>/dev/null || true[0m
+2026-08-01T05:10:46.4955616Z [36;1mretry git push --delete origin nightly 2>/dev/null || true[0m
+2026-08-01T05:10:46.4956097Z [36;1mecho "Waiting 10s to avoid rate limits..."[0m
+2026-08-01T05:10:46.4956422Z [36;1msleep 10[0m
+2026-08-01T05:10:46.5020102Z shell: /usr/bin/bash -e {0}
+2026-08-01T05:10:46.5020390Z env:
+2026-08-01T05:10:46.5022928Z   GH_TOKEN: ***
+2026-08-01T05:10:46.5023200Z ##[endgroup]
+2026-08-01T05:10:49.4726141Z Waiting 10s to avoid rate limits...
+2026-08-01T05:10:59.4786912Z ##[group]Run # Retry helper with exponential backoff
+2026-08-01T05:10:59.4787434Z [36;1m# Retry helper with exponential backoff[0m
+2026-08-01T05:10:59.4788047Z [36;1mretry() {[0m
+2026-08-01T05:10:59.4788313Z [36;1m  local n=1 max=5 delay=10[0m
+2026-08-01T05:10:59.4788621Z [36;1m  while true; do[0m
+2026-08-01T05:10:59.4788892Z [36;1m    "$@" && return 0 || {[0m
+2026-08-01T05:10:59.4789194Z [36;1m      if [[ $n -lt $max ]]; then[0m
+2026-08-01T05:10:59.4789556Z [36;1m        >&2 echo "Retry $n/$max after ${delay}s..."[0m
+2026-08-01T05:10:59.4789908Z [36;1m        sleep "$delay"[0m
+2026-08-01T05:10:59.4790197Z [36;1m        n=$((n + 1))[0m
+2026-08-01T05:10:59.4790471Z [36;1m        delay=$((delay * 2))[0m
+2026-08-01T05:10:59.4790764Z [36;1m      else[0m
+2026-08-01T05:10:59.4791050Z [36;1m        >&2 echo "Failed after $max attempts."[0m
+2026-08-01T05:10:59.4791377Z [36;1m        return 1[0m
+2026-08-01T05:10:59.4791634Z [36;1m      fi[0m
+2026-08-01T05:10:59.4791911Z [36;1m    }[0m
+2026-08-01T05:10:59.4792144Z [36;1m  done[0m
+2026-08-01T05:10:59.4792580Z [36;1m}[0m
+2026-08-01T05:10:59.4792797Z [36;1m[0m
+2026-08-01T05:10:59.4793008Z [36;1mTAG="nightly"[0m
+2026-08-01T05:10:59.4793292Z [36;1mTITLE="Nightly Build (2026-08-01)"[0m
+2026-08-01T05:10:59.4793615Z [36;1mPRERELEASE="true"[0m
+2026-08-01T05:10:59.4793895Z [36;1mPRERELEASE_FLAG=""[0m
+2026-08-01T05:10:59.4794262Z [36;1m[[ "$PRERELEASE" == "true" ]] && PRERELEASE_FLAG="--prerelease"[0m
+2026-08-01T05:10:59.4794638Z [36;1m[0m
+2026-08-01T05:10:59.4794945Z [36;1m# Clean up any existing release for this tag (safe for re-runs)[0m
+2026-08-01T05:10:59.4795381Z [36;1mgh release delete "$TAG" --yes 2>/dev/null || true[0m
+2026-08-01T05:10:59.4795804Z [36;1msleep 5[0m
+2026-08-01T05:10:59.4796037Z [36;1m[0m
+2026-08-01T05:10:59.4796261Z [36;1m# Create the release[0m
+2026-08-01T05:10:59.4796547Z [36;1mecho "Creating release: $TAG"[0m
+2026-08-01T05:10:59.4796880Z [36;1mretry gh release create "$TAG" \[0m
+2026-08-01T05:10:59.4797192Z [36;1m  --title "$TITLE" \[0m
+2026-08-01T05:10:59.4797481Z [36;1m  --notes-file release-body.md \[0m
+2026-08-01T05:10:59.4798016Z [36;1m  $PRERELEASE_FLAG[0m
+2026-08-01T05:10:59.4798274Z [36;1m[0m
+2026-08-01T05:10:59.4798505Z [36;1m# Upload update.json first[0m
+2026-08-01T05:10:59.4798811Z [36;1mecho "Uploading update.json..."[0m
+2026-08-01T05:10:59.4799195Z [36;1mretry gh release upload "$TAG" update.json --clobber[0m
+2026-08-01T05:10:59.4799559Z [36;1msleep 3[0m
+2026-08-01T05:10:59.4799780Z [36;1m[0m
+2026-08-01T05:10:59.4800089Z [36;1m# Upload artifacts in batches to avoid secondary rate limits[0m
+2026-08-01T05:10:59.4800499Z [36;1mBATCH_SIZE=3[0m
+2026-08-01T05:10:59.4800744Z [36;1mBATCH_NUM=1[0m
+2026-08-01T05:10:59.4800975Z [36;1mBATCH=()[0m
+2026-08-01T05:10:59.4801297Z [36;1mecho "Uploading artifacts in batches of $BATCH_SIZE..."[0m
+2026-08-01T05:10:59.4801684Z [36;1mwhile IFS= read -r -d '' f; do[0m
+2026-08-01T05:10:59.4801986Z [36;1m  BATCH+=("$f")[0m
+2026-08-01T05:10:59.4802276Z [36;1m  if [[ ${#BATCH[@]} -ge $BATCH_SIZE ]]; then[0m
+2026-08-01T05:10:59.4802669Z [36;1m    echo "  Batch $BATCH_NUM (${#BATCH[@]} files)..."[0m
+2026-08-01T05:10:59.4803086Z [36;1m    retry gh release upload "$TAG" "${BATCH[@]}" --clobber[0m
+2026-08-01T05:10:59.4803441Z [36;1m    sleep 5[0m
+2026-08-01T05:10:59.4803673Z [36;1m    BATCH=()[0m
+2026-08-01T05:10:59.4803932Z [36;1m    BATCH_NUM=$((BATCH_NUM + 1))[0m
+2026-08-01T05:10:59.4804223Z [36;1m  fi[0m
+2026-08-01T05:10:59.4804470Z [36;1mdone < <(find artifacts -type f \( \[0m
+2026-08-01T05:10:59.4804794Z [36;1m  -iname "*.dmg" -o \[0m
+2026-08-01T05:10:59.4805078Z [36;1m  -iname "*.AppImage" -o \[0m
+2026-08-01T05:10:59.4805358Z [36;1m  -iname "*.deb" -o \[0m
+2026-08-01T05:10:59.4805620Z [36;1m  -iname "*.msi" -o \[0m
+2026-08-01T05:10:59.4805878Z [36;1m  -iname "*.exe" -o \[0m
+2026-08-01T05:10:59.4806145Z [36;1m  -iname "*.zip" -o \[0m
+2026-08-01T05:10:59.4806641Z [36;1m  -iname "*.sig" -o \[0m
+2026-08-01T05:10:59.4806927Z [36;1m  -iname "*.app.tar.gz" -o \[0m
+2026-08-01T05:10:59.4807240Z [36;1m  -iname "update.json" \[0m
+2026-08-01T05:10:59.4807525Z [36;1m\) -print0)[0m
+2026-08-01T05:10:59.4807982Z [36;1m[0m
+2026-08-01T05:10:59.4808205Z [36;1m# Upload remaining files[0m
+2026-08-01T05:10:59.4808503Z [36;1mif [[ ${#BATCH[@]} -gt 0 ]]; then[0m
+2026-08-01T05:10:59.4808849Z [36;1m  echo "  Final batch (${#BATCH[@]} files)..."[0m
+2026-08-01T05:10:59.4809250Z [36;1m  retry gh release upload "$TAG" "${BATCH[@]}" --clobber[0m
+2026-08-01T05:10:59.4809603Z [36;1mfi[0m
+2026-08-01T05:10:59.4809809Z [36;1m[0m
+2026-08-01T05:10:59.4810063Z [36;1mecho "Release published successfully!"[0m
+2026-08-01T05:10:59.4870994Z shell: /usr/bin/bash -e {0}
+2026-08-01T05:10:59.4871280Z env:
+2026-08-01T05:10:59.4873743Z   GH_TOKEN: ***
+2026-08-01T05:10:59.4873997Z ##[endgroup]
+2026-08-01T05:11:04.7795676Z Creating release: nightly
+2026-08-01T05:11:05.4718736Z https://github.com/StormShynn/mcp-switch/releases/tag/nightly
+2026-08-01T05:11:05.4740106Z Uploading update.json...
+2026-08-01T05:11:09.1359261Z Uploading artifacts in batches of 3...
+2026-08-01T05:11:09.1385334Z   Batch 1 (3 files)...
+2026-08-01T05:11:17.1842707Z   Batch 2 (3 files)...
+2026-08-01T05:11:23.0090994Z Release published successfully!
+2026-08-01T05:11:23.0179695Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:11:23.0180894Z Post job cleanup.
+2026-08-01T05:11:23.1513470Z (node:2262) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-01T05:11:23.1514348Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-01T05:11:23.1516635Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-d72ca1e6d781bb848dbc2d89497c8f267f69129c2a6d86761a03f2f9caa05eed, not saving cache.
+2026-08-01T05:11:23.1671124Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:11:23.1672344Z Post job cleanup.
+2026-08-01T05:11:23.2728672Z [command]/usr/bin/git version
+2026-08-01T05:11:23.2758861Z git version 2.54.0
+2026-08-01T05:11:23.2793483Z Temporarily overriding HOME='/home/runner/work/_temp/029c2fa7-9720-45d0-a8af-95d64d1b23f1' before making global git config changes
+2026-08-01T05:11:23.2795018Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-01T05:11:23.2800343Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mcp-switch/mcp-switch
+2026-08-01T05:11:23.2848678Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-01T05:11:23.2895680Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-01T05:11:23.3205917Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-01T05:11:23.3240715Z http.https://github.com/.extraheader
+2026-08-01T05:11:23.3259974Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-08-01T05:11:23.3301883Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-08-01T05:11:23.3609136Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-01T05:11:23.3651351Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-08-01T05:11:23.4134589Z Cleaning up orphan processes
+2026-08-01T05:11:23.4440080Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

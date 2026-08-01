@@ -1,0 +1,28 @@
+﻿2026-08-01T05:10:08.1329830Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:10:08.1331382Z ##[group]Run actions/upload-artifact@v4
+2026-08-01T05:10:08.1331703Z with:
+2026-08-01T05:10:08.1331966Z   name: mcp-switch-x86_64-pc-windows-msvc
+2026-08-01T05:10:08.1332348Z   path: artifacts/mcp-switch-x86_64-pc-windows-msvc/
+2026-08-01T05:10:08.1332742Z   if-no-files-found: warn
+2026-08-01T05:10:08.1333020Z   compression-level: 6
+2026-08-01T05:10:08.1333256Z   overwrite: false
+2026-08-01T05:10:08.1333517Z   include-hidden-files: false
+2026-08-01T05:10:08.1333761Z env:
+2026-08-01T05:10:08.1333992Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-08-01T05:10:08.1334298Z   CARGO_INCREMENTAL: 0
+2026-08-01T05:10:08.1334488Z   CARGO_TERM_COLOR: always
+2026-08-01T05:10:08.1334717Z ##[endgroup]
+2026-08-01T05:10:08.3335123Z (node:4944) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-01T05:10:08.3335948Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-01T05:10:08.3402666Z With the provided path, there will be 2 files uploaded
+2026-08-01T05:10:08.3408810Z Artifact name is valid!
+2026-08-01T05:10:08.3410846Z Root directory input is valid!
+2026-08-01T05:10:08.5136027Z Beginning upload of artifact content to blob storage
+2026-08-01T05:10:08.6632523Z (node:4944) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-08-01T05:10:09.0249587Z Uploaded bytes 3811056
+2026-08-01T05:10:09.0593241Z Finished uploading artifact content to blob storage!
+2026-08-01T05:10:09.0595157Z SHA256 digest of uploaded artifact zip is 5db7483917631a3727825993a53567dfcefd3ac99c0f86fbf35863389e53f5e1
+2026-08-01T05:10:09.0597408Z Finalizing artifact upload
+2026-08-01T05:10:09.2133584Z Artifact mcp-switch-x86_64-pc-windows-msvc.zip successfully finalized. Artifact ID 8813678939
+2026-08-01T05:10:09.2135237Z Artifact mcp-switch-x86_64-pc-windows-msvc has been successfully uploaded! Final size is 3811056 bytes. Artifact ID is 8813678939
+2026-08-01T05:10:09.2145246Z Artifact download URL: https://github.com/StormShynn/mcp-switch/actions/runs/30685054004/artifacts/8813678939

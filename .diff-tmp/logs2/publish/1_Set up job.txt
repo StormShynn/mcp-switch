@@ -1,0 +1,32 @@
+﻿2026-08-01T05:10:33.5443339Z Current runner version: '2.336.0'
+2026-08-01T05:10:33.5483214Z ##[group]Runner Image Provisioner
+2026-08-01T05:10:33.5484582Z Hosted Compute Agent
+2026-08-01T05:10:33.5485669Z Version: 20260707.563
+2026-08-01T05:10:33.5486828Z Commit: 02667638d2b423fbc733a8e32a88b44996a3ba6e
+2026-08-01T05:10:33.5488105Z Build Date: 2026-07-07T19:33:50Z
+2026-08-01T05:10:33.5490274Z Worker ID: {b1946f08-8851-4c71-9a2e-aafd58812fc3}
+2026-08-01T05:10:33.5491522Z Azure Region: eastus2
+2026-08-01T05:10:33.5492415Z ##[endgroup]
+2026-08-01T05:10:33.5494562Z ##[group]Operating System
+2026-08-01T05:10:33.5495582Z Ubuntu
+2026-08-01T05:10:33.5496393Z 22.04.5
+2026-08-01T05:10:33.5497350Z LTS
+2026-08-01T05:10:33.5498445Z ##[endgroup]
+2026-08-01T05:10:33.5499383Z ##[group]Runner Image
+2026-08-01T05:10:33.5500362Z Image: ubuntu-22.04
+2026-08-01T05:10:33.5501327Z Version: 20260720.234.2
+2026-08-01T05:10:33.5503152Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260720.234/images/ubuntu/Ubuntu2204-Readme.md
+2026-08-01T05:10:33.5506160Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260720.234
+2026-08-01T05:10:33.5507991Z ##[endgroup]
+2026-08-01T05:10:33.5509704Z ##[group]GITHUB_TOKEN Permissions
+2026-08-01T05:10:33.5513152Z Contents: write
+2026-08-01T05:10:33.5514094Z Metadata: read
+2026-08-01T05:10:33.5515136Z ##[endgroup]
+2026-08-01T05:10:33.5518527Z Secret source: Actions
+2026-08-01T05:10:33.5520612Z Prepare workflow directory
+2026-08-01T05:10:33.6000935Z Prepare all required actions
+2026-08-01T05:10:33.6072013Z Getting action download info
+2026-08-01T05:10:33.7939633Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-08-01T05:10:34.0154088Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-08-01T05:10:34.1188003Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-08-01T05:10:34.4071068Z Complete job name: publish

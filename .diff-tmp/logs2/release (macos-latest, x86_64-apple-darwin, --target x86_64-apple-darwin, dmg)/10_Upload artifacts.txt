@@ -1,0 +1,28 @@
+﻿2026-08-01T05:08:02.2579500Z ##[group]Run BUNDLE_DIR="src-tauri/target/x86_64-apple-darwin/release/bundle"
+2026-08-01T05:08:02.2581420Z [36;1mBUNDLE_DIR="src-tauri/target/x86_64-apple-darwin/release/bundle"[0m
+2026-08-01T05:08:02.2582660Z [36;1mARTIFACT_DIR="artifacts/mcp-switch-x86_64-apple-darwin"[0m
+2026-08-01T05:08:02.2583540Z [36;1mmkdir -p "$ARTIFACT_DIR"[0m
+2026-08-01T05:08:02.2584510Z [36;1m# Copy only actual installer bundles and their .sig files[0m
+2026-08-01T05:08:02.2585410Z [36;1mfind "$BUNDLE_DIR" -type f \( \[0m
+2026-08-01T05:08:02.2586230Z [36;1m  -iname "*.dmg" -o \[0m
+2026-08-01T05:08:02.2587030Z [36;1m  -iname "*.AppImage" -o \[0m
+2026-08-01T05:08:02.2587840Z [36;1m  -iname "*.deb" -o \[0m
+2026-08-01T05:08:02.2588610Z [36;1m  -iname "*.msi" -o \[0m
+2026-08-01T05:08:02.2589630Z [36;1m  -iname "*.exe" -o \[0m
+2026-08-01T05:08:02.2590650Z [36;1m  -iname "*.zip" -o \[0m
+2026-08-01T05:08:02.2591570Z [36;1m  -iname "*.sig" -o \[0m
+2026-08-01T05:08:02.2592350Z [36;1m  -iname "*.app.tar.gz" \[0m
+2026-08-01T05:08:02.2593270Z [36;1m\) -exec cp {} "$ARTIFACT_DIR/" \;[0m
+2026-08-01T05:08:02.2595650Z [36;1mecho "Files to upload:"[0m
+2026-08-01T05:08:02.2596310Z [36;1mls -la "$ARTIFACT_DIR/"[0m
+2026-08-01T05:08:02.2645730Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-08-01T05:08:02.2646180Z env:
+2026-08-01T05:08:02.2647290Z   CARGO_HOME: /Users/runner/.cargo
+2026-08-01T05:08:02.2647890Z   CARGO_INCREMENTAL: 0
+2026-08-01T05:08:02.2648270Z   CARGO_TERM_COLOR: always
+2026-08-01T05:08:02.2648650Z ##[endgroup]
+2026-08-01T05:08:02.3320200Z Files to upload:
+2026-08-01T05:08:02.3377290Z total 12144
+2026-08-01T05:08:02.3379460Z drwxr-xr-x  3 runner  staff       96 Aug  1 05:08 .
+2026-08-01T05:08:02.3381010Z drwxr-xr-x  3 runner  staff       96 Aug  1 05:08 ..
+2026-08-01T05:08:02.3382460Z -rw-r--r--@ 1 runner  staff  6216299 Aug  1 05:08 MCP Switch_0.10.1_x64.dmg

@@ -1,0 +1,10 @@
+﻿2026-08-01T05:10:46.3913006Z ##[group]Run find artifacts -type f 2>/dev/null || echo "no artifacts downloaded"
+2026-08-01T05:10:46.3913635Z [36;1mfind artifacts -type f 2>/dev/null || echo "no artifacts downloaded"[0m
+2026-08-01T05:10:46.3977825Z shell: /usr/bin/bash -e {0}
+2026-08-01T05:10:46.3978244Z ##[endgroup]
+2026-08-01T05:10:46.4084393Z artifacts/mcp-switch-x86_64-unknown-linux-gnu/MCP Switch_0.10.1_amd64.AppImage.sig
+2026-08-01T05:10:46.4085359Z artifacts/mcp-switch-x86_64-unknown-linux-gnu/MCP Switch_0.10.1_amd64.AppImage
+2026-08-01T05:10:46.4086016Z artifacts/mcp-switch-x86_64-apple-darwin/MCP Switch_0.10.1_x64.dmg
+2026-08-01T05:10:46.4086678Z artifacts/mcp-switch-x86_64-pc-windows-msvc/MCP Switch_0.10.1_x64-setup.exe.sig
+2026-08-01T05:10:46.4087304Z artifacts/mcp-switch-x86_64-pc-windows-msvc/MCP Switch_0.10.1_x64-setup.exe
+2026-08-01T05:10:46.4088639Z artifacts/mcp-switch-aarch64-apple-darwin/MCP Switch_0.10.1_aarch64.dmg

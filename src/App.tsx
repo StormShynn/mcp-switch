@@ -922,7 +922,14 @@ function AboutModal({
             </button>
           )}
           {updateStatus === "checking" && <span>Checking…</span>}
-          {updateStatus === "up-to-date" && <span>Up to date</span>}
+          {updateStatus === "up-to-date" && (
+            <span className="modal-update-actions">
+              <span>Up to date</span>
+              <button className="btn modal-link-btn" onClick={onCheckForUpdates}>
+                Check again
+              </button>
+            </span>
+          )}
           {updateStatus === "available" && (
             <button className="btn btn-primary" onClick={onInstallUpdate}>
               Update to v{updateVersion}
@@ -933,8 +940,13 @@ function AboutModal({
           )}
           {updateStatus === "installing" && <span>Installing…</span>}
           {updateStatus === "error" && (
-            <span className="modal-update-error" title={updateError}>
-              Check failed
+            <span className="modal-update-actions">
+              <span className="modal-update-error" title={updateError}>
+                Check failed
+              </span>
+              <button className="btn modal-link-btn" onClick={onCheckForUpdates}>
+                Retry
+              </button>
             </span>
           )}
         </div>

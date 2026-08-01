@@ -1,0 +1,27 @@
+﻿2026-08-01T05:10:46.4949688Z ##[group]Run # Retry helper with exponential backoff
+2026-08-01T05:10:46.4950158Z [36;1m# Retry helper with exponential backoff[0m
+2026-08-01T05:10:46.4950490Z [36;1mretry() {[0m
+2026-08-01T05:10:46.4950752Z [36;1m  local n=1 max=5 delay=10[0m
+2026-08-01T05:10:46.4951054Z [36;1m  while true; do[0m
+2026-08-01T05:10:46.4951317Z [36;1m    "$@" && return 0 || {[0m
+2026-08-01T05:10:46.4951627Z [36;1m      if [[ $n -lt $max ]]; then[0m
+2026-08-01T05:10:46.4952003Z [36;1m        >&2 echo "Retry $n/$max after ${delay}s..."[0m
+2026-08-01T05:10:46.4952352Z [36;1m        sleep "$delay"[0m
+2026-08-01T05:10:46.4952640Z [36;1m        n=$((n + 1))[0m
+2026-08-01T05:10:46.4952919Z [36;1m        delay=$((delay * 2))[0m
+2026-08-01T05:10:46.4953224Z [36;1m      else[0m
+2026-08-01T05:10:46.4953503Z [36;1m        >&2 echo "Failed after $max attempts."[0m
+2026-08-01T05:10:46.4953832Z [36;1m        return 1[0m
+2026-08-01T05:10:46.4954083Z [36;1m      fi[0m
+2026-08-01T05:10:46.4954301Z [36;1m    }[0m
+2026-08-01T05:10:46.4954565Z [36;1m  done[0m
+2026-08-01T05:10:46.4954793Z [36;1m}[0m
+2026-08-01T05:10:46.4955110Z [36;1mretry gh release delete nightly --yes 2>/dev/null || true[0m
+2026-08-01T05:10:46.4955613Z [36;1mretry git push --delete origin nightly 2>/dev/null || true[0m
+2026-08-01T05:10:46.4956095Z [36;1mecho "Waiting 10s to avoid rate limits..."[0m
+2026-08-01T05:10:46.4956420Z [36;1msleep 10[0m
+2026-08-01T05:10:46.5020088Z shell: /usr/bin/bash -e {0}
+2026-08-01T05:10:46.5020387Z env:
+2026-08-01T05:10:46.5022926Z   GH_TOKEN: ***
+2026-08-01T05:10:46.5023197Z ##[endgroup]
+2026-08-01T05:10:49.4726084Z Waiting 10s to avoid rate limits...

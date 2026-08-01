@@ -1,0 +1,41 @@
+﻿2026-08-01T05:08:02.1391250Z ##[group]Run echo "=== release dir ==="
+2026-08-01T05:08:02.1392710Z [36;1mecho "=== release dir ==="[0m
+2026-08-01T05:08:02.1393920Z [36;1mls -la "src-tauri/target/x86_64-apple-darwin/release/" 2>/dev/null || echo "no release dir"[0m
+2026-08-01T05:08:02.1395100Z [36;1mecho "=== bundle dir ==="[0m
+2026-08-01T05:08:02.1396370Z [36;1mls -la "src-tauri/target/x86_64-apple-darwin/release/bundle/" 2>/dev/null || echo "no bundle dir"[0m
+2026-08-01T05:08:02.1415790Z [36;1mecho "=== artifacts ==="[0m
+2026-08-01T05:08:02.1417220Z [36;1mfind "src-tauri/target/x86_64-apple-darwin/release/bundle" -type f 2>/dev/null || echo "no bundle files"[0m
+2026-08-01T05:08:02.1640340Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-08-01T05:08:02.1640700Z env:
+2026-08-01T05:08:02.1641000Z   CARGO_HOME: /Users/runner/.cargo
+2026-08-01T05:08:02.1641260Z   CARGO_INCREMENTAL: 0
+2026-08-01T05:08:02.1641530Z   CARGO_TERM_COLOR: always
+2026-08-01T05:08:02.1641760Z ##[endgroup]
+2026-08-01T05:08:02.2207430Z === release dir ===
+2026-08-01T05:08:02.2312330Z total 34952
+2026-08-01T05:08:02.2313490Z drwxr-xr-x   13 runner  staff       416 Aug  1 05:07 .
+2026-08-01T05:08:02.2314030Z drwxr-xr-x@   4 runner  staff       128 Aug  1 05:02 ..
+2026-08-01T05:08:02.2314710Z -rw-r--r--    1 runner  staff         0 Aug  1 05:02 .cargo-artifact-lock
+2026-08-01T05:08:02.2315300Z -rw-r--r--    1 runner  staff         0 Aug  1 05:02 .cargo-build-lock
+2026-08-01T05:08:02.2316070Z -rw-r--r--    1 runner  staff         0 Aug  1 05:02 .cargo-lock
+2026-08-01T05:08:02.2316650Z drwxr-xr-x  252 runner  staff      8064 Aug  1 05:02 .fingerprint
+2026-08-01T05:08:02.2317140Z drwxr-xr-x   37 runner  staff      1184 Aug  1 05:02 build
+2026-08-01T05:08:02.2317760Z drwxr-xr-x    5 runner  staff       160 Aug  1 05:07 bundle
+2026-08-01T05:08:02.2318280Z drwxr-xr-x  647 runner  staff     20704 Aug  1 05:07 deps
+2026-08-01T05:08:02.2318880Z drwxr-xr-x    2 runner  staff        64 Aug  1 05:02 examples
+2026-08-01T05:08:02.2319500Z drwxr-xr-x    2 runner  staff        64 Aug  1 05:02 incremental
+2026-08-01T05:08:02.2319960Z -rwxr-xr-x    1 runner  staff  17650420 Aug  1 05:08 mcp-switch
+2026-08-01T05:08:02.2320530Z -rw-r--r--    1 runner  staff      2801 Aug  1 05:07 mcp-switch.d
+2026-08-01T05:08:02.2320970Z === bundle dir ===
+2026-08-01T05:08:02.2392640Z total 0
+2026-08-01T05:08:02.2394250Z drwxr-xr-x   5 runner  staff  160 Aug  1 05:07 .
+2026-08-01T05:08:02.2394950Z drwxr-xr-x  13 runner  staff  416 Aug  1 05:07 ..
+2026-08-01T05:08:02.2395660Z drwxr-xr-x   5 runner  staff  160 Aug  1 05:08 dmg
+2026-08-01T05:08:02.2396460Z drwxr-xr-x   2 runner  staff   64 Aug  1 05:08 macos
+2026-08-01T05:08:02.2397210Z drwxr-xr-x   3 runner  staff   96 Aug  1 05:07 share
+2026-08-01T05:08:02.2397780Z === artifacts ===
+2026-08-01T05:08:02.2467310Z src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/icon.icns
+2026-08-01T05:08:02.2469960Z src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/MCP Switch_0.10.1_x64.dmg
+2026-08-01T05:08:02.2471760Z src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/bundle_dmg.sh
+2026-08-01T05:08:02.2473670Z src-tauri/target/x86_64-apple-darwin/release/bundle/share/create-dmg/support/template.applescript
+2026-08-01T05:08:02.2475750Z src-tauri/target/x86_64-apple-darwin/release/bundle/share/create-dmg/support/eula-resources-template.xml

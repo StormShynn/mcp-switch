@@ -1,0 +1,9 @@
+[package]
+name = "verify-tool"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+minisign-verify = "0.2"
+hex = "0.4"
+base64 = "0.22"

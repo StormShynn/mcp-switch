@@ -1,0 +1,8 @@
+fix(updater): enable updater artifacts and validate signatures (0.10.1)
+
+- bundle.createUpdaterArtifacts: true in tauri.conf.json so Tauri signs the updater bundles
+- generate-update-json.mjs: prefer signed updater bundles (.nsis.zip / .app.tar.gz / .AppImage.tar.gz); throw when a signed artifact is missing instead of silently emitting an empty signature
+- release.yml: include *.zip in upload filters so .nsis.zip / .msi.zip and matching .sig reach the release
+- bump version to 0.10.1
+
+Without this, every shipped update.json had signature="" and downloadAndInstall failed signature verification.

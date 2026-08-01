@@ -1,0 +1,29 @@
+﻿2026-08-01T05:09:24.9368478Z ##[group]Run BUNDLE_DIR="src-tauri/target/x86_64-unknown-linux-gnu/release/bundle"
+2026-08-01T05:09:24.9369098Z [36;1mBUNDLE_DIR="src-tauri/target/x86_64-unknown-linux-gnu/release/bundle"[0m
+2026-08-01T05:09:24.9369603Z [36;1mARTIFACT_DIR="artifacts/mcp-switch-x86_64-unknown-linux-gnu"[0m
+2026-08-01T05:09:24.9369992Z [36;1mmkdir -p "$ARTIFACT_DIR"[0m
+2026-08-01T05:09:24.9370531Z [36;1m# Copy only actual installer bundles and their .sig files[0m
+2026-08-01T05:09:24.9370897Z [36;1mfind "$BUNDLE_DIR" -type f \( \[0m
+2026-08-01T05:09:24.9371183Z [36;1m  -iname "*.dmg" -o \[0m
+2026-08-01T05:09:24.9371432Z [36;1m  -iname "*.AppImage" -o \[0m
+2026-08-01T05:09:24.9371690Z [36;1m  -iname "*.deb" -o \[0m
+2026-08-01T05:09:24.9371935Z [36;1m  -iname "*.msi" -o \[0m
+2026-08-01T05:09:24.9372166Z [36;1m  -iname "*.exe" -o \[0m
+2026-08-01T05:09:24.9372406Z [36;1m  -iname "*.zip" -o \[0m
+2026-08-01T05:09:24.9372640Z [36;1m  -iname "*.sig" -o \[0m
+2026-08-01T05:09:24.9372881Z [36;1m  -iname "*.app.tar.gz" \[0m
+2026-08-01T05:09:24.9373186Z [36;1m\) -exec cp {} "$ARTIFACT_DIR/" \;[0m
+2026-08-01T05:09:24.9373474Z [36;1mecho "Files to upload:"[0m
+2026-08-01T05:09:24.9373732Z [36;1mls -la "$ARTIFACT_DIR/"[0m
+2026-08-01T05:09:24.9428433Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-08-01T05:09:24.9428784Z env:
+2026-08-01T05:09:24.9428999Z   CARGO_HOME: /home/runner/.cargo
+2026-08-01T05:09:24.9429265Z   CARGO_INCREMENTAL: 0
+2026-08-01T05:09:24.9429490Z   CARGO_TERM_COLOR: always
+2026-08-01T05:09:24.9429710Z ##[endgroup]
+2026-08-01T05:09:25.0264675Z Files to upload:
+2026-08-01T05:09:25.0280836Z total 82252
+2026-08-01T05:09:25.0281313Z drwxr-xr-x 2 runner runner     4096 Aug  1 05:09 .
+2026-08-01T05:09:25.0281919Z drwxr-xr-x 3 runner runner     4096 Aug  1 05:09 ..
+2026-08-01T05:09:25.0282681Z -rwxr-xr-x 1 runner runner 84212216 Aug  1 05:09 MCP Switch_0.10.1_amd64.AppImage
+2026-08-01T05:09:25.0283589Z -rw-r--r-- 1 runner runner      424 Aug  1 05:09 MCP Switch_0.10.1_amd64.AppImage.sig

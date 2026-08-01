@@ -1,0 +1,28 @@
+﻿2026-08-01T05:07:51.2888940Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:07:51.2890720Z ##[group]Run actions/upload-artifact@v4
+2026-08-01T05:07:51.2892160Z with:
+2026-08-01T05:07:51.2892880Z   name: mcp-switch-aarch64-apple-darwin
+2026-08-01T05:07:51.2893150Z   path: artifacts/mcp-switch-aarch64-apple-darwin/
+2026-08-01T05:07:51.2893470Z   if-no-files-found: warn
+2026-08-01T05:07:51.2893690Z   compression-level: 6
+2026-08-01T05:07:51.2893910Z   overwrite: false
+2026-08-01T05:07:51.2894090Z   include-hidden-files: false
+2026-08-01T05:07:51.2894270Z env:
+2026-08-01T05:07:51.2894430Z   CARGO_HOME: /Users/runner/.cargo
+2026-08-01T05:07:51.2894660Z   CARGO_INCREMENTAL: 0
+2026-08-01T05:07:51.2894920Z   CARGO_TERM_COLOR: always
+2026-08-01T05:07:51.2895120Z ##[endgroup]
+2026-08-01T05:07:53.3529640Z (node:9180) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-01T05:07:53.3560420Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-01T05:07:53.3611730Z With the provided path, there will be 1 file uploaded
+2026-08-01T05:07:53.3620380Z Artifact name is valid!
+2026-08-01T05:07:53.3647930Z Root directory input is valid!
+2026-08-01T05:07:53.7221730Z Beginning upload of artifact content to blob storage
+2026-08-01T05:07:54.0217330Z (node:9180) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-08-01T05:07:54.9345810Z Uploaded bytes 6023115
+2026-08-01T05:07:55.0191150Z Finished uploading artifact content to blob storage!
+2026-08-01T05:07:55.0293890Z SHA256 digest of uploaded artifact zip is a9020d02918ab4d37b59bb01fd40e083f5a14540f6f2dee77d16f17a4e9d3e7e
+2026-08-01T05:07:55.0395580Z Finalizing artifact upload
+2026-08-01T05:07:55.2221810Z Artifact mcp-switch-aarch64-apple-darwin.zip successfully finalized. Artifact ID 8813653987
+2026-08-01T05:07:55.2225670Z Artifact mcp-switch-aarch64-apple-darwin has been successfully uploaded! Final size is 6023115 bytes. Artifact ID is 8813653987
+2026-08-01T05:07:55.2372340Z Artifact download URL: https://github.com/StormShynn/mcp-switch/actions/runs/30685054004/artifacts/8813653987

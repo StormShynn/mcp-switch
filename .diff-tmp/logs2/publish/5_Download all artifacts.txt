@@ -1,0 +1,37 @@
+﻿2026-08-01T05:10:44.7812707Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:10:44.7813943Z ##[group]Run actions/download-artifact@v4
+2026-08-01T05:10:44.7814231Z with:
+2026-08-01T05:10:44.7814447Z   path: artifacts
+2026-08-01T05:10:44.7814669Z   merge-multiple: false
+2026-08-01T05:10:44.7814929Z   repository: StormShynn/mcp-switch
+2026-08-01T05:10:44.7815207Z   run-id: 30685054004
+2026-08-01T05:10:44.7815433Z ##[endgroup]
+2026-08-01T05:10:44.9552921Z (node:2154) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-01T05:10:44.9554231Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-01T05:10:45.0329791Z Found 4 artifact(s)
+2026-08-01T05:10:45.0331078Z No input name, artifact-ids or pattern filtered specified, downloading all artifacts
+2026-08-01T05:10:45.0332236Z An extra directory with the artifact name will be created for each download
+2026-08-01T05:10:45.0333063Z Preparing to download the following artifacts:
+2026-08-01T05:10:45.0334607Z - mcp-switch-x86_64-pc-windows-msvc (ID: 8813678939, Size: 3811056, Expected Digest: sha256:5db7483917631a3727825993a53567dfcefd3ac99c0f86fbf35863389e53f5e1)
+2026-08-01T05:10:45.0336908Z - mcp-switch-x86_64-unknown-linux-gnu (ID: 8813671164, Size: 83535606, Expected Digest: sha256:9f927a5289086b1d7120cd6647cab4a48c3e140aad40e16e2bd49fa0c4cb9ea8)
+2026-08-01T05:10:45.0339596Z - mcp-switch-x86_64-apple-darwin (ID: 8813655768, Size: 6187162, Expected Digest: sha256:9ae420196bc1738dd040bbe9d68af8782d817e8ddc4305d8ae2a81e5f38f1629)
+2026-08-01T05:10:45.0342138Z - mcp-switch-aarch64-apple-darwin (ID: 8813653987, Size: 6023115, Expected Digest: sha256:a9020d02918ab4d37b59bb01fd40e083f5a14540f6f2dee77d16f17a4e9d3e7e)
+2026-08-01T05:10:45.1164475Z Redirecting to blob download url: https://productionresultssa10.blob.core.windows.net/actions-results/d2f25e82-cc9b-4d46-a773-521d76c74d64/workflow-job-run-163bf80b-a172-5e42-bfac-fadafcc7998e/artifacts/e906266a3f981f9797f1c30df135e4f2b8948ea1c5dd822f569b0b6ad3a6d77c.zip
+2026-08-01T05:10:45.1167107Z Starting download of artifact to: /home/runner/work/mcp-switch/mcp-switch/artifacts/mcp-switch-x86_64-pc-windows-msvc
+2026-08-01T05:10:45.1458848Z Redirecting to blob download url: https://productionresultssa10.blob.core.windows.net/actions-results/d2f25e82-cc9b-4d46-a773-521d76c74d64/workflow-job-run-48601896-4f15-52ae-a508-8d556cd00040/artifacts/cb452f3b8ec4ac0ccdf7e15d90402ae3f701cc76d935aae938ed0ec433d049b9.zip
+2026-08-01T05:10:45.1461585Z Starting download of artifact to: /home/runner/work/mcp-switch/mcp-switch/artifacts/mcp-switch-x86_64-unknown-linux-gnu
+2026-08-01T05:10:45.1473923Z Redirecting to blob download url: https://productionresultssa10.blob.core.windows.net/actions-results/d2f25e82-cc9b-4d46-a773-521d76c74d64/workflow-job-run-b62dae64-52dd-5e10-9707-0d77b59cd1e2/artifacts/2e483a1d9af27bbdca8ea5beba74a8810ebf39d3df43dcbb41a854a47d218400.zip
+2026-08-01T05:10:45.1476693Z Starting download of artifact to: /home/runner/work/mcp-switch/mcp-switch/artifacts/mcp-switch-x86_64-apple-darwin
+2026-08-01T05:10:45.1583494Z Redirecting to blob download url: https://productionresultssa10.blob.core.windows.net/actions-results/d2f25e82-cc9b-4d46-a773-521d76c74d64/workflow-job-run-561c302a-9534-541d-aab8-963b52759e6e/artifacts/bf08577452aa221142871a41aff0d79b48f71dad209ede41239e800526468171.zip
+2026-08-01T05:10:45.1585539Z Starting download of artifact to: /home/runner/work/mcp-switch/mcp-switch/artifacts/mcp-switch-aarch64-apple-darwin
+2026-08-01T05:10:45.2011009Z (node:2154) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-08-01T05:10:45.3453940Z SHA256 digest of downloaded artifact is 5db7483917631a3727825993a53567dfcefd3ac99c0f86fbf35863389e53f5e1
+2026-08-01T05:10:45.3455597Z Artifact download completed successfully.
+2026-08-01T05:10:45.4778589Z SHA256 digest of downloaded artifact is 9ae420196bc1738dd040bbe9d68af8782d817e8ddc4305d8ae2a81e5f38f1629
+2026-08-01T05:10:45.4780137Z Artifact download completed successfully.
+2026-08-01T05:10:45.4895302Z SHA256 digest of downloaded artifact is a9020d02918ab4d37b59bb01fd40e083f5a14540f6f2dee77d16f17a4e9d3e7e
+2026-08-01T05:10:45.4896153Z Artifact download completed successfully.
+2026-08-01T05:10:46.3752971Z SHA256 digest of downloaded artifact is 9f927a5289086b1d7120cd6647cab4a48c3e140aad40e16e2bd49fa0c4cb9ea8
+2026-08-01T05:10:46.3753999Z Artifact download completed successfully.
+2026-08-01T05:10:46.3754554Z Total of 4 artifact(s) downloaded
+2026-08-01T05:10:46.3758926Z Download artifact has finished successfully

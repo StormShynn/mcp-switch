@@ -1,0 +1,15 @@
+﻿2026-08-01T05:10:20.7460497Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:10:20.7463069Z Post job cleanup.
+2026-08-01T05:10:20.9925698Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-08-01T05:10:21.0265192Z git version 2.55.0.windows.2
+2026-08-01T05:10:21.0339622Z Temporarily overriding HOME='D:\a\_temp\37654baf-62fa-4dc7-b1b3-a69d3b32ec02' before making global git config changes
+2026-08-01T05:10:21.0341362Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-01T05:10:21.0351183Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\mcp-switch\mcp-switch
+2026-08-01T05:10:21.0716074Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-08-01T05:10:21.1041562Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-08-01T05:10:21.6889815Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-01T05:10:21.7183320Z http.https://github.com/.extraheader
+2026-08-01T05:10:21.7235459Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-08-01T05:10:21.7588962Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-08-01T05:10:22.3683722Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-01T05:10:22.4048130Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"

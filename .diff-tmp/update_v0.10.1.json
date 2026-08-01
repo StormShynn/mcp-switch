@@ -1,0 +1,15 @@
+{
+  "version": "0.10.1",
+  "notes": "Release v0.10.1",
+  "pub_date": "2026-08-01T05:04:23.536Z",
+  "platforms": {
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRci80b1Q5bDlTdFoxUFlxQk9QaWdRRi9MN3NmRkN4a2hqR2U0YjFMSXpPaG53S0VpWW1jekZUVFFWUCtVRVBTNjJQZVVTYXVuUmhHeXdxbG5XTUNIOFZlRzRvOGpTQWdFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1NTYwNjQzCWZpbGU6TUNQIFN3aXRjaF8wLjEwLjFfYW1kNjQuQXBwSW1hZ2UKS2phN0x4VytaL21jLzJzZm9SQWZ0N2RORVZKY2tTQ0dhREtWTVk4RFNTNEljYWc0V2JkRjdKWUtSM2x1YldyWTh3WTB0dzhEcVdMYkdhRG0yeVcxQlE9PQo=",
+      "url": "https://github.com/StormShynn/mcp-switch/releases/download/v0.10.1/MCP%20Switch_0.10.1_amd64.AppImage"
+    },
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRci80b1Q5bDlTdGYvUkREY0xja0xHUU5KV3I0KzhMRlYwOWtwQk9JY2tQbXhmWHlOLzBwOW5iN0MwdWQzRWtuVTBSaDJ6bHZBWHliV1pCQlc0a1FYUi92YURIVzV2bVFRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1NTYwNTc3CWZpbGU6TUNQIFN3aXRjaF8wLjEwLjFfeDY0LXNldHVwLmV4ZQpkYTZ3ZC9lOU1ZQ3N6ZjJGSTQybThNUjMwTHVCNGV4UkQ5YVNWeiszcXZkZXJ2TjhtQkJ1YkJ1VURlc2hoUDF2Zm1YS2R3RkpkejIxZ2N6MjAyM0hEUT09Cg==",
+      "url": "https://github.com/StormShynn/mcp-switch/releases/download/v0.10.1/MCP%20Switch_0.10.1_x64-setup.exe"
+    }
+  }
+}

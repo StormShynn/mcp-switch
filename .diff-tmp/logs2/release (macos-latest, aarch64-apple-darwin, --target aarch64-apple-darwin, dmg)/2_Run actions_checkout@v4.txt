@@ -1,0 +1,75 @@
+﻿2026-08-01T05:02:21.6054500Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:02:21.6062150Z ##[group]Run actions/checkout@v4
+2026-08-01T05:02:21.6062700Z with:
+2026-08-01T05:02:21.6063070Z   repository: StormShynn/mcp-switch
+2026-08-01T05:02:21.6068370Z   token: ***
+2026-08-01T05:02:21.6068700Z   ssh-strict: true
+2026-08-01T05:02:21.6069060Z   ssh-user: git
+2026-08-01T05:02:21.6069420Z   persist-credentials: true
+2026-08-01T05:02:21.6069830Z   clean: true
+2026-08-01T05:02:21.6070200Z   sparse-checkout-cone-mode: true
+2026-08-01T05:02:21.6070670Z   fetch-depth: 1
+2026-08-01T05:02:21.6071030Z   fetch-tags: false
+2026-08-01T05:02:21.6071400Z   show-progress: true
+2026-08-01T05:02:21.6071800Z   lfs: false
+2026-08-01T05:02:21.6072130Z   submodules: false
+2026-08-01T05:02:21.6072550Z   set-safe-directory: true
+2026-08-01T05:02:21.6072990Z   allow-unsafe-pr-checkout: false
+2026-08-01T05:02:21.6073610Z ##[endgroup]
+2026-08-01T05:02:22.0467700Z Syncing repository: StormShynn/mcp-switch
+2026-08-01T05:02:22.0469770Z ##[group]Getting Git version info
+2026-08-01T05:02:22.0549750Z Working directory is '/Users/runner/work/mcp-switch/mcp-switch'
+2026-08-01T05:02:22.0551590Z [command]/opt/homebrew/bin/git version
+2026-08-01T05:02:22.0752160Z git version 2.55.0
+2026-08-01T05:02:22.0767420Z ##[endgroup]
+2026-08-01T05:02:22.0775130Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/87767e9f-c8d6-42b9-8f4e-d77a548b5ce4/.gitconfig'
+2026-08-01T05:02:22.0781770Z Temporarily overriding HOME='/Users/runner/work/_temp/87767e9f-c8d6-42b9-8f4e-d77a548b5ce4' before making global git config changes
+2026-08-01T05:02:22.0783720Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-01T05:02:22.0785540Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/mcp-switch/mcp-switch
+2026-08-01T05:02:22.0938750Z Deleting the contents of '/Users/runner/work/mcp-switch/mcp-switch'
+2026-08-01T05:02:22.0941650Z ##[group]Initializing the repository
+2026-08-01T05:02:22.0964560Z [command]/opt/homebrew/bin/git init /Users/runner/work/mcp-switch/mcp-switch
+2026-08-01T05:02:22.1170930Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-08-01T05:02:22.1172330Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-08-01T05:02:22.1173860Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-08-01T05:02:22.1174710Z hint: call:
+2026-08-01T05:02:22.1175050Z hint:
+2026-08-01T05:02:22.1175510Z hint: 	git config --global init.defaultBranch <name>
+2026-08-01T05:02:22.1176080Z hint:
+2026-08-01T05:02:22.1176610Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-08-01T05:02:22.1177500Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-08-01T05:02:22.1178290Z hint:
+2026-08-01T05:02:22.1178670Z hint: 	git branch -m <name>
+2026-08-01T05:02:22.1179150Z hint:
+2026-08-01T05:02:22.1179710Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-08-01T05:02:22.1180690Z Initialized empty Git repository in /Users/runner/work/mcp-switch/mcp-switch/.git/
+2026-08-01T05:02:22.1182530Z [command]/opt/homebrew/bin/git remote add origin https://github.com/StormShynn/mcp-switch
+2026-08-01T05:02:22.1263340Z ##[endgroup]
+2026-08-01T05:02:22.1264210Z ##[group]Disabling automatic garbage collection
+2026-08-01T05:02:22.1265980Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-08-01T05:02:22.1337980Z ##[endgroup]
+2026-08-01T05:02:22.1338870Z ##[group]Setting up auth
+2026-08-01T05:02:22.1348580Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-01T05:02:22.1420720Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-01T05:02:22.2546670Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-01T05:02:22.2616250Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-08-01T05:02:22.3458560Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-01T05:02:22.3526080Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-08-01T05:02:22.5608340Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-08-01T05:02:22.5633880Z ##[endgroup]
+2026-08-01T05:02:22.5634780Z ##[group]Fetching the repository
+2026-08-01T05:02:22.5637090Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3b7095fa3798b7eb1c11dda699dabf35578aa983:refs/remotes/origin/main
+2026-08-01T05:02:23.3076440Z From https://github.com/StormShynn/mcp-switch
+2026-08-01T05:02:23.3089020Z  * [new ref]         3b7095fa3798b7eb1c11dda699dabf35578aa983 -> origin/main
+2026-08-01T05:02:23.3097860Z ##[endgroup]
+2026-08-01T05:02:23.3098860Z ##[group]Determining the checkout info
+2026-08-01T05:02:23.3099840Z ##[endgroup]
+2026-08-01T05:02:23.3100680Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-08-01T05:02:23.3212990Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-08-01T05:02:23.3305460Z ##[group]Checking out the ref
+2026-08-01T05:02:23.3306850Z [command]/opt/homebrew/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-08-01T05:02:23.3666300Z Switched to a new branch 'main'
+2026-08-01T05:02:23.3677430Z branch 'main' set up to track 'origin/main'.
+2026-08-01T05:02:23.3686580Z ##[endgroup]
+2026-08-01T05:02:23.3927450Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-08-01T05:02:23.3961410Z 3b7095fa3798b7eb1c11dda699dabf35578aa983

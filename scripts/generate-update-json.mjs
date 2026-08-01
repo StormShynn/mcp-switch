@@ -79,8 +79,17 @@ function findBundle(targetDir) {
     }
   }
 
-  // Try to match a bundle with its .sig (same stem)
-  for (const bundle of bundles) {
+  // Prefer updater bundle extensions (.nsis.zip, .app.tar.gz, …) over raw
+  // installers when several signed files are present.
+  const ranked = [...bundles].sort((a, b) => {
+    const rank = (name) => {
+      const i = BUNDLE_EXT_RANK.findIndex((ext) => name.endsWith(ext));
+      return i === -1 ? BUNDLE_EXT_RANK.length : i;
+    };
+    return rank(a.name) - rank(b.name);
+  });
+
+  for (const bundle of ranked) {
     const sig = sigs.get(bundle.name);
     if (sig) {
       return { signature: sig, url: `${BASE_URL}/${encodeURIComponent(bundle.name)}` };

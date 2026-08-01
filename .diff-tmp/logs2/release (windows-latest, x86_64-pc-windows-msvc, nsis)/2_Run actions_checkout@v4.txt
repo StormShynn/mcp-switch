@@ -1,0 +1,61 @@
+﻿2026-08-01T05:02:19.5566068Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-01T05:02:19.5577157Z ##[group]Run actions/checkout@v4
+2026-08-01T05:02:19.5578283Z with:
+2026-08-01T05:02:19.5579042Z   repository: StormShynn/mcp-switch
+2026-08-01T05:02:19.5586428Z   token: ***
+2026-08-01T05:02:19.5587189Z   ssh-strict: true
+2026-08-01T05:02:19.5587934Z   ssh-user: git
+2026-08-01T05:02:19.5588700Z   persist-credentials: true
+2026-08-01T05:02:19.5589529Z   clean: true
+2026-08-01T05:02:19.5590631Z   sparse-checkout-cone-mode: true
+2026-08-01T05:02:19.5591548Z   fetch-depth: 1
+2026-08-01T05:02:19.5592289Z   fetch-tags: false
+2026-08-01T05:02:19.5593048Z   show-progress: true
+2026-08-01T05:02:19.5593835Z   lfs: false
+2026-08-01T05:02:19.5594568Z   submodules: false
+2026-08-01T05:02:19.5595380Z   set-safe-directory: true
+2026-08-01T05:02:19.5596248Z   allow-unsafe-pr-checkout: false
+2026-08-01T05:02:19.5597467Z ##[endgroup]
+2026-08-01T05:02:19.7336996Z Syncing repository: StormShynn/mcp-switch
+2026-08-01T05:02:19.7339392Z ##[group]Getting Git version info
+2026-08-01T05:02:19.7340428Z Working directory is 'D:\a\mcp-switch\mcp-switch'
+2026-08-01T05:02:19.8234821Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-08-01T05:02:20.1564679Z git version 2.55.0.windows.2
+2026-08-01T05:02:20.1620934Z ##[endgroup]
+2026-08-01T05:02:20.1638306Z Temporarily overriding HOME='D:\a\_temp\d518441a-43ca-47d3-8a0c-15be6a5a8917' before making global git config changes
+2026-08-01T05:02:20.1641708Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-01T05:02:20.1648887Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\mcp-switch\mcp-switch
+2026-08-01T05:02:20.2236364Z Deleting the contents of 'D:\a\mcp-switch\mcp-switch'
+2026-08-01T05:02:20.2243095Z ##[group]Initializing the repository
+2026-08-01T05:02:20.2253453Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\mcp-switch\mcp-switch
+2026-08-01T05:02:20.3150444Z Initialized empty Git repository in D:/a/mcp-switch/mcp-switch/.git/
+2026-08-01T05:02:20.3198218Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/StormShynn/mcp-switch
+2026-08-01T05:02:20.3760583Z ##[endgroup]
+2026-08-01T05:02:20.3761454Z ##[group]Disabling automatic garbage collection
+2026-08-01T05:02:20.3770495Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-08-01T05:02:20.4058784Z ##[endgroup]
+2026-08-01T05:02:20.4060145Z ##[group]Setting up auth
+2026-08-01T05:02:20.4072673Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-08-01T05:02:20.4422752Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-08-01T05:02:21.6987767Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-01T05:02:21.7282749Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-08-01T05:02:22.2614669Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-01T05:02:22.2910959Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-08-01T05:02:22.8154309Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-08-01T05:02:22.8449760Z ##[endgroup]
+2026-08-01T05:02:22.8450287Z ##[group]Fetching the repository
+2026-08-01T05:02:22.8463000Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3b7095fa3798b7eb1c11dda699dabf35578aa983:refs/remotes/origin/main
+2026-08-01T05:02:23.7437630Z From https://github.com/StormShynn/mcp-switch
+2026-08-01T05:02:23.7438675Z  * [new ref]         3b7095fa3798b7eb1c11dda699dabf35578aa983 -> origin/main
+2026-08-01T05:02:23.7490787Z ##[endgroup]
+2026-08-01T05:02:23.7491212Z ##[group]Determining the checkout info
+2026-08-01T05:02:23.7494182Z ##[endgroup]
+2026-08-01T05:02:23.7508903Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-08-01T05:02:23.7960895Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-08-01T05:02:23.8238539Z ##[group]Checking out the ref
+2026-08-01T05:02:23.8247231Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B main refs/remotes/origin/main
+2026-08-01T05:02:23.9130574Z Switched to a new branch 'main'
+2026-08-01T05:02:23.9190067Z branch 'main' set up to track 'origin/main'.
+2026-08-01T05:02:23.9237260Z ##[endgroup]
+2026-08-01T05:02:23.9609986Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-08-01T05:02:23.9873374Z 3b7095fa3798b7eb1c11dda699dabf35578aa983
