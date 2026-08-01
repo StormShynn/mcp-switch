@@ -1,3 +1,10 @@
+# [0.11.0](https://github.com/StormShynn/mcp-switch/compare/v0.10.1...v0.11.0) (2026-08-01)
+
+
+### Features
+
+* improve update bundle selection and add retry actions in About modal ([21c94ff](https://github.com/StormShynn/mcp-switch/commit/21c94ff7c544b87a86f7f2dfd502dbc07d33f0c1))
+
 ## [0.10.1](https://github.com/StormShynn/mcp-switch/compare/v0.10.0...v0.10.1) (2026-08-01)
 
 
