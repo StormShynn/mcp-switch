@@ -1,3 +1,10 @@
+## [0.10.1](https://github.com/StormShynn/mcp-switch/compare/v0.10.0...v0.10.1) (2026-08-01)
+
+
+### Bug Fixes
+
+* **updater:** enable updater artifacts and validate signatures (0.10.1) ([ecc993a](https://github.com/StormShynn/mcp-switch/commit/ecc993a0595b044bd81ab1594c297ac81d3b465b))
+
 # [0.10.0](https://github.com/StormShynn/mcp-switch/compare/v0.9.0...v0.10.0) (2026-07-23)
 
 
