@@ -50,6 +50,12 @@ const BUNDLE_EXT_RANK = [
   ".app.tar.gz",
 ];
 
+// `gh release upload` rewrites spaces in filenames to dots, so the
+// GitHub asset name is the local filename with spaces replaced by dots.
+function githubAssetName(localName) {
+  return localName.replace(/ /g, ".");
+}
+
 // Artifact subdirectory name pattern
 function artifactDir(target) {
   return `mcp-switch-${target}`;
@@ -92,7 +98,7 @@ function findBundle(targetDir) {
   for (const bundle of ranked) {
     const sig = sigs.get(bundle.name);
     if (sig) {
-      return { signature: sig, url: `${BASE_URL}/${encodeURIComponent(bundle.name)}` };
+      return { signature: sig, url: `${BASE_URL}/${githubAssetName(bundle.name)}` };
     }
   }
 
