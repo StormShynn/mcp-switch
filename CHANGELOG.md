@@ -1,3 +1,15 @@
+# [0.12.0](https://github.com/StormShynn/mcp-switch/compare/v0.11.0...v0.12.0) (2026-08-01)
+
+
+### Bug Fixes
+
+* **updater:** map GitHub release asset name in update.json URLs ([a090253](https://github.com/StormShynn/mcp-switch/commit/a090253c9f78650e11c50949e2b62a6a66b91fb6))
+
+
+### Features
+
+* **scripts:** replace spaces with dots in GitHub asset URLs ([6aba52e](https://github.com/StormShynn/mcp-switch/commit/6aba52ec5729d1007c750bc94b51fbe819644661))
+
 # [0.11.0](https://github.com/StormShynn/mcp-switch/compare/v0.10.1...v0.11.0) (2026-08-01)
 
 
