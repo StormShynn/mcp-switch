@@ -1,8 +1,6 @@
-fix(updater): enable updater artifacts and validate signatures (0.10.1)
+fix(updater): map GitHub release asset name in update.json URLs
 
-- bundle.createUpdaterArtifacts: true in tauri.conf.json so Tauri signs the updater bundles
-- generate-update-json.mjs: prefer signed updater bundles (.nsis.zip / .app.tar.gz / .AppImage.tar.gz); throw when a signed artifact is missing instead of silently emitting an empty signature
-- release.yml: include *.zip in upload filters so .nsis.zip / .msi.zip and matching .sig reach the release
-- bump version to 0.10.1
+- gh release upload rewrites spaces in asset filenames to dots, so the URL stored in update.json must use the dotted form (MCP.Switch_0.10.1_x64-setup.exe) instead of the percent-encoded space (MCP%20Switch_0.10.1_x64-setup.exe) that encodeURIComponent produced.
+- Introduce githubAssetName() helper that maps the local bundle filename to its GitHub asset name, and reuse it in the manifest URL.
 
-Without this, every shipped update.json had signature="" and downloadAndInstall failed signature verification.
+Without this, downloadAndInstall() would request a 404 (verified against the published v0.10.1 release: percent-encoded URL returns 404, dotted URL returns 200).
