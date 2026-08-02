@@ -1,3 +1,10 @@
+# [0.15.0](https://github.com/StormShynn/mcp-switch/compare/v0.14.0...v0.15.0) (2026-08-02)
+
+
+### Features
+
+* **runner:** robust restart policy deserialization and cleanup ([9cb9ae8](https://github.com/StormShynn/mcp-switch/commit/9cb9ae8641e3c2a3e998bc556082722071d8f7cc))
+
 # [0.14.0](https://github.com/StormShynn/mcp-switch/compare/v0.13.0...v0.14.0) (2026-08-02)
 
 
