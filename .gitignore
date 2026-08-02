@@ -35,5 +35,8 @@ Thumbs.db
 nul
 
 # Tauri signing keys (NEVER commit the private key)
+# Local files matching this pattern must NEVER be checked in.
+# Rotation procedure: see CONTRIBUTING.md -> "Rotating the updater signing key".
 tauri-signing-key
 tauri-signing-key.pub
+.tmp-keys/
