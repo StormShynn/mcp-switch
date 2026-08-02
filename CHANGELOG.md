@@ -1,3 +1,10 @@
+# [0.14.0](https://github.com/StormShynn/mcp-switch/compare/v0.13.0...v0.14.0) (2026-08-02)
+
+
+### Features
+
+* **security:** tighten CSP, window capabilities, and URL handling ([0f03cc6](https://github.com/StormShynn/mcp-switch/commit/0f03cc6490518f143dbc589ef68f429b9b4a147b))
+
 # [0.13.0](https://github.com/StormShynn/mcp-switch/compare/v0.12.0...v0.13.0) (2026-08-02)
 
 
