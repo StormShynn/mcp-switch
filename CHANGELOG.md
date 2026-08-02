@@ -1,3 +1,10 @@
+# [0.13.0](https://github.com/StormShynn/mcp-switch/compare/v0.12.0...v0.13.0) (2026-08-02)
+
+
+### Features
+
+* rotate Tauri updater signing key and update .gitignore ([338c321](https://github.com/StormShynn/mcp-switch/commit/338c321c337fcd95c08a0515d39cdfeb60a0c5b8))
+
 # [0.12.0](https://github.com/StormShynn/mcp-switch/compare/v0.11.0...v0.12.0) (2026-08-01)
 
 
