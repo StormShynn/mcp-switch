@@ -11,19 +11,11 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { check, type Update } from "@tauri-apps/plugin-updater";
-import { relaunch } from "@tauri-apps/plugin-process";
 import { confirm, save, open } from "@tauri-apps/plugin-dialog";
 import type { AutoRunKey, ConnectionTestResult, McpServerEntry, AppId, ProfileDto, RestartPolicy, RunningServer, ServerExitEvent, ServerInput, SyncSummary, Transport } from "./lib/types";
 import { APPS, APP_COLORS } from "./lib/types";
 
-type UpdateStatus =
-  | "idle"
-  | "checking"
-  | "up-to-date"
-  | "available"
-  | "downloading"
-  | "installing"
-  | "error";
+type UpdateStatus = "idle" | "checking" | "up-to-date" | "available" | "error";
 
 const REPO_URL = "https://github.com/StormShynn/mcp-switch";
 
@@ -912,20 +904,18 @@ function AboutModal({
   onClose,
   updateStatus,
   updateVersion,
-  updateProgress,
   updateError,
   onCheckForUpdates,
-  onInstallUpdate,
+  onDownloadUpdate,
 }: {
   version: string;
   storePath: string;
   onClose: () => void;
   updateStatus: UpdateStatus;
   updateVersion: string;
-  updateProgress: number;
   updateError: string;
   onCheckForUpdates: () => void;
-  onInstallUpdate: () => void;
+  onDownloadUpdate: () => void;
 }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -969,14 +959,10 @@ function AboutModal({
             </span>
           )}
           {updateStatus === "available" && (
-            <button className="btn btn-primary" onClick={onInstallUpdate}>
-              Update to v{updateVersion}
+            <button className="btn btn-primary" onClick={onDownloadUpdate}>
+              Download v{updateVersion}
             </button>
           )}
-          {updateStatus === "downloading" && (
-            <span>Downloading… {updateProgress}%</span>
-          )}
-          {updateStatus === "installing" && <span>Installing…</span>}
           {updateStatus === "error" && (
             <span className="modal-update-actions">
               <span className="modal-update-error" title={updateError}>
@@ -1015,7 +1001,6 @@ export default function App() {
   const [pendingRestarts, setPendingRestarts] = useState<Set<AppId>>(new Set());
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus>("idle");
   const [pendingUpdate, setPendingUpdate] = useState<Update | null>(null);
-  const [updateProgress, setUpdateProgress] = useState(0);
   const [updateError, setUpdateError] = useState("");
   const [editingServer, setEditingServer] = useState<McpServerEntry | "new" | null>(null);
   const [testResults, setTestResults] = useState<Record<string, { status: "testing" } | ConnectionTestResult>>({});
@@ -1662,29 +1647,11 @@ export default function App() {
     }
   }, []);
 
-  const handleInstallUpdate = useCallback(async () => {
-    if (!pendingUpdate) return;
-    setUpdateStatus("downloading");
-    setUpdateProgress(0);
-    try {
-      let downloaded = 0;
-      let total = 0;
-      await pendingUpdate.downloadAndInstall((event) => {
-        if (event.event === "Started") {
-          total = event.data.contentLength ?? 0;
-        } else if (event.event === "Progress") {
-          downloaded += event.data.chunkLength;
-          setUpdateProgress(total > 0 ? Math.min(100, Math.round((downloaded / total) * 100)) : 0);
-        } else if (event.event === "Finished") {
-          setUpdateStatus("installing");
-        }
-      });
-      await relaunch();
-    } catch (err) {
-      setUpdateError(err instanceof Error ? err.message : String(err));
-      setUpdateStatus("error");
-    }
-  }, [pendingUpdate]);
+  const handleDownloadUpdate = useCallback(async () => {
+    // No in-app signature-verified install: just hand the user to the
+    // releases page and let them download/run the installer themselves.
+    await openUrl(`${REPO_URL}/releases/latest`);
+  }, []);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -1743,10 +1710,9 @@ export default function App() {
           onClose={() => setShowAbout(false)}
           updateStatus={updateStatus}
           updateVersion={pendingUpdate?.version ?? ""}
-          updateProgress={updateProgress}
           updateError={updateError}
           onCheckForUpdates={handleCheckForUpdates}
-          onInstallUpdate={handleInstallUpdate}
+          onDownloadUpdate={handleDownloadUpdate}
         />
       )}
 

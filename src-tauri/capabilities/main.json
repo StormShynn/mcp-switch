@@ -17,9 +17,6 @@
     "opener:default",
     "opener:allow-open-url",
     "updater:default",
-    "updater:allow-check",
-    "updater:allow-download-and-install",
-    "process:default",
-    "process:allow-restart"
+    "updater:allow-check"
   ]
 }

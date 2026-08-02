@@ -125,11 +125,28 @@ struct AutoRunFile {
     #[serde(default)]
     auto_run: Vec<AutoRunInner>,
     /// Per-server restart policy override. Keyed by `app::name`.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "deserialize_restart_policies")]
     restart_policies: HashMap<String, RestartPolicy>,
     /// Named profiles, each a list of `(app, name)` members.
     #[serde(default)]
     profiles: Vec<ProfileInner>,
+}
+
+/// Deserializes each entry independently so one malformed/outdated policy
+/// value can't fail the whole map and fall back to `AutoRunFile::default()`,
+/// which would silently drop unrelated `auto_run`/`profiles` data too.
+fn deserialize_restart_policies<'de, D>(d: D) -> Result<HashMap<String, RestartPolicy>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let raw = HashMap::<String, serde_json::Value>::deserialize(d)?;
+    Ok(raw
+        .into_iter()
+        .map(|(k, v)| {
+            let policy = RestartPolicy::deserialize_safe(v).unwrap_or(RestartPolicy::Never);
+            (k, policy)
+        })
+        .collect())
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -383,10 +400,6 @@ impl RunnerState {
         drop(map);
 
         Ok(info)
-    }
-
-    pub fn start(&self, entry: &McpServerEntry) -> Result<RunningServer, McpError> {
-        self.start_with_app(None, entry, None)
     }
 
     pub fn stop(&self, name: &str, app: &str) -> Result<bool, McpError> {
@@ -785,17 +798,7 @@ impl RunnerState {
                     };
                     match state.start_with_app(Some(&app), &spec, Some(policy.clone())) {
                         Ok(_) => {
-                            // Re-stamp the handle's `info.restart_count` etc.
-                            // Already incremented by `start_with_app` -> 0;
-                            // patch it from the surviving handle's memory.
-                            if let Ok(map) = state.inner.lock() {
-                                if let Some(h) = map.get(&key) {
-                                    let mut info = h.info.clone();
-                                    info.restart_count = next_attempt;
-                                    let _ = h.info.clone(); // discard cloned
-                                    let _ = info; // not used; API doesn't expose setter
-                                }
-                            }
+                            // start_with_app created a fresh handle with\n                            // restart_count=0. Stamp the actual attempt number on\n                            // it so the next watcher reads the right value.\n                            if let Ok(mut map) = state.inner.lock() {\n                                if let Some(h) = map.get_mut(&key) {\n                                    h.info.restart_count = next_attempt;\n                                    h.info.last_started_at = now_unix();\n                                }\n                            }
                             let line3 = format!(
                                 "[runner] auto-restarted (`{name}` attempt {next_attempt})"
                             );
@@ -818,3 +821,51 @@ impl RunnerState {
 
 #[allow(dead_code)]
 fn _unused_path(_: &Path) {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn malformed_restart_policy_entry_does_not_wipe_auto_run_file() {
+        let valid_policy = RestartPolicy::OnFailure {
+            max_retries: 3,
+            backoff_ms: 500,
+        };
+        let mut policies = serde_json::Map::new();
+        policies.insert(
+            "claude::good".to_string(),
+            serde_json::to_value(&valid_policy).unwrap(),
+        );
+        // Simulates a future enum-shape change or a hand-edited/corrupted entry.
+        policies.insert(
+            "claude::bad".to_string(),
+            serde_json::json!({ "mode": "not-a-real-mode" }),
+        );
+
+        let raw = serde_json::json!({
+            "auto_run": [{ "name": "good", "app": "claude" }],
+            "restart_policies": serde_json::Value::Object(policies),
+            "profiles": [{
+                "id": "p1",
+                "label": "Profile 1",
+                "members": [{ "name": "good", "app": "claude" }]
+            }]
+        });
+
+        let file: AutoRunFile = serde_json::from_value(raw)
+            .expect("one malformed policy entry must not fail the whole file");
+
+        assert_eq!(file.auto_run.len(), 1, "unrelated auto_run entries must survive");
+        assert_eq!(file.profiles.len(), 1, "unrelated profiles must survive");
+        assert_eq!(
+            file.restart_policies.get("claude::good"),
+            Some(&valid_policy)
+        );
+        assert_eq!(
+            file.restart_policies.get("claude::bad"),
+            Some(&RestartPolicy::Never)
+        );
+    }
+}
+
