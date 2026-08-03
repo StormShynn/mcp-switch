@@ -74,6 +74,7 @@ impl Adapter for GeminiAdapter {
         };
 
         let output = serde_json::to_string_pretty(&config)?;
+        crate::atomic::backup_file(&path);
         crate::atomic::atomic_write(&path, &output)
     }
 }

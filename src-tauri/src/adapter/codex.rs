@@ -77,6 +77,7 @@ impl Adapter for CodexAdapter {
         let output = toml::to_string_pretty(&config).map_err(|e| {
             McpError::InvalidConfig(format!("TOML serialization error: {e}"))
         })?;
+        crate::atomic::backup_file(&path);
         crate::atomic::atomic_write(&path, &output)
     }
 }

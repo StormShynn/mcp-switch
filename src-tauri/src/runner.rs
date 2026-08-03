@@ -5,7 +5,6 @@ use crate::winshim::wrap_for_windows;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::io::{BufRead, BufReader};
-use std::path::Path;
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -27,10 +26,11 @@ pub type ServerKey = String;
 
 /// Restart policy inspired by PM2 / supervisord: when a runner-launched
 /// child exits, the watcher decides whether to respawn it automatically.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(tag = "mode", rename_all = "camelCase")]
 pub enum RestartPolicy {
     /// Never respawn (default).
+    #[default]
     Never,
     /// Respawn only on non-zero exit. Stops after `maxRetries`.
     OnFailure {
@@ -46,12 +46,6 @@ pub enum RestartPolicy {
         #[serde(default = "default_backoff_ms")]
         backoff_ms: u64,
     },
-}
-
-impl Default for RestartPolicy {
-    fn default() -> Self {
-        Self::Never
-    }
 }
 
 fn default_max_retries() -> u32 {
@@ -784,21 +778,32 @@ impl RunnerState {
                         return;
                     }
 
-                    // Re-acquire spec + start a fresh child, then update the
-                    // existing ServerHandle (preserves log buffer, last_exit).
-                    let spec = {
+                    // Re-acquire spec + the original started_at, then start a
+                    // fresh child (preserves log buffer, last_exit).
+                    let (spec, original_started_at) = {
                         let map = match state.inner.lock() {
                             Ok(m) => m,
                             Err(_) => return,
                         };
                         match map.get(&key) {
-                            Some(h) => (*h.spec).clone(),
+                            Some(h) => ((*h.spec).clone(), h.info.started_at),
                             None => return,
                         }
                     };
                     match state.start_with_app(Some(&app), &spec, Some(policy.clone())) {
                         Ok(_) => {
-                            // start_with_app created a fresh handle with\n                            // restart_count=0. Stamp the actual attempt number on\n                            // it so the next watcher reads the right value.\n                            if let Ok(mut map) = state.inner.lock() {\n                                if let Some(h) = map.get_mut(&key) {\n                                    h.info.restart_count = next_attempt;\n                                    h.info.last_started_at = now_unix();\n                                }\n                            }
+                            // start_with_app inserts a fresh handle with
+                            // restart_count reset to 0 and started_at reset to
+                            // now; patch both back so restart history and the
+                            // original spawn time survive the respawn.
+                            // last_started_at needs no patch: start_with_app
+                            // already stamped it with this respawn's time.
+                            if let Ok(mut map) = state.inner.lock() {
+                                if let Some(h) = map.get_mut(&key) {
+                                    h.info.restart_count = next_attempt;
+                                    h.info.started_at = original_started_at;
+                                }
+                            }
                             let line3 = format!(
                                 "[runner] auto-restarted (`{name}` attempt {next_attempt})"
                             );
@@ -819,8 +824,6 @@ impl RunnerState {
     }
 }
 
-#[allow(dead_code)]
-fn _unused_path(_: &Path) {}
 
 #[cfg(test)]
 mod tests {
@@ -868,4 +871,6 @@ mod tests {
         );
     }
 }
+
+
 

@@ -1,0 +1,10 @@
+                            // start_with_app inserts a fresh handle with
+                            // restart_count reset to 0 and started_at reset to
+                            // now; patch restart_count back so the next
+                            // watcher reads the right value. last_started_at
+                            // is intentionally left as this respawn's time.
+                            if let Ok(mut map) = state.inner.lock() {
+                                if let Some(h) = map.get_mut(&key) {
+                                    h.info.restart_count = next_attempt;
+                                }
+                            }

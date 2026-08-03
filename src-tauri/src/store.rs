@@ -1,8 +1,6 @@
 use std::collections::{HashMap, HashSet};
-use std::path::Path;
-use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::atomic::{atomic_write, read_file_optional};
+use crate::atomic::{atomic_write, backup_file, read_file_optional};
 use crate::paths;
 use crate::types::{McpError, McpServerEntry, Store};
 
@@ -14,16 +12,16 @@ use crate::types::{McpError, McpServerEntry, Store};
 /// better than every command hard-failing after a schema change.
 ///
 /// Before doing that, the unparseable file is backed up (see
-/// [`backup_store_file`]) — a schema change alone can't destroy anything
-/// then, and `save_store` backs up on every write anyway so the very next
-/// save wouldn't have clobbered it silently even without this.
+/// [`crate::atomic::backup_file`]) — a schema change alone can't destroy
+/// anything then, and `save_store` backs up on every write anyway so the
+/// very next save wouldn't have clobbered it silently even without this.
 pub fn load_store() -> Result<Store, McpError> {
     let path = paths::store_path();
     match read_file_optional(&path)? {
         Some(content) => match serde_json::from_str(&content) {
             Ok(store) => Ok(store),
             Err(e) => {
-                backup_store_file(&path);
+                backup_file(&path);
                 eprintln!("Store file didn't match the current schema, starting fresh: {e}");
                 Ok(Store::empty())
             }
@@ -32,80 +30,12 @@ pub fn load_store() -> Result<Store, McpError> {
     }
 }
 
-/// How long a `.bak.*` copy of the store is kept before [`cleanup_old_backups`]
-/// deletes it.
-const BACKUP_RETENTION_SECS: u64 = 7 * 24 * 60 * 60;
-
-/// Copies `path`'s current on-disk content to a timestamped `<name>.bak.<unix
-/// seconds>` next to it, then sweeps the directory for backups older than
-/// [`BACKUP_RETENTION_SECS`] and deletes them. Called on every `save_store`
-/// (so every version of the store that ever existed has a same-day-or-newer
-/// recovery point for a full week) and whenever a load fails to parse (so a
-/// breaking schema change is backed up the moment it's detected, not just
-/// whenever the next save happens to occur). A no-op if `path` doesn't exist
-/// yet — nothing to back up. Best-effort throughout: a failure to back up or
-/// clean up is logged, never fatal, since refusing to save/load over a
-/// backup hiccup would be worse than the data-loss risk this exists to
-/// prevent.
-fn backup_store_file(path: &Path) {
-    if !path.exists() {
-        return;
-    }
-
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_secs())
-        .unwrap_or(0);
-    let file_name = path
-        .file_name()
-        .map(|n| n.to_os_string())
-        .unwrap_or_else(|| std::ffi::OsString::from("store.json"));
-    let mut backup_name = file_name;
-    backup_name.push(format!(".bak.{now}"));
-    let backup_path = path.with_file_name(backup_name);
-
-    match std::fs::copy(path, &backup_path) {
-        Ok(_) => {}
-        Err(backup_err) => eprintln!(
-            "Failed to back up store file to {}: {backup_err}",
-            backup_path.display()
-        ),
-    }
-
-    cleanup_old_backups(path, now);
-}
-
-/// Deletes sibling `<name>.bak.<unix-seconds>` files whose *own encoded
-/// timestamp* (not filesystem mtime, which a copy/sync could reset) is more
-/// than [`BACKUP_RETENTION_SECS`] behind `now`. Only ever touches files
-/// matching that exact naming pattern next to `path`, so it can't reach any
-/// other file in the directory.
-fn cleanup_old_backups(path: &Path, now: u64) {
-    let Some(dir) = path.parent() else { return };
-    let Some(file_name) = path.file_name().and_then(|n| n.to_str()) else { return };
-    let prefix = format!("{file_name}.bak.");
-
-    let Ok(entries) = std::fs::read_dir(dir) else { return };
-    for entry in entries.flatten() {
-        let name = entry.file_name();
-        let Some(name) = name.to_str() else { continue };
-        let Some(timestamp) = name.strip_prefix(&prefix).and_then(|s| s.parse::<u64>().ok()) else {
-            continue;
-        };
-        if now.saturating_sub(timestamp) > BACKUP_RETENTION_SECS {
-            if let Err(e) = std::fs::remove_file(entry.path()) {
-                eprintln!("Failed to remove expired backup {}: {e}", entry.path().display());
-            }
-        }
-    }
-}
-
 /// Persist the store to disk atomically. Backs up whatever was on disk
-/// beforehand (see [`backup_store_file`]) so every save leaves a same-day
-/// recovery point behind, not just the schema-mismatch case.
+/// beforehand (see [`crate::atomic::backup_file`]) so every save leaves a
+/// same-day recovery point behind, not just the schema-mismatch case.
 pub fn save_store(store: &Store) -> Result<(), McpError> {
     let path = paths::store_path();
-    backup_store_file(&path);
+    backup_file(&path);
     let content = serde_json::to_string_pretty(store)?;
     atomic_write(&path, &content)
 }
@@ -203,6 +133,7 @@ pub fn sync_servers(
 ///   definition, and un-delete;
 /// - disabled and still absent live -> expected (MCP Switch itself removed
 ///   it when it was toggled off), left alone entirely.
+///
 /// An app absent from `fresh` this pass is never checked at all.
 /// `(name, app)` pairs present live that don't exist in the store yet are
 /// added fresh, enabled.
@@ -302,80 +233,6 @@ pub fn delete_server_forever(name: &str, app: &str) -> Result<Store, McpError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn backup_store_file_preserves_original_content() {
-        // Uses the OS temp dir, never the real store path, so this test can
-        // never touch (let alone lose) the user's actual store.json.
-        let path = std::env::temp_dir().join("mcp_switch_test_store_backup.json");
-        std::fs::write(&path, "not valid store json").unwrap();
-
-        backup_store_file(&path);
-
-        let backups: Vec<_> = std::fs::read_dir(path.parent().unwrap())
-            .unwrap()
-            .filter_map(|e| e.ok())
-            .filter(|e| {
-                e.file_name()
-                    .to_string_lossy()
-                    .starts_with("mcp_switch_test_store_backup.json.bak.")
-            })
-            .collect();
-        assert_eq!(backups.len(), 1, "expected exactly one backup file");
-        assert_eq!(
-            std::fs::read_to_string(backups[0].path()).unwrap(),
-            "not valid store json"
-        );
-
-        std::fs::remove_file(&path).unwrap();
-        std::fs::remove_file(backups[0].path()).unwrap();
-    }
-
-    #[test]
-    fn backup_store_file_is_a_noop_when_nothing_exists_yet() {
-        let path = std::env::temp_dir().join("mcp_switch_test_store_backup_missing.json");
-        let _ = std::fs::remove_file(&path); // in case a previous run left one behind
-
-        backup_store_file(&path); // must not panic or create anything
-
-        let stray: Vec<_> = std::fs::read_dir(path.parent().unwrap())
-            .unwrap()
-            .filter_map(|e| e.ok())
-            .filter(|e| {
-                e.file_name()
-                    .to_string_lossy()
-                    .starts_with("mcp_switch_test_store_backup_missing.json.bak.")
-            })
-            .collect();
-        assert!(stray.is_empty(), "nothing to back up, so no backup should appear");
-    }
-
-    #[test]
-    fn cleanup_old_backups_removes_only_entries_past_retention() {
-        let path = std::env::temp_dir().join("mcp_switch_test_cleanup_target.json");
-        std::fs::write(&path, "content").unwrap();
-        let dir = path.parent().unwrap();
-        let file_name = path.file_name().unwrap().to_str().unwrap();
-
-        // Fixed reference instant so this test never depends on wall-clock time.
-        let now: u64 = 1_700_000_000;
-        let old_backup = dir.join(format!("{file_name}.bak.{}", now - BACKUP_RETENTION_SECS - 1));
-        let boundary_backup = dir.join(format!("{file_name}.bak.{}", now - BACKUP_RETENTION_SECS));
-        let recent_backup = dir.join(format!("{file_name}.bak.{}", now - 100));
-        std::fs::write(&old_backup, "old").unwrap();
-        std::fs::write(&boundary_backup, "boundary").unwrap();
-        std::fs::write(&recent_backup, "recent").unwrap();
-
-        cleanup_old_backups(&path, now);
-
-        assert!(!old_backup.exists(), "backup past retention should be removed");
-        assert!(boundary_backup.exists(), "backup exactly at retention should be kept");
-        assert!(recent_backup.exists(), "backup within retention should be kept");
-
-        std::fs::remove_file(&path).unwrap();
-        std::fs::remove_file(&boundary_backup).unwrap();
-        std::fs::remove_file(&recent_backup).unwrap();
-    }
 
     fn stdio_entry(name: &str, app: &str, command: &str) -> McpServerEntry {
         McpServerEntry {

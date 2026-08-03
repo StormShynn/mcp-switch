@@ -91,13 +91,12 @@ impl HermesAdapter {
     /// `tools.include`, on entries other than the one being touched) and
     /// every unrelated top-level key (`model`, `custom_providers`, ...).
     ///
-    /// Known limitation: writing *this* entry always goes through the
-    /// unified command/args/env/url/headers shape, so if the entry being
-    /// toggled itself relies on a Hermes-only field outside that shape
-    /// (OAuth auth, tools/prompts/resources filtering), that field is lost
-    /// on this write — the same limitation every other adapter already has
-    /// for fields outside the common model, not something specific to this
-    /// change.
+    /// Hermes-only fields on the *toggled* entry itself also survive the
+    /// round trip via the unified `extra` bucket: `entry_from_yaml_spec`
+    /// captures them on read, and `yaml_spec_from_entry` re-applies them
+    /// on write through `mcp_json::apply_extra_yaml`, so `auth: oauth`,
+    /// `tools.include`, or any other Hermes-specific field stays put as
+    /// long as the caller passes the same `McpServerEntry` back.
     fn write_yaml(
         &self,
         path: &std::path::Path,
@@ -135,6 +134,7 @@ impl HermesAdapter {
         config.mcp_servers = if servers.is_empty() { None } else { Some(servers) };
 
         let output = serde_yaml::to_string(&config)?;
+        crate::atomic::backup_file(path);
         crate::atomic::atomic_write(path, &output)
     }
 
@@ -232,6 +232,7 @@ impl HermesAdapter {
 
         let output = toml::to_string_pretty(&config)
             .map_err(|e| McpError::InvalidConfig(format!("TOML serialization: {e}")))?;
+        crate::atomic::backup_file(path);
         crate::atomic::atomic_write(path, &output)
     }
 
@@ -268,6 +269,7 @@ impl HermesAdapter {
         };
 
         let output = serde_json::to_string_pretty(&config)?;
+        crate::atomic::backup_file(path);
         crate::atomic::atomic_write(path, &output)
     }
 }
@@ -843,5 +845,33 @@ mod tests {
         let mut items = vec!["foreign:1".to_string(), "tracked:2".to_string()];
         upsert_or_remove_by_name(&mut items, "tracked", |s| s.split(':').next(), None);
         assert_eq!(items, vec!["foreign:1"]);
+    }
+    #[test]
+    fn yaml_hermes_specific_extra_field_round_trips_on_toggled_entry() {
+        // Regression test for the documented "known limitation" that was
+        // actually already handled by `apply_extra_yaml`: writing the
+        // toggled entry back must keep Hermes-only fields like `auth` and
+        // `tools` that `entry_from_yaml_spec` captured into `extra`.
+        let path = std::env::temp_dir().join("mcp-switch-test-hermes-extra.yaml");
+        let _ = std::fs::remove_file(&path);
+        let yaml = "mcp_servers:\n  fs:\n    command: npx\n    args: [\"-y\", \"foo\"]\n    auth: oauth\n    tools:\n      include: [\"read\", \"write\"]\n";
+        std::fs::write(&path, yaml).unwrap();
+
+        let adapter = HermesAdapter;
+        let servers = adapter.read_yaml(&path).unwrap();
+        assert_eq!(servers.len(), 1);
+        let entry = &servers[0];
+        assert!(entry.extra.contains_key("auth"), "auth should be captured into extra");
+        assert!(entry.extra.contains_key("tools"), "tools should be captured into extra");
+
+        // Re-write the same entry -- this is what `toggle_server` does.
+        adapter.write_yaml(&path, &entry.name, Some(entry)).unwrap();
+        let written = std::fs::read_to_string(&path).unwrap();
+        let doc: serde_yaml::Value = serde_yaml::from_str(&written).unwrap();
+        let server = &doc["mcp_servers"]["fs"];
+        assert_eq!(server["auth"], "oauth");
+        assert!(server.get("tools").is_some());
+
+        std::fs::remove_file(&path).unwrap();
     }
 }

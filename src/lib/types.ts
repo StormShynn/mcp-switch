@@ -97,8 +97,16 @@ export interface RunningServer {
   pid: number;
   command: string;
   args: string[];
-  /** Unix seconds (UTC) when the child was spawned. */
+  /** Unix seconds (UTC) when the child was originally spawned — stays fixed
+   *  across auto-restarts (see `lastStartedAt`). */
   startedAt: number;
+  /** Unix seconds (UTC) at which the child was *last* spawned. Differs from
+   *  `startedAt` after an auto-restart. */
+  lastStartedAt: number;
+  /** Times this entry has been auto-respawned since the original start. */
+  restartCount: number;
+  /** Active restart policy, if one is set (omitted entirely when "never"). */
+  restartPolicy?: RestartPolicy;
 }
 
 /** Canonical map key for a running server: `${app}::${name}`. */
