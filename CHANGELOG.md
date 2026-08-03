@@ -1,3 +1,10 @@
+# [0.18.0](https://github.com/StormShynn/mcp-switch/compare/v0.17.0...v0.18.0) (2026-08-03)
+
+
+### Features
+
+* enhance auto-run toggle and add restart policy dropdown ([0e8597f](https://github.com/StormShynn/mcp-switch/commit/0e8597f15381159d590264ed55ed85babe03295b))
+
 # [0.17.0](https://github.com/StormShynn/mcp-switch/compare/v0.16.1...v0.17.0) (2026-08-03)
 
 
