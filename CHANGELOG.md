@@ -1,3 +1,10 @@
+## [0.16.1](https://github.com/StormShynn/mcp-switch/compare/v0.16.0...v0.16.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* correct template literal syntax in useUpdater error message and URL ([52d917e](https://github.com/StormShynn/mcp-switch/commit/52d917ebeab484a155d9c275cf389319aca36f5d))
+
 # [0.16.0](https://github.com/StormShynn/mcp-switch/compare/v0.15.0...v0.16.0) (2026-08-03)
 
 
