@@ -1,3 +1,10 @@
+## [0.18.1](https://github.com/StormShynn/mcp-switch/compare/v0.18.0...v0.18.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* ensure auto-run only uses enabled entries now ([6d71504](https://github.com/StormShynn/mcp-switch/commit/6d715049c028fa4c0c5dbda174a599a37680e2d3))
+
 # [0.18.0](https://github.com/StormShynn/mcp-switch/compare/v0.17.0...v0.18.0) (2026-08-03)
 
 
