@@ -227,10 +227,8 @@ jobs:
             --notes-file release-body.md \
             $PRERELEASE_FLAG
 
-          # Upload update.json first
-          echo "Uploading update.json..."
-          retry gh release upload "$TAG" update.json --clobber
-          sleep 3
+          # Updater artifacts removed: no update.json, no .sig files.
+          # The in-app update button checks GitHub via REST instead.
 
           # Upload artifacts in batches to avoid secondary rate limits
           BATCH_SIZE=3
@@ -254,8 +252,7 @@ jobs:
             -iname "*.exe" -o \
             -iname "*.zip" -o \
             -iname "*.sig" -o \
-            -iname "*.app.tar.gz" -o \
-            -iname "update.json" \
+            -iname "*.app.tar.gz" \
           \) -print0)
 
           # Upload remaining files
