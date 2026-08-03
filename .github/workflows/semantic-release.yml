@@ -31,7 +31,10 @@ jobs:
 
       - name: Semantic Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # "Protect main" ruleset requires PRs; GITHUB_TOKEN pushes as
+          # github-actions[bot], which the ruleset doesn't bypass. RELEASE_TOKEN
+          # is a PAT from an account the ruleset bypass list does cover.
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           # Retry helper with exponential backoff
           retry() {
@@ -57,7 +60,7 @@ jobs:
       # Dispatch it explicitly for the tag semantic-release just created.
       - name: Trigger release build for new tag
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           TAG="$(git describe --tags --exact-match HEAD 2>/dev/null || true)"
           if [[ -n "$TAG" ]]; then
