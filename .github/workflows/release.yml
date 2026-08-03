@@ -62,9 +62,8 @@ jobs:
         run: npm run build
 
       - name: Build Tauri bundle
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        # Updater signing intentionally disabled; the in-app Check-for-updates
+        # button now uses the GitHub Releases REST API instead of tauri-plugin-updater.
         run: npx tauri build --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
 
       - name: List bundle output
@@ -144,14 +143,14 @@ jobs:
       - name: List downloaded artifacts
         run: find artifacts -type f 2>/dev/null || echo "no artifacts downloaded"
 
-      - name: Generate update.json
-        run: |
-          node scripts/generate-update-json.mjs \
-            "${{ steps.version.outputs.version }}" \
-            artifacts \
-            "${{ steps.version.outputs.release_tag }}" \
-            > update.json
-          cat update.json
+      # - name: Generate update.json
+      #   run: |
+      #     node scripts/generate-update-json.mjs \
+      #       "${{ steps.version.outputs.version }}" \
+      #       artifacts \
+      #       "${{ steps.version.outputs.release_tag }}" \
+      #       > update.json
+      #     cat update.json
 
       - name: Generate release body
         run: |
