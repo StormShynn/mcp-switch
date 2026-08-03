@@ -1,3 +1,10 @@
+# [0.16.0](https://github.com/StormShynn/mcp-switch/compare/v0.15.0...v0.16.0) (2026-08-03)
+
+
+### Features
+
+* add atomic file backup before config writes ([4ea012e](https://github.com/StormShynn/mcp-switch/commit/4ea012efaf32fa0cddb65b9b27fa67a0d64b6519))
+
 # [0.15.0](https://github.com/StormShynn/mcp-switch/compare/v0.14.0...v0.15.0) (2026-08-02)
 
 
