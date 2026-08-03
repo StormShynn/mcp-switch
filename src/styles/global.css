@@ -943,12 +943,76 @@ body {
   border-color: var(--border);
 }
 .auto-run-toggle input[type="checkbox"] {
-  margin: 0;
-  accent-color: var(--accent);
-  cursor: pointer;
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.auto-run-toggle-box {
+  position: relative;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  transition: background var(--transition), border-color var(--transition);
+}
+.auto-run-toggle input[type="checkbox"]:checked + .auto-run-toggle-box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.auto-run-toggle input[type="checkbox"]:checked + .auto-run-toggle-box::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 3px;
+  height: 6px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.auto-run-toggle input[type="checkbox"]:focus-visible + .auto-run-toggle-box {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 .auto-run-toggle-label {
   letter-spacing: 0.02em;
+}
+
+/* Restart-policy dropdown in server row */
+.restart-policy-select {
+  appearance: none;
+  -webkit-appearance: none;
+  margin-left: 4px;
+  padding: 3px 20px 3px 8px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%238b949e' stroke-width='1.5'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 10px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.restart-policy-select:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--text-muted);
+}
+.restart-policy-select:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.25);
+}
+.restart-policy-select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 /* Crashed indicator badge in server row */

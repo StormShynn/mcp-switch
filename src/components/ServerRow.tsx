@@ -95,6 +95,7 @@ export function ServerRow({
               checked={autoRunOn}
               onChange={() => onToggleAutoRun(server.name, server.app)}
             />
+            <span className="auto-run-toggle-box" aria-hidden="true" />
             <span className="auto-run-toggle-label">auto-run</span>
           </label>
         )}
