@@ -660,7 +660,7 @@ impl RunnerState {
         for key in file.auto_run {
             let Some(entry) = entries
                 .iter()
-                .find(|e| e.name == key.name && e.app == key.app)
+                .find(|e| e.name == key.name && e.app == key.app && e.enabled)
             else {
                 eprintln!(
                     "auto-run: no live enabled server found for `{}::{}`; skipping",
