@@ -41,7 +41,7 @@ export function useUpdater() {
         headers: { Accept: "application/vnd.github+json" },
       });
       if (!response.ok) {
-        throw new Error(GitHub API responded );
+        throw new Error(`GitHub API responded ${response.status}`);
       }
       const release = (await response.json()) as { tag_name?: string };
       const latestTag = String(release.tag_name ?? "").trim();
@@ -65,7 +65,7 @@ export function useUpdater() {
   const handleDownloadUpdate = useCallback(async () => {
     // No in-app signature-verified install: just hand the user to the
     // releases page and let them download/run the installer themselves.
-    await openUrl(${REPO_URL}/releases/latest);
+    await openUrl(`${REPO_URL}/releases/latest`);
   }, []);
 
   return {
