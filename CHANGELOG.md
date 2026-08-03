@@ -1,3 +1,10 @@
+# [0.17.0](https://github.com/StormShynn/mcp-switch/compare/v0.16.1...v0.17.0) (2026-08-03)
+
+
+### Features
+
+* add GitHub API to CSP connect-src for external requests ([aceb0bf](https://github.com/StormShynn/mcp-switch/commit/aceb0bf9fa2db46c2852bb85acedc6b43bb57089))
+
 ## [0.16.1](https://github.com/StormShynn/mcp-switch/compare/v0.16.0...v0.16.1) (2026-08-03)
 
 
